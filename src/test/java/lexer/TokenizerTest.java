@@ -1,20 +1,25 @@
 package lexer;
+
 import java.util.List;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class TokenizerTest {
-    public static void testEmptyString() throws TokenizerException {
+    @Test
+    public void testEmptyString() throws TokenizerException {
         // Test # 1
         // check that tokenizing empty string works
         Tokenizer tokenizer = new Tokenizer("");
         List<Token> tokens = tokenizer.tokenize();
-        assert (tokens.size() == 0);
+        assertEquals(0, tokens.size());
     }
 
-    public static void testOnlyWhitespace() throws TokenizerException {
+    @Test
+    public void testOnlyWhitespace() throws TokenizerException {
         // Test #2 (checking whitespace)
         Tokenizer tokenizer = new Tokenizer("   ");
         List<Token> tokens = tokenizer.tokenize();
-        assert (tokens.size() == 0);
+        assertEquals(0, tokens.size());
     }
 
     public static void testTrueByItself() throws TokenizerException {
@@ -30,9 +35,11 @@ public class TokenizerTest {
     // 1. TokenizerTest. Compile and run.
     // 2. Tokens/Tokenizer
 
-    public static void main(String[] args) throws TokenizerException {
-        testOnlyWhitespace();
-        testEmptyString();
-        testTrueByItself();
-    }
+    /*
+     * public static void main(String[] args) throws TokenizerException {
+     * testOnlyWhitespace();
+     * testEmptyString();
+     * testTrueByItself();
+     * }
+     */
 }

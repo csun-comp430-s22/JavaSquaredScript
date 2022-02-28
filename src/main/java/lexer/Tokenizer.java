@@ -14,6 +14,10 @@ public class Tokenizer {
         offset = 0;
     }
 
+    public Token tryTokenizeVariable() {
+        String name = "";
+    }
+
     public void skipWhiteSpace() {
         while (offset < input.length() && Character.isWhitespace(input.charAt(offset))) {
             offset++;
