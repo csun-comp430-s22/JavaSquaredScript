@@ -7,7 +7,7 @@ Members
 |Justin Kingston|justin.kingston.414@my.csun.edu|
 Jim Inong|jim.inong.415@my.csun.edu|
 
-#Features:
+# Features:
 * Class-Based Inheritance Without Using JavaScript's Classes
 * Subtyping
 * Access Modifiers
