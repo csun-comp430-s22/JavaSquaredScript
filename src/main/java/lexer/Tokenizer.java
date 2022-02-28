@@ -1,6 +1,9 @@
 package lexer;
 
 import java.util.List;
+
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
+
 import java.util.ArrayList;
 
 public class Tokenizer {
@@ -13,10 +16,11 @@ public class Tokenizer {
         this.input = input;
         offset = 0;
     }
-
+/*
     public Token tryTokenizeVariable() {
         String name = "";
     }
+*/
 
     public void skipWhiteSpace() {
         while (offset < input.length() && Character.isWhitespace(input.charAt(offset))) {
@@ -36,10 +40,13 @@ public class Tokenizer {
                 // FalseToken
                 offset += 5;
                 return new FalseToken();
+            } else if (input.startsWith("if")) {
+                offset += 2;
+                return new IfToken();
             } else if (input.startsWith("(", offset)) {
                 offset += 1;
                 return new LeftParenToken();
-            } else if (input.startsWith(")", offset)) {
+            }  else if (input.startsWith(")", offset)) {
                 offset += 1;
                 return new RightParenToken();
             } else if (input.startsWith("{", offset)) {
@@ -48,9 +55,42 @@ public class Tokenizer {
             } else if (input.startsWith("}", offset)) {
                 offset += 1;
                 return new RightCurlyToken();
-            } else if (input.startsWith("if")) {
-                offset += 2;
-                return new IfToken();
+            } else if (input.startsWith("strg")){
+                offset +=4;
+                return new StringToken();
+            } else if (input.startsWith("Boolean")){
+                offset += 7;
+                return new BooleanToken();
+            } else if (input.startsWith("Int")){
+                offset += 3;
+                return new IntegerToken();
+            } else if (input.startsWith("this")){
+                offset += 4;
+                return new ThisToken();
+            } else if (input.startsWith("print")){
+                offset += 5;
+                return new PrintToken();
+            } else if (input.startsWith("break")){
+                offset += 5;
+                return new BreakToken();
+            } else if (input.startsWith(";")){
+                offset += 1;
+                return new SemiColonToken();
+            } else if (input.startsWith("return")){
+                offset += 6;
+                return new ReturnToken();
+            } else if (input.startsWith("new")){
+                offset += 3;
+                return new NewToken();
+            } else if (input.startsWith("public")){
+                offset += 6;
+                return new PublicToken();
+            } else if (input.startsWith("protected")){
+                offset += 9;
+                return new ProtectedToken();
+            } else if (input.startsWith("private")){
+                offset += 7;
+                return new PrivateToken();
             } else {
                 throw new TokenizerException();
             }
