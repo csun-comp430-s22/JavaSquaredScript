@@ -1,11 +1,15 @@
-public class TrueToken implements Token{
-    public boolean equals(final Object other){
+package lexer;
+
+public class TrueToken implements Token {
+    public boolean equals(final Object other) {
         return other instanceof TrueToken;
     }
-    public int hashCode(){
+
+    public int hashCode() {
         return 0;
     }
-    public String toString(){
+
+    public String toString() {
         return "true";
     }
 }

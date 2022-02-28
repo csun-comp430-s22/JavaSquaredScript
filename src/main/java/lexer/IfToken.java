@@ -1,11 +1,15 @@
-public class IfToken implements Token{
-    public boolean equals(final Object other){
+package lexer;
+
+public class IfToken implements Token {
+    public boolean equals(final Object other) {
         return other instanceof IfToken;
     }
-    public int hashCode(){
+
+    public int hashCode() {
         return 2;
     }
-    public String toString(){
+
+    public String toString() {
         return "if";
     }
 }

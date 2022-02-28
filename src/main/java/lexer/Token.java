@@ -1,1 +1,4 @@
-public interface Token{}
+package lexer;
+
+public interface Token {
+}

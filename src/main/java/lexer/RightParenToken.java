@@ -1,11 +1,15 @@
+package lexer;
+
 public class RightParenToken implements Token {
-    public boolean equals(final Object other){
+    public boolean equals(final Object other) {
         return other instanceof RightParenToken;
     }
-    public int hashCode(){
+
+    public int hashCode() {
         return 4;
     }
-    public String toString(){
+
+    public String toString() {
         return ")";
     }
 }

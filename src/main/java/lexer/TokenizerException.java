@@ -1,3 +1,5 @@
-public class TokenizerException extends Exception{
-    
+package lexer;
+
+public class TokenizerException extends Exception {
+
 }

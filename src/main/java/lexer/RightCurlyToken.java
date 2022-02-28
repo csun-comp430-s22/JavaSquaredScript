@@ -1,11 +1,15 @@
-public class RightCurlyToken implements Token{
-    public boolean equals(final Object other){
+package lexer;
+
+public class RightCurlyToken implements Token {
+    public boolean equals(final Object other) {
         return other instanceof RightCurlyToken;
     }
-    public int hashCode(){
+
+    public int hashCode() {
         return 6;
     }
-    public String toString(){
+
+    public String toString() {
         return "}";
     }
 }
