@@ -186,6 +186,15 @@ public class TokenizerTest {
         Token privateToken = tokens.get(0);
         assertTrue(privateToken instanceof PrivateToken);
     }
+    @Test
+    public void testIfByItself() throws TokenizerException {
+        // Test #21 (checking false token)
+        Tokenizer tokenizer = new Tokenizer("if");
+        List<Token> tokens = tokenizer.tokenize();
+        assertEquals(1, tokens.size());
+        Token ifToken = tokens.get(0);
+        assertTrue(ifToken instanceof IfToken);
+    }
 
     // Test-driven development : write tests first
     // 1. TokenizerTest. Compile and run.
