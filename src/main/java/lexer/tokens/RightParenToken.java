@@ -1,4 +1,4 @@
-package lexer;
+package lexer.tokens;
 
 public class RightParenToken implements Token {
     public boolean equals(final Object other) {

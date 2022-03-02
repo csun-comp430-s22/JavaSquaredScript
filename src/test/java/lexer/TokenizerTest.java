@@ -1,7 +1,8 @@
 package lexer;
 
-import java.beans.Transient;
 import java.util.List;
+
+import lexer.tokens.*;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

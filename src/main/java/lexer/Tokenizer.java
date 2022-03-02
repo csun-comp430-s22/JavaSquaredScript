@@ -1,8 +1,8 @@
 package lexer;
 
-import java.util.List;
+import lexer.tokens.*;
 
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
+import java.util.List;
 
 import java.util.ArrayList;
 

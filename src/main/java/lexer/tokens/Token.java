@@ -1,4 +1,4 @@
-package lexer;
+package lexer.tokens;
 
 public interface Token {
 }

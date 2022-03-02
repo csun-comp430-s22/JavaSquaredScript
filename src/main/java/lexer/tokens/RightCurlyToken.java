@@ -1,4 +1,4 @@
-package lexer;
+package lexer.tokens;
 
 public class RightCurlyToken implements Token {
     public boolean equals(final Object other) {

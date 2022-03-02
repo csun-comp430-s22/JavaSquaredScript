@@ -1,15 +1,15 @@
-package lexer;
+package lexer.tokens;
 
-public class TrueToken implements Token {
+public class FalseToken implements Token {
     public boolean equals(final Object other) {
         return other instanceof TrueToken;
     }
 
     public int hashCode() {
-        return 0;
+        return 1;
     }
 
     public String toString() {
-        return "true";
+        return "false";
     }
 }
