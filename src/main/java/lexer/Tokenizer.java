@@ -91,6 +91,9 @@ public class Tokenizer {
             } else if (input.startsWith("private")){
                 offset += 7;
                 return new PrivateToken();
+            } else if (input.startsWith("while")){
+                offset += 5;
+                return new WhileToken();
             } else {
                 throw new TokenizerException();
             }

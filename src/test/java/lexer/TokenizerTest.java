@@ -195,6 +195,15 @@ public class TokenizerTest {
         Token ifToken = tokens.get(0);
         assertTrue(ifToken instanceof IfToken);
     }
+    @Test
+    public void testWhileByItself() throws TokenizerException {
+        // Test #22 (checking false token)
+        Tokenizer tokenizer = new Tokenizer("while");
+        List<Token> tokens = tokenizer.tokenize();
+        assertEquals(1, tokens.size());
+        Token whileToken = tokens.get(0);
+        assertTrue(whileToken instanceof WhileToken);
+    }
 
     // Test-driven development : write tests first
     // 1. TokenizerTest. Compile and run.
