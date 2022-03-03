@@ -2,7 +2,7 @@ package lexer.tokens;
 
 public class FalseToken implements Token {
     public boolean equals(final Object other) {
-        return other instanceof TrueToken;
+        return other instanceof FalseToken;
     }
 
     public int hashCode() {
