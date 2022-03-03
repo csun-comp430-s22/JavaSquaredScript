@@ -15,7 +15,7 @@ public class TokenizerTest {
             final List<Token> received = tokenizer.tokenize();
             assertArrayEquals(expected,received.toArray(new Token[received.size()]));
         }catch(final TokenizerException e){
-            fail(e+"Tokenizer threw exception");
+            fail("Tokenizer threw exception");
         }
     }
 
@@ -46,103 +46,103 @@ public class TokenizerTest {
     }
     @Test
     public void testLeftParenByItself() {
-        // Test #5 (checking false token)
+        // Test #5 (checking LeftParen token)
         assertTokenizes("(", new Token[] {new LeftParenToken()});
     }
     @Test
     public void testRightParenByItself() {
-        // Test #6 (checking false token)
+        // Test #6 (checking RightParen token)
         assertTokenizes(")", new Token[] {new RightParenToken()});
     }
      @Test
      public void testLeftCurlyByItself() {
-         // Test #7 (checking false token)
+         // Test #7 (checking LeftCurly token)
         assertTokenizes("{", new Token[] {new LeftCurlyToken()});
     }
     @Test
     public void testRightCurlyByItself() {
-        // Test #8 (checking false token)
+        // Test #8 (checking RightCurly token)
         assertTokenizes("}", new Token[] {new RightCurlyToken()});
     }
     @Test
     public void testStringByItself() {
-        // Test #9 (checking false token)
+        // Test #9 (checking String token)
         assertTokenizes("strg", new Token[] {new StringToken()});
     }
     @Test
     public void testBooleanByItself() {
-        // Test #10 (checking false token)
+        // Test #10 (checking Boolean token)
         assertTokenizes("Boolean", new Token[] {new BooleanToken()});
     }
     @Test
     public void testIntByItself() {
-        // Test #11 (checking false token)
+        // Test #11 (checking Int token)
         assertTokenizes("Int", new Token[] {new IntegerToken()});
     }
     @Test
     public void testThisByItself() {
-        // Test #12 (checking false token)
+        // Test #12 (checking This token)
         assertTokenizes("this", new Token[] {new ThisToken()});
     }
     @Test
     public void testPrintByItself() {
+        // Test #13 (checking Print Token)
         assertTokenizes("print", new Token[] {new PrintToken()});
     }
     @Test
     public void testBreakByItself() {
-        // Test #14 (checking false token)
+        // Test #14 (checking break token)
         assertTokenizes("break", new Token[] {new BreakToken()});
     }
     @Test
     public void testSemiColonByItself() {
-        // Test #15 (checking false token)
+        // Test #15 (checking ; token)
         assertTokenizes(";", new Token[] {new SemiColonToken()});
     }
     @Test
     public void testReturnByItself() {
-        // Test #16 (checking false token)
+        // Test #16 (checking return token)
         assertTokenizes("return", new Token[] {new ReturnToken()});
     }
     @Test
     public void testNewByItself() {
-        // Test #17 (checking false token)
+        // Test #17 (checking new token)
         assertTokenizes("new", new Token[] {new NewToken()});
     }
     @Test
     public void testPublicByItself() {
-        // Test #18 (checking false token)
+        // Test #18 (checking public token)
         assertTokenizes("public", new Token[] {new PublicToken()});
     }
     @Test
     public void testProtectedByItself() {
-        // Test #19 (checking false token)
+        // Test #19 (checking protected token)
         assertTokenizes("protected", new Token[] {new ProtectedToken()});
     }
     @Test
     public void testPrivateByItself() {
-        // Test #20 (checking false token)
+        // Test #20 (checking private token)
         assertTokenizes("private", new Token[] {new PrivateToken()});
     }
     @Test
     public void testVariableByItself() {
-        // Test #20 (checking false token)
-        assertTokenizes("foo", new Token[] {new VariableToken()});
+        // Test #21 (checking variable token)
+        assertTokenizes("foo", new Token[] {new VariableToken("foo")});
     }
     @Test
     public void testIfParenTrueTokens() {
-        // Test #21 (checking false token)
+        // Test #22 (checking if(true) token)
         assertTokenizes("if(true)", new Token[] {new IfToken(),new LeftParenToken(),new TrueToken(),new RightParenToken()});
     }
     @Test
     public void testIfParenFalseTokens() {
-        // Test #20 (checking false token)
+        // Test #23 (checking if(false) token)
         assertTokenizes("if(false)", new Token[] {new IfToken(),new LeftParenToken(),new FalseToken(),new RightParenToken()});
     }
-
     @Test
-    public void testVariableTokens() {
-        // Test #20 (checking variable token)
-        assertTokenizes("foo", new Token[] { new VariableToken("foo") });
+    public void testReturnSemiTokens() {
+        // Test #24 (checking return; token)
+        assertTokenizes("return;", new Token[] {new ReturnToken(), new SemiColonToken()});
     }
 
     // Test-driven development : write tests first
