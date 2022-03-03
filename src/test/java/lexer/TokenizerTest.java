@@ -142,7 +142,7 @@ public class TokenizerTest {
     @Test
     public void testReturnSemiTokens() {
         // Test #24 (checking return; token)
-        assertTokenizes("return;", new Token[] {new ReturnToken(), new SemiColonToken()});
+        assertTokenizes("if;", new Token[] {new IfToken(), new SemiColonToken()});
     }
 
     // Test-driven development : write tests first
