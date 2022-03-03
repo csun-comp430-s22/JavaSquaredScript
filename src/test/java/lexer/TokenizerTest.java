@@ -5,185 +5,144 @@ import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 public class TokenizerTest {
-    @Test
-    public void testEmptyString() throws TokenizerException {
-        // Test # 1
-        // check that tokenizing empty string works
-        Tokenizer tokenizer = new Tokenizer("");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(0, tokens.size());
+    public void assertTokenizes(final String input, final Token[] expected){
+        try{
+            final Tokenizer tokenizer = new Tokenizer(input);
+            final List<Token> received = tokenizer.tokenize();
+            assertArrayEquals(expected,received.toArray(new Token[received.size()]));
+        }catch(final TokenizerException e){
+            fail(e+"Tokenizer threw exception");
+        }
     }
 
     @Test
-    public void testOnlyWhitespace() throws TokenizerException {
+    public void testEmptyString() {
+        // Test # 1
+        // check that tokenizing empty string works
+        // Tokenizer tokenizer = new Tokenizer("");
+        // List<Token> tokens = tokenizer.tokenize();
+        // assertEquals(0, tokens.size());
+        assertTokenizes("", new Token[0]);
+    }
+
+    @Test
+    public void testOnlyWhitespace() {
         // Test #2 (checking whitespace)
-        Tokenizer tokenizer = new Tokenizer("   ");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(0, tokens.size());
+        assertTokenizes("   ", new Token[0]);
     }
     @Test
-    public void testTrueByItself() throws TokenizerException {
+    public void testTrueByItself() {
         // Test #3 (checking true token)
-        Tokenizer tokenizer = new Tokenizer("true");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token trueToken = tokens.get(0);
-        assertTrue(trueToken instanceof TrueToken);
+        assertTokenizes("true", new Token[] {new TrueToken()});
     }
     @Test
-    public void testFalseByItself() throws TokenizerException {
+    public void testFalseByItself() {
         // Test #4 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("false");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token falseToken = tokens.get(0);
-        assertTrue(falseToken instanceof FalseToken);
+        assertTokenizes("false", new Token[] {new FalseToken()});
     }
     @Test
-    public void testLeftParenByItself() throws TokenizerException {
+    public void testLeftParenByItself() {
         // Test #5 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("(");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token leftParenToken = tokens.get(0);
-        assertTrue(leftParenToken instanceof LeftParenToken);
+        assertTokenizes("(", new Token[] {new LeftParenToken()});
     }
     @Test
-    public void testRightParenByItself() throws TokenizerException {
+    public void testRightParenByItself() {
         // Test #6 (checking false token)
-        Tokenizer tokenizer = new Tokenizer(")");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token rightParenToken = tokens.get(0);
-        assertTrue(rightParenToken instanceof RightParenToken);
+        assertTokenizes(")", new Token[] {new RightParenToken()});
+    }
+     @Test
+     public void testLeftCurlyByItself() {
+         // Test #7 (checking false token)
+        assertTokenizes("{", new Token[] {new LeftCurlyToken()});
     }
     @Test
-    public void testLeftCurlyByItself() throws TokenizerException {
-        // Test #7 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("{");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token leftCurlyToken = tokens.get(0);
-        assertTrue(leftCurlyToken instanceof LeftCurlyToken);
-    }
-    @Test
-    public void testRightCurlyByItself() throws TokenizerException {
+    public void testRightCurlyByItself() {
         // Test #8 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("}");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token rightCurlyToken = tokens.get(0);
-        assertTrue(rightCurlyToken instanceof RightCurlyToken);
+        assertTokenizes("}", new Token[] {new RightCurlyToken()});
     }
     @Test
-    public void testStringByItself() throws TokenizerException {
+    public void testStringByItself() {
         // Test #9 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("strg");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token stringToken = tokens.get(0);
-        assertTrue(stringToken instanceof StringToken);
+        assertTokenizes("strg", new Token[] {new StringToken()});
     }
     @Test
-    public void testBooleanByItself() throws TokenizerException {
+    public void testBooleanByItself() {
         // Test #10 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("Boolean");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token booleanToken = tokens.get(0);
-        assertTrue(booleanToken instanceof BooleanToken);
+        assertTokenizes("Boolean", new Token[] {new BooleanToken()});
     }
     @Test
-    public void testIntByItself() throws TokenizerException {
+    public void testIntByItself() {
         // Test #11 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("Int");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token integerToken = tokens.get(0);
-        assertTrue(integerToken instanceof IntegerToken);
+        assertTokenizes("Int", new Token[] {new IntegerToken()});
     }
     @Test
-    public void testThisByItself() throws TokenizerException {
+    public void testThisByItself() {
         // Test #12 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("this");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token thisToken = tokens.get(0);
-        assertTrue(thisToken instanceof ThisToken);
+        assertTokenizes("this", new Token[] {new ThisToken()});
     }
     @Test
-    public void testPrintByItself() throws TokenizerException {
-        // Test #13 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("print");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token printToken = tokens.get(0);
-        assertTrue(printToken instanceof PrintToken);
+    public void testPrintByItself() {
+        assertTokenizes("print", new Token[] {new PrintToken()});
     }
     @Test
-    public void testBreakByItself() throws TokenizerException {
+    public void testBreakByItself() {
         // Test #14 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("break");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token breakToken = tokens.get(0);
-        assertTrue(breakToken instanceof BreakToken);
+        assertTokenizes("break", new Token[] {new BreakToken()});
     }
     @Test
-    public void testSemiColonByItself() throws TokenizerException {
+    public void testSemiColonByItself() {
         // Test #15 (checking false token)
-        Tokenizer tokenizer = new Tokenizer(";");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token semiColonToken = tokens.get(0);
-        assertTrue(semiColonToken instanceof SemiColonToken);
+        assertTokenizes(";", new Token[] {new SemiColonToken()});
     }
     @Test
-    public void testReturnByItself() throws TokenizerException {
+    public void testReturnByItself() {
         // Test #16 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("return");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token returnToken = tokens.get(0);
-        assertTrue(returnToken instanceof ReturnToken);
+        assertTokenizes("return", new Token[] {new ReturnToken()});
     }
     @Test
-    public void testNewByItself() throws TokenizerException {
+    public void testNewByItself() {
         // Test #17 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("new");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token NewToken = tokens.get(0);
-        assertTrue(NewToken instanceof NewToken);
+        assertTokenizes("new", new Token[] {new NewToken()});
     }
     @Test
-    public void testPublicByItself() throws TokenizerException {
+    public void testPublicByItself() {
         // Test #18 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("public");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token publicToken = tokens.get(0);
-        assertTrue(publicToken instanceof PublicToken);
+        assertTokenizes("public", new Token[] {new PublicToken()});
     }
     @Test
-    public void testProtectedByItself() throws TokenizerException {
+    public void testProtectedByItself() {
         // Test #19 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("protected");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token protectedToken = tokens.get(0);
-        assertTrue(protectedToken instanceof ProtectedToken);
+        assertTokenizes("protected", new Token[] {new ProtectedToken()});
     }
     @Test
-    public void testPrivateByItself() throws TokenizerException {
+    public void testPrivateByItself() {
         // Test #20 (checking false token)
-        Tokenizer tokenizer = new Tokenizer("private");
-        List<Token> tokens = tokenizer.tokenize();
-        assertEquals(1,tokens.size());
-        Token privateToken = tokens.get(0);
-        assertTrue(privateToken instanceof PrivateToken);
+        assertTokenizes("private", new Token[] {new PrivateToken()});
+    }
+    @Test
+    public void testVariableByItself() {
+        // Test #20 (checking false token)
+        assertTokenizes("foo", new Token[] {new VariableToken()});
+    }
+    @Test
+    public void testIfParenTrueTokens() {
+        // Test #21 (checking false token)
+        assertTokenizes("if(true)", new Token[] {new IfToken(),new LeftParenToken(),new TrueToken(),new RightParenToken()});
+    }
+    @Test
+    public void testIfParenFalseTokens() {
+        // Test #20 (checking false token)
+        assertTokenizes("if(false)", new Token[] {new IfToken(),new LeftParenToken(),new FalseToken(),new RightParenToken()});
+    }
+
+    @Test
+    public void testVariableTokens() {
+        // Test #20 (checking variable token)
+        assertTokenizes("foo", new Token[] { new VariableToken("foo") });
     }
 
     // Test-driven development : write tests first
