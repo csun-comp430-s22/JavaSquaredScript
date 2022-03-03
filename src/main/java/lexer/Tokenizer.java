@@ -98,7 +98,7 @@ public class Tokenizer {
                 } else if (input.startsWith("}", offset)) {
                     offset += 1;
                     retval = new RightCurlyToken();
-                } else if (input.startsWith(";")){
+                } else if (input.startsWith(";",offset)){
                     offset += 1;
                     retval = new SemiColonToken();
                 } else {
