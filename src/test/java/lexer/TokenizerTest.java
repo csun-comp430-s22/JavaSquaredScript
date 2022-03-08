@@ -232,9 +232,17 @@ public class TokenizerTest {
     }
     @Test
     public void testMultipleTokensAndSemiColon() {
-        // Test #38 (checking if(true){strg i = "hello";})
+        // Test #38 (checking if(true){strg i = "best";})
         assertTokenizes("if(true){strg i = \"best\";}", new Token[] {new IfToken(), new LeftParenToken(), 
             new TrueToken(), new RightParenToken(), new LeftCurlyToken(), new StringToken(),
+            new VariableToken("i"),new EqualsToken() ,new StringValueToken("\"best\""), new SemiColonToken(), new RightCurlyToken()});
+    }
+
+    @Test
+    public void testWhileAndOtherTokens() {
+        // Test #38 (checking while(a!=0){strg i = "best";})
+        assertTokenizes("while(a!=0){strg i = \"best\";}", new Token[] {new WhileToken(), new LeftParenToken(), 
+            new VariableToken("a"), new NotEqualsToken(), new NumbersToken(0), new RightParenToken(), new LeftCurlyToken(), new StringToken(),
             new VariableToken("i"),new EqualsToken() ,new StringValueToken("\"best\""), new SemiColonToken(), new RightCurlyToken()});
     }
 
