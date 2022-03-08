@@ -1,22 +1,27 @@
 package lexer;
 
+import java.lang.annotation.Target;
 import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import lexer.tokens.*;
 import org.junit.Test;
+import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
 public class TokenizerTest {
+    private Logger logger = Logger.getLogger(TokenizerTest.class);
     public void assertTokenizes(final String input, final Token[] expected){
         try{
             final Tokenizer tokenizer = new Tokenizer(input);
             final List<Token> received = tokenizer.tokenize();
             assertArrayEquals(expected,received.toArray(new Token[received.size()]));
         }catch(final TokenizerException e){
-            fail("Tokenizer threw exception");
+            fail("Tokenizer threw Exception");
         }
     }
 
@@ -130,21 +135,109 @@ public class TokenizerTest {
         // Test #21 (checking variable token)
         assertTokenizes("foo", new Token[] {new VariableToken("foo")});
     }
+    // @Test 
+    // public void testStringValueToken(){
+    //     // Test #22 (checking Empty String)
+    //     assertTokenizes("\"\"", new Token[]{new StringValueToken("\"\"")});
+    // }
+    @Test 
+    public void testPlusTokenByItself(){
+        // Test #23 (checking Empty String)
+        assertTokenizes("+", new Token[]{new PlusToken()});
+    }
+    @Test 
+    public void testMinusTokenByItself(){
+        // Test #24 (checking Empty String)
+        assertTokenizes("-", new Token[]{new MinusToken()});
+    }
+    @Test 
+    public void testTimesTokenByItself(){
+        // Test #25 (checking Empty String)
+        assertTokenizes("*", new Token[]{new TimesToken()});
+    }
+    @Test 
+    public void testDivisionTokenByItself(){
+        // Test #26 (checking Empty String)
+        assertTokenizes("/", new Token[]{new DivisionToken()});
+    }
+    @Test 
+    public void testGreaterThanTokenByItself(){
+        // Test #27 (checking Empty String)
+        assertTokenizes(">", new Token[]{new GreaterThanToken()});
+    }
+    @Test 
+    public void testLessThanTokenByItself(){
+        // Test #28 (checking Empty String)
+        assertTokenizes("<", new Token[]{new LessThanToken()});
+    }
+    @Test 
+    public void testEqualsTokenByItself(){
+        // Test #29 (checking Empty String)
+        assertTokenizes("=", new Token[]{new EqualsToken()});
+    }
+    @Test 
+    public void testDoubleEqualsTokenByItself(){
+        // Test #29 (checking Empty String)
+        assertTokenizes("==", new Token[]{new DoubleEqualsToken()});
+    }
+    @Test 
+    public void testNotEqualsTokenByItself(){
+        // Test #31 (checking Empty String)
+        assertTokenizes("!=", new Token[]{new NotEqualsToken()});
+    }
     @Test
     public void testIfParenTrueTokens() {
-        // Test #22 (checking if(true) token)
+        // Test #32 (checking if(true) token)
         assertTokenizes("if(true)", new Token[] {new IfToken(),new LeftParenToken(),new TrueToken(),new RightParenToken()});
     }
     @Test
     public void testIfParenFalseTokens() {
-        // Test #23 (checking if(false) token)
+        // Test #33 (checking if(false) token)
         assertTokenizes("if(false)", new Token[] {new IfToken(),new LeftParenToken(),new FalseToken(),new RightParenToken()});
     }
     @Test
     public void testReturnSemiTokens() {
-        // Test #24 (checking return; token)
+        // Test #34 (checking return; token)
         assertTokenizes("if;", new Token[] {new IfToken(), new SemiColonToken()});
     }
+    @Test
+    public void testWhileTokens() {
+        // Test #35 (checking while token)
+        assertTokenizes("while", new Token[] {new WhileToken()});
+    }
+
+    @Test
+    public void testIntegerTokens() {
+        // Test #36 (checking return; token)
+        assertTokenizes("1", new Token[] {new NumbersToken(1)});
+    }
+    @Test
+    public void testMultipleIntegerTokens() {
+        // Test #37 (checking return; token)
+        assertTokenizes("123", new Token[] {new NumbersToken(123)});
+    }
+    @Test
+    public void testMultipleTokens() {
+        // Test #38 (checking if(true){strg i = "hello"})
+        assertTokenizes("if(true){strg i = \"hello\"}", new Token[] {new IfToken(), new LeftParenToken(), 
+            new TrueToken(), new RightParenToken(), new LeftCurlyToken(), new StringToken(),
+            new VariableToken("i"),new EqualsToken() ,new StringValueToken("\"hello\""), new RightCurlyToken()});
+    }
+    @Test
+    public void testMultipleTokensAndSemiColonToken() {
+        // Test #38 (checking if(true){strg i = "hello";})
+        assertTokenizes("if(true){strg i = \"hello\";}", new Token[] {new IfToken(), new LeftParenToken(), 
+            new TrueToken(), new RightParenToken(), new LeftCurlyToken(), new StringToken(),
+            new VariableToken("i"),new EqualsToken() ,new StringValueToken("\"hello\""), new SemiColonToken(), new RightCurlyToken()});
+    }
+    @Test
+    public void testMultipleTokensAndSemiColon() {
+        // Test #38 (checking if(true){strg i = "hello";})
+        assertTokenizes("if(true){strg i = \"best\";}", new Token[] {new IfToken(), new LeftParenToken(), 
+            new TrueToken(), new RightParenToken(), new LeftCurlyToken(), new StringToken(),
+            new VariableToken("i"),new EqualsToken() ,new StringValueToken("\"best\""), new SemiColonToken(), new RightCurlyToken()});
+    }
+
 
     // Test-driven development : write tests first
     // 1. TokenizerTest. Compile and run.
