@@ -7,14 +7,12 @@ import java.util.*;
 
 import lexer.tokens.*;
 import org.junit.Test;
-import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
 public class TokenizerTest {
-    private Logger logger = Logger.getLogger(TokenizerTest.class);
     public void assertTokenizes(final String input, final Token[] expected){
         try{
             final Tokenizer tokenizer = new Tokenizer(input);
@@ -135,11 +133,11 @@ public class TokenizerTest {
         // Test #21 (checking variable token)
         assertTokenizes("foo", new Token[] {new VariableToken("foo")});
     }
-    // @Test 
-    // public void testStringValueToken(){
-    //     // Test #22 (checking Empty String)
-    //     assertTokenizes("\"\"", new Token[]{new StringValueToken("\"\"")});
-    // }
+    @Test 
+    public void testStringValueToken(){
+        // Test #22 (checking Empty String)
+        assertTokenizes("\"\"", new Token[]{new StringValueToken("\"\"")});
+    }
     @Test 
     public void testPlusTokenByItself(){
         // Test #23 (checking Empty String)
@@ -177,7 +175,7 @@ public class TokenizerTest {
     }
     @Test 
     public void testDoubleEqualsTokenByItself(){
-        // Test #29 (checking Empty String)
+        // Test #30 (checking Empty String)
         assertTokenizes("==", new Token[]{new DoubleEqualsToken()});
     }
     @Test 
@@ -225,14 +223,14 @@ public class TokenizerTest {
     }
     @Test
     public void testMultipleTokensAndSemiColonToken() {
-        // Test #38 (checking if(true){strg i = "hello";})
+        // Test #39 (checking if(true){strg i = "hello";})
         assertTokenizes("if(true){strg i = \"hello\";}", new Token[] {new IfToken(), new LeftParenToken(), 
             new TrueToken(), new RightParenToken(), new LeftCurlyToken(), new StringToken(),
             new VariableToken("i"),new EqualsToken() ,new StringValueToken("\"hello\""), new SemiColonToken(), new RightCurlyToken()});
     }
     @Test
     public void testMultipleTokensAndSemiColon() {
-        // Test #38 (checking if(true){strg i = "best";})
+        // Test #40 (checking if(true){strg i = "best";})
         assertTokenizes("if(true){strg i = \"best\";}", new Token[] {new IfToken(), new LeftParenToken(), 
             new TrueToken(), new RightParenToken(), new LeftCurlyToken(), new StringToken(),
             new VariableToken("i"),new EqualsToken() ,new StringValueToken("\"best\""), new SemiColonToken(), new RightCurlyToken()});
@@ -240,7 +238,7 @@ public class TokenizerTest {
 
     @Test
     public void testWhileAndOtherTokens() {
-        // Test #38 (checking while(a!=0){strg i = "best";})
+        // Test #41 (checking while(a!=0){strg i = "best";})
         assertTokenizes("while(a!=0){strg i = \"best\";}", new Token[] {new WhileToken(), new LeftParenToken(), 
             new VariableToken("a"), new NotEqualsToken(), new NumbersToken(0), new RightParenToken(), new LeftCurlyToken(), new StringToken(),
             new VariableToken("i"),new EqualsToken() ,new StringValueToken("\"best\""), new SemiColonToken(), new RightCurlyToken()});

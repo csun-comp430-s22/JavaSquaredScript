@@ -134,19 +134,15 @@ public class Tokenizer {
         skipWhiteSpace();
         String stringVal = "";
         if(offset<input.length() && Character.compare(input.charAt(offset), '\"')==0){
-            System.out.print(input.charAt(offset));
             stringVal+=input.charAt(offset);
             offset++;
             while(offset<input.length() && Character.compare(input.charAt(offset), '\"')!=0){
-                System.out.print(input.charAt(offset));
                 stringVal+=input.charAt(offset);
                 offset++;
             }
             if(Character.compare(input.charAt(offset),'\"')==0){
-                System.out.print(input.charAt(offset));
                 stringVal+=input.charAt(offset);
                 offset++;
-                System.out.println();
                 return new StringValueToken(stringVal);
             }else{
                 return null;
