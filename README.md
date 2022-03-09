@@ -13,7 +13,7 @@ Jim Inong|jim.inong.415@my.csun.edu|
 * Access Modifiers
 
 
-# Possible Tokens (HASH CODE)
+# Possible Tokens
 |Token|Hash Code|
 |-----|---------|
 |true|0|
@@ -47,3 +47,9 @@ Jim Inong|jim.inong.415@my.csun.edu|
 |=|27|
 |==|28|
 |!= |29|
+|class|30|
+|extends|31|
+|main|32|
+|,|33|
+|else|34|
+|.|35|
