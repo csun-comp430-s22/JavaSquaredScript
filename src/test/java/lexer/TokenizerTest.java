@@ -309,7 +309,11 @@ public class TokenizerTest {
         //Test #49
         assertTokenizes(".", new Token[]{new PeriodToken()});
     }
-
+    @Test
+    public void tesConstructorTokenByItself() throws TokenizerException{
+        //Test #50
+        assertTokenizes("constructor", new Token[]{new ConstructorToken()});
+    }
 
 
     // Test-driven development : write tests first

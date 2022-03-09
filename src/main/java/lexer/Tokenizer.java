@@ -78,7 +78,9 @@ public class Tokenizer {
                 return new MainToken();
             } else if (name.equals("else")){
                 return new ElseToken();
-            } else{
+            } else if (name.equals("constructor")){
+                return new ConstructorToken();
+            }else{
                 return new VariableToken(name);
             }
         } else{
