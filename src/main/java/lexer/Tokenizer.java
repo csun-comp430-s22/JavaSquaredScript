@@ -3,6 +3,9 @@ package lexer;
 import lexer.tokens.*;
 
 import java.util.List;
+
+import javax.print.attribute.standard.PrinterInfo;
+
 import java.util.ArrayList;
 
 public class Tokenizer {
@@ -67,7 +70,15 @@ public class Tokenizer {
                 return new PrivateToken();
             } else if (name.equals("while")){
                 return new WhileToken();
-            }else{
+            } else if (name.equals("extends")){
+                return new ExtendsToken();
+            } else if (name.equals("class")){
+                return new ClassToken();
+            } else if (name.equals("main")){
+                return new MainToken();
+            } else if (name.equals("else")){
+                return new ElseToken();
+            } else{
                 return new VariableToken(name);
             }
         } else{
@@ -126,30 +137,33 @@ public class Tokenizer {
         } else if (input.startsWith("!=",offset)){
             offset += 2;
             retval = new NotEqualsToken();
-        } 
+        } else if (input.startsWith(",",offset)){
+            offset += 1;
+            retval = new CommaToken();
+        } else if (input.startsWith(".",offset)){
+            offset += 2;
+            retval = new PeriodToken();
+        }
         return retval;
     }
 
     public StringValueToken tryTokenizeStringValue(){
         skipWhiteSpace();
         String stringVal = "";
-        if(offset<input.length() && Character.compare(input.charAt(offset), '\"')==0){
+        if(Character.compare(input.charAt(offset), '\"')==0){
             stringVal+=input.charAt(offset);
             offset++;
             while(offset<input.length() && Character.compare(input.charAt(offset), '\"')!=0){
                 stringVal+=input.charAt(offset);
                 offset++;
             }
-            if(Character.compare(input.charAt(offset),'\"')==0){
+            if(offset<input.length()){
                 stringVal+=input.charAt(offset);
                 offset++;
                 return new StringValueToken(stringVal);
-            }else{
-                return null;
             }
-        }else{
-            return null;
-        } 
+        }
+        return null;
     }
 
     public NumbersToken tryTokenizeNumbers(){
