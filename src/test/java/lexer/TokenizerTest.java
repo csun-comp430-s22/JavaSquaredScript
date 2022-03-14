@@ -140,57 +140,57 @@ public class TokenizerTest {
     }
     @Test 
     public void testPlusTokenByItself() throws TokenizerException{
-        // Test #23 (checking Empty String)
+        // Test #23 (checking plus Token)
         assertTokenizes("+", new Token[]{new PlusToken()});
     }
     @Test 
     public void testMinusTokenByItself() throws TokenizerException{
-        // Test #24 (checking Empty String)
+        // Test #24 (checking minus Token)
         assertTokenizes("-", new Token[]{new MinusToken()});
     }
     @Test 
     public void testTimesTokenByItself() throws TokenizerException{
-        // Test #25 (checking Empty String)
+        // Test #25 (checking times Token)
         assertTokenizes("*", new Token[]{new TimesToken()});
     }
     @Test 
     public void testDivisionTokenByItself() throws TokenizerException{
-        // Test #26 (checking Empty String)
+        // Test #26 (checking division Token)
         assertTokenizes("/", new Token[]{new DivisionToken()});
     }
     @Test 
     public void testGreaterThanTokenByItself() throws TokenizerException{
-        // Test #27 (checking Empty String)
+        // Test #27 (checking greater-than Token)
         assertTokenizes(">", new Token[]{new GreaterThanToken()});
     }
     @Test 
     public void testLessThanTokenByItself() throws TokenizerException{
-        // Test #28 (checking Empty String)
+        // Test #28 (checking less-than Token)
         assertTokenizes("<", new Token[]{new LessThanToken()});
     }
     @Test 
     public void testEqualsTokenByItself() throws TokenizerException{
-        // Test #29 (checking Empty String)
+        // Test #29 (checking equals Token)
         assertTokenizes("=", new Token[]{new EqualsToken()});
     }
     @Test 
     public void testDoubleEqualsTokenByItself() throws TokenizerException{
-        // Test #30 (checking Empty String)
+        // Test #30 (checking double-equals Token)
         assertTokenizes("==", new Token[]{new DoubleEqualsToken()});
     }
-    @Test 
-    public void testClassTokenByItself() throws TokenizerException{
-        // Test #31 (checking Empty String)
+    @Test
+    public void testNotEqualsTokenByItself() throws TokenizerException{
+        // Test #31 (checking not-equals Token)
         assertTokenizes("!=", new Token[]{new NotEqualsToken()});
     }
     @Test 
-    public void tesExtendsTokenByItself() throws TokenizerException{
-        // Test #32 (checking Empty String)
+    public void testExtendsTokenByItself() throws TokenizerException{
+        // Test #32 (checking extends Token)
         assertTokenizes("extends", new Token[]{new ExtendsToken()});
     }
     @Test 
-    public void testNotEqualsTokenByItself() throws TokenizerException{
-        // Test #33 (checking Empty String)
+    public void testClassTokenByItself() throws TokenizerException{
+        // Test #33 (checking class Token)
         assertTokenizes("class", new Token[]{new ClassToken()});
     }
     @Test
@@ -310,7 +310,7 @@ public class TokenizerTest {
         assertTokenizes(".", new Token[]{new PeriodToken()});
     }
     @Test
-    public void tesConstructorTokenByItself() throws TokenizerException{
+    public void testConstructorTokenByItself() throws TokenizerException{
         //Test #50
         assertTokenizes("constructor", new Token[]{new ConstructorToken()});
     }
