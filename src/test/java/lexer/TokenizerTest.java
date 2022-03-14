@@ -319,7 +319,4 @@ public class TokenizerTest {
     // Test-driven development : write tests first
     // 1. TokenizerTest. Compile and run.
     // 2. Tokens/Tokenizer
-    class TestingKeywords{
-        
-    }
 }
