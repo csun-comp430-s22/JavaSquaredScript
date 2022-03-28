@@ -1,6 +1,7 @@
 package parser;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import lexer.tokens.*;
 import parser.ParseResult;
@@ -21,6 +22,13 @@ public class Parser {
         
     }
 
+    public void assertTokenHereIs(final int position, final Token expected) throws ParseException{
+        final Token received = getToken(position);
+        if(!expected.equals(received)){
+            throw new ParseException("expected: "+ expected + "; received" + received, errorOffset)
+        }
+    }
+
     public ParseResult<Exp> parsePrimaryExp(final int position) throws ParseException{
         final Token token = getToken(position);
         if(token instanceof VariableToken){
@@ -31,12 +39,8 @@ public class Parser {
             return new ParseResult<Exp>(new IntegerExp(value), position+1);
         } else if(token instanceof LeftParenToken){
             final ParseResult<Exp> inParens = parseExp(position+1);
-            final Token secondToken = getToken(inParens.position);
-            if(secondToken instanceof RightParenToken){
-                return new ParseResult<Exp>(inParens.result, inParens.position+1);
-            } else{
-                throw new ParseException("expected ')'; received: "+ secondToken);
-            }
+            assertTokenHereIs(inParens.position, new RightParenToken());
+            return new ParseResult<Exp>(inParens.result, inParens.position+1);
         }
     }// parsePrimaryExp
 
@@ -66,11 +70,42 @@ public class Parser {
         return current;
     } // parseAdditiveExp
 
-    
 
-    // public ParseResult<Stmt> parseStmt(final int position) throws ParserException{
 
-    // }
+    public ParseResult<Stmt> parseStmt(final int position) throws ParserException{
+        final Token token = getToken(position);
+        if(token instanceof IfToken){
+            assertTokenHereIs(position+1, new LeftParenToken());
+            final ParseResult<Exp> guard = parseExp(position+2);
+            assertTokenHereIs(guard.position, new RightParenToken());
+            final ParseResult<Stmt> trueBranch = parseStmt(guard.position+1);
+            assertTokenHereIs(trueBranch.position, new ElseToken());
+            final ParseResult<Stmt> falseBranch = parseStmt(trueBranch.position+1);
+            return new ParseResult<Stmt>(new IfExp(guard.result, trueBranch.result, falseBranch.result), falseBranch.position);
+        } else if(token instanceof LeftCurlyToken){
+            final List<Stmt> stmts = new ArrayList<Stmt>();
+            int curPosition = position +1;
+            boolean shouldRun = true;
+            while(shouldRun){
+                try {
+                    final ParseResult<Stmt> stmt = parseStmt(curPosition);
+                    stmts.add(stmt.result);
+                    curPosition = stmt.position;
+                } catch (final ParseException e) {
+                    shouldRun = false;
+                }
+            }
+            return new ParseResult<Stmt>(new BlockStmt(stmts), curPosition);
+        } else if (token instanceof PrintToken){
+            assertTokenHereIs(position+1, new LeftParenToken());
+            final ParseResult<Exp> exp = parseExp(position+2);
+            assertTokenHereIs(exp.position, new RightParenToken());
+            assertTokenHereIs(exp.position+1, new SemiColonToken());
+            return new ParseResult<Stmt>(new PrintStmt(exp.result), exp.position+2);
+        } else {
+            throw new ParseException("expected statement; received "+ token);
+        }
+    }
 
     /* public ParseResult<Op> parseOp(final int position) throws ParserException{
         final Token token = getToken(position);
