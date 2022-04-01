@@ -48,7 +48,7 @@ public class Parser {
             return new ParseResult<Exp>(new BooleanLiteralExp(value), position+1);
         } else if(token instanceof StringValueToken){
             final String stringVal = ((StringExp)token).value;
-            return new ParseResult<Exp>(new StringExp(stringval), position+1);
+            return new ParseResult<Exp>(new StringExp(stringVal), position+1);
         }else{
             throw new ParserException("expected a variable, string, boolean, expression, integer but received "+token);
         }
@@ -154,7 +154,7 @@ public class Parser {
         }
     }
 
-    /* public ParseResult<Op> parseOp(final int position) throws ParserException{
+     public ParseResult<Op> parseOp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof PlusToken){
             return new ParseResult<Op>(new PlusOp(), position+1);
@@ -180,5 +180,5 @@ public class Parser {
             final ParseResult<Exp> right = parseExp(op.position);
             return new ParseResult<Exp>(new OpExp(left.result, op.result, right.result), right.position);
         }
-    } */
+    }
 }
