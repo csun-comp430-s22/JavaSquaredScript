@@ -56,7 +56,7 @@ public class Parser {
 
     public ParseResult<Op> parseMultiplicativeOp(final int position) throws ParserException{
         final Token token = getToken(position);
-        if(token instanceof MultiplicationToken){
+        if(token instanceof TimesToken){
             return new ParseResult<Op>(new MultiplicationOp(), position+1);
         } else if(token instanceof DivisionToken){
             return new ParseResult<Op>(new DivisionOp(), position+1);
@@ -65,7 +65,7 @@ public class Parser {
         }
     }
 
-    public ParseResult<Exp> parseMultiplicativeExp(final int position){
+    public ParseResult<Exp> parseMultiplicativeExp(final int position) throws ParserException{
         ParseResult<Exp> current = parsePrimaryExp(position); 
         boolean shouldRun = true;
         while(shouldRun){
@@ -77,6 +77,7 @@ public class Parser {
                 shouldRun = false;
             }
         }
+        return current;
     }
 
     public ParseResult<Op> parseAdditiveOp(final int position) throws ParserException{
@@ -117,7 +118,7 @@ public class Parser {
     }
 
 
-
+/**
     public ParseResult<Stmt> parseStmt(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof IfToken){
@@ -149,11 +150,11 @@ public class Parser {
             assertTokenHereIs(exp.position, new RightParenToken());
             assertTokenHereIs(exp.position+1, new SemiColonToken());
             return new ParseResult<Stmt>(new PrintStmt(exp.result), exp.position+2);
-        } else { */
+        } else {
             throw new ParserException("expected statement; received "+ token);
         }
-    }
-
+    }*/
+    /*
      public ParseResult<Op> parseOp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof PlusToken){
@@ -166,6 +167,8 @@ public class Parser {
             throw new ParserException("expected operator; received: "+token);
         }
     }
+    */
+     /*
     public ParseResult<Exp> parseExp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof VariableToken){
@@ -181,4 +184,6 @@ public class Parser {
             return new ParseResult<Exp>(new OpExp(left.result, op.result, right.result), right.position);
         }
     }
+
+      */
 }
