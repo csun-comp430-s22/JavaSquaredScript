@@ -117,6 +117,50 @@ public class Parser {
         }
     }
 
+    public ParseResult<Exp> parseRelationExp(final int position) throws ParserException{
+        ParseResult<Exp> current = parseAddidtiveExp(position);
+        final ParseResult<Op> relationOp = parseAdditiveOp(current.position);
+        final ParseResult<Exp> relationExp =  parseAddidtiveExp(relationOp.position);
+        return new ParseResult<Exp>(new OpExp(current.result, relationOp.result,relationExp.result), relationExp.position);
+    }
+
+    public ParseResult<Op> parseEqualityOp(final int position) throws ParserException{
+        final Token token = getToken(position);
+        if(token instanceof DoubleEqualsToken){
+            return new ParseResult<Op>(new DoubleEqualsOp(), position+1);
+        } else if(token instanceof NotEqualsToken){
+            return new ParseResult<Op>(new NotEqualsOp(), position+1);
+        }else{
+            throw new ParserException("expected == or !=; received "+token);
+        }
+    }
+
+    public ParseResult<Exp> parseEqualityExp(final int position) throws ParserException{
+        ParseResult<Exp> current = parseRelationExp(position);
+        final ParseResult<Op> equalityOp = parseRelationOp(current.position);
+        final ParseResult<Exp> equalityExp =  parseRelationExp(equalityOp.position);
+        return new ParseResult<Exp>(new OpExp(current.result, equalityOp.result,equalityExp.result), equalityExp.position);
+    }
+
+    public ParseResult<Op> parseAssignmentOp(final int position) throws ParserException{
+        final Token token = getToken(position);
+        if(token instanceof EqualsToken){
+            return new ParseResult<Op>(new EqualsOp(), position+1);
+        }else{
+            throw new ParserException("expected =; received "+token);
+        }
+    }
+
+    public ParseResult<Exp> parseAssignmentExp(final int position) throws ParserException{
+        ParseResult<Exp> current = parseEqualityExp(position);
+        final ParseResult<Op> assignmentOp = parseEqualityOp(current.position);
+        final ParseResult<Exp> assignmentExp =  parseEqualityExp(assignmentOp.position);
+        return new ParseResult<Exp>(new OpExp(current.result, assignmentOp.result,assignmentExp.result), assignmentExp.position);
+    }
+
+    public ParseResult<Exp> parseExp(final int position) throws ParserException{
+        return parseAssignmentExp(position);
+    }
 
 /**
     public ParseResult<Stmt> parseStmt(final int position) throws ParserException{
@@ -154,36 +198,4 @@ public class Parser {
             throw new ParserException("expected statement; received "+ token);
         }
     }*/
-    /*
-     public ParseResult<Op> parseOp(final int position) throws ParserException{
-        final Token token = getToken(position);
-        if(token instanceof PlusToken){
-            return new ParseResult<Op>(new PlusOp(), position+1);
-        } else if (token instanceof MinusToken){
-            return new ParseResult<Op>(new MinusOp(), position+1);
-        } else if (token instanceof EqualsToken){
-            return new ParseResult<Op>(new EqualsOp(), position+1);
-        }else{
-            throw new ParserException("expected operator; received: "+token);
-        }
-    }
-    */
-     /*
-    public ParseResult<Exp> parseExp(final int position) throws ParserException{
-        final Token token = getToken(position);
-        if(token instanceof VariableToken){
-            final String name = ((VariableToken)token).name;
-            return new ParseResult<Exp>(new VariableExp(name), position + 1);
-        } else if(token instanceof IntegerToken){
-            final int value = ((NumbersToken)token).value;
-            return new ParseResult<Exp>(new IntegerExp(value), position+1);
-        } else{
-            final ParseResult<Exp> left = parseExp(position);
-            final ParseResult<Op> op = parseOp(left.position);
-            final ParseResult<Exp> right = parseExp(op.position);
-            return new ParseResult<Exp>(new OpExp(left.result, op.result, right.result), right.position);
-        }
-    }
-
-      */
 }
