@@ -1,7 +1,7 @@
 package parser;
-public class StringExp implements Op{
+public class StringExp implements Exp{
     public final String value;
-    public IntegerExp(final String value){
+    public StringExp(final String value){
         this.value = value;
     }
     
@@ -10,8 +10,8 @@ public class StringExp implements Op{
                 value.equals(((StringExp)other).value));
     }
 
-    public String hashCode() {
-        return value;
+    public int hashCode() {
+        return 99;
     }
 
     public String toString() {

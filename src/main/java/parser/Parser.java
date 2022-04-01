@@ -48,7 +48,7 @@ public class Parser {
             return new ParseResult<Exp>(new BooleanLiteralExp(value), position+1);
         } else if(token instanceof StringValueToken){
             final String stringVal = ((StringExp)token).value;
-            return new ParseResult<Exp>(new StringExp(stringval), position+1);
+            return new ParseResult<Exp>(new StringExp(stringVal), position+1);
         }else{
             throw new ParserException("expected a variable, string, boolean, expression, integer but received "+token);
         }
