@@ -176,6 +176,77 @@ public class Parser {
         return parseAssignmentExp(position);
     }
 
+    /*
+    if (exp) stmt else stmt | while (exp) stmt | { stmt* } | break; | return exp;
+    TODO: Assignment statements go here (requires type checking)
+    print(exp)
+    TODO: Method calls & object instantiation go here
+     */
+    public ParseResult<Stmt> parseStmt(final int position) throws ParserException {
+        final Token token = getToken(position);
+
+        // if statement
+        if (token instanceof IfToken) {
+            assertTokenHereIs(position + 1, new LeftParenToken());
+            final ParseResult<Exp> exp = parseEqualityExp(position + 2);  // Two token increase (if and `(`)
+            assertTokenHereIs(exp.position, new RightParenToken());
+            final ParseResult<Stmt> trueBranch = parseStmt(exp.position + 1);
+            assertTokenHereIs(trueBranch.position, new ElseToken());
+            final ParseResult<Stmt> falseBranch = parseStmt(trueBranch.position + 1);
+            return new ParseResult<Stmt>(new IfStmt(exp.result, trueBranch.result, falseBranch.result),
+                falseBranch.position);
+
+            // while statement
+        } else if (token instanceof WhileToken) {
+            assertTokenHereIs(position + 1, new LeftParenToken());
+            final ParseResult<Exp> exp = parseEqualityExp(position + 2);
+            assertTokenHereIs(exp.position, new RightParenToken());
+            final ParseResult<Stmt> whileBranch = parseStmt(exp.position + 1);
+            return new ParseResult<Stmt>(new WhileStmt(exp.result, whileBranch.result), whileBranch.position);
+
+            // break statement
+        } else if (token instanceof BreakToken) {
+            assertTokenHereIs(position + 1, new SemiColonToken());
+            return new ParseResult<Stmt>(new BreakStmt(), position + 1);
+
+            // return statement
+        } else if (token instanceof ReturnToken) {
+            final ParseResult<Exp> exp = parseEqualityExp(position + 1);
+            assertTokenHereIs(exp.position, new SemiColonToken());
+            return new ParseResult<Stmt>(new ReturnStmt(exp.result), exp.position);
+
+            // print statement
+        } else if (token instanceof PrintToken) {
+            assertTokenHereIs(position + 1, new LeftParenToken());
+            final ParseResult<Exp> exp = parseAssignmentExp(position + 2);
+            assertTokenHereIs(exp.position, new RightParenToken());
+            assertTokenHereIs(exp.position + 1, new SemiColonToken());
+            return new ParseResult<Stmt>(new PrintStmt(exp.result), exp.position + 1);
+
+            // 0 or more statements
+        } else if (token instanceof LeftCurlyToken) {
+            final List<Stmt> stmts = new ArrayList<>();
+            int currentPosition = position + 1;
+            boolean shouldRun = true;
+
+            while (shouldRun) {
+                try {
+                    final ParseResult<Stmt> stmt = parseStmt(currentPosition);
+                    stmts.add(stmt.result);
+                    currentPosition = stmt.position;
+                } catch (final ParserException e) {
+                    shouldRun = false;
+                }
+            }
+
+            return new ParseResult<>(new BlockStmt(stmts), currentPosition);
+
+        } else {
+            throw new ParserException("expected");
+        }
+
+    }
+
 /**
     public ParseResult<Stmt> parseStmt(final int position) throws ParserException{
         final Token token = getToken(position);
