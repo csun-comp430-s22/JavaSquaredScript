@@ -1,11 +1,11 @@
 package parser;
 
-public class Vardec {
+public class Vardec implements Stmt {
 
 	public final Type type;
-	public final Variable variable;
+	public final VariableExp variable;
 
-	public Vardec(final Type type, final Variable variable) {
+	public Vardec(final Type type, final VariableExp variable) {
 		this.type = type;
 		this.variable = variable;
 	}

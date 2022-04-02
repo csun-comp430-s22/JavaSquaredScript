@@ -9,4 +9,6 @@ public class VardecStmt implements Stmt {
 		this.vardec = vardec;
 		this.exp = exp;
 	}
+
+	// varDec = exp
 }
