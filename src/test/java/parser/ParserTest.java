@@ -1,13 +1,11 @@
 package parser;
 
-import com.sun.org.apache.xpath.internal.operations.Minus;
 import lexer.tokens.IntegerToken;
 import lexer.tokens.*;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -19,6 +17,14 @@ public class ParserTest {
         final ParseResult<Exp> received = parser.parseExp(0);
         assertEquals(expected.result,received.result);
     }
+
+    public void assertParsesStmt(final List<Token> input, final ParseResult<Stmt> expected) throws ParserException{
+        //List<Token> tokensList =  Arrays.asList(input);
+        final Parser parser = new Parser(input);
+        final ParseResult<Stmt> received = parser.parseStmt(0);
+        assertEquals(expected.result,received.result);
+    }
+
     @Test
     public void testEqualsOpExp() {
         // 1 + 1 == 1 + 1
@@ -45,18 +51,18 @@ public class ParserTest {
     @Test
     public void testNumbersExp() throws ParserException{
         assertParses(Arrays.asList(new NumbersToken(10)), new ParseResult<Exp>(new IntegerExp(10), 0));
-        
+
     }
 
     @Test
     public void testAdditionExp() throws ParserException{
-        assertParses(Arrays.asList(new NumbersToken(2), new PlusToken(), new NumbersToken(10)), 
+        assertParses(Arrays.asList(new NumbersToken(2), new PlusToken(), new NumbersToken(10)),
         new ParseResult<Exp>(new OpExp(new IntegerExp(2), new PlusOp(), new IntegerExp(10)), 0));
     }
 
     @Test
     public void testThreeAdditions() throws ParserException{
-        assertParses(Arrays.asList(new NumbersToken(1),new PlusToken(), new NumbersToken(2), new PlusToken(),new NumbersToken(3)), 
+        assertParses(Arrays.asList(new NumbersToken(1),new PlusToken(), new NumbersToken(2), new PlusToken(),new NumbersToken(3)),
         new ParseResult<Exp>(new OpExp(new OpExp(new IntegerExp(1), new PlusOp(), new IntegerExp(2)), new PlusOp(), new IntegerExp(3)), 0));
     }
 
@@ -90,23 +96,23 @@ public class ParserTest {
         assertParses(Arrays.asList(new NumbersToken(6), new NotEqualsToken(), new NumbersToken(2)),
          new ParseResult<Exp>(new OpExp(new IntegerExp(6), new NotEqualsOp(), new IntegerExp(2)), 0));
     }
-    @Test 
+    @Test
     public void checkTrueBool() throws ParserException{
         assertParses(Arrays.asList(new TrueToken()), new ParseResult<Exp>(new BooleanLiteralExp(true),0));
     }
-    @Test 
+    @Test
     public void checkFalseBool() throws ParserException{
         assertParses(Arrays.asList(new FalseToken()), new ParseResult<Exp>(new BooleanLiteralExp(false),0));
     }
-    @Test 
+    @Test
     public void checkParenExp() throws ParserException{
         assertParses(Arrays.asList(new LeftParenToken(), new NumbersToken(10), new RightParenToken()), new ParseResult<Exp>(new IntegerExp(10),0));
     }
-    @Test 
+    @Test
     public void checkStringExp() throws ParserException{
         assertParses(Arrays.asList(new LeftParenToken(), new StringValueToken("\"hello\""), new RightParenToken()), new ParseResult<Exp>(new StringExp("\"hello\""),0));
     }
-    @Test 
+    @Test
     public void checkVariableExp() throws ParserException{
         assertParses(Arrays.asList(new LeftParenToken(), new VariableToken("i"), new RightParenToken()), new ParseResult<Exp>(new VariableExp("i"),0));
     }
@@ -118,5 +124,99 @@ public class ParserTest {
     public void checkErrorExp() throws ParserException{
         assertParses(Arrays.asList(new LeftParenToken(), new VariableToken("i"), new PeriodToken()), new ParseResult<Exp>(new VariableExp("i"),0));
     }
-    
+
+    @Test
+    public void testIfStmt() throws ParserException {
+
+        assertParsesStmt(
+            Arrays.asList(
+                new IfToken(), new LeftParenToken(), new NumbersToken(6), new LessThanToken(),
+                new NumbersToken(2), new RightParenToken(), new LeftCurlyToken(),
+                new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(),
+                new SemiColonToken(), new RightCurlyToken(), new ElseToken(), new LeftCurlyToken(), new PrintToken(),
+                new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken()
+            ),
+            new ParseResult<>(
+                new IfStmt(
+                    new OpExp(new IntegerExp(6), new LessThanOp(), new IntegerExp(2)),
+                    new BlockStmt(Collections.singletonList(
+                        new PrintStmt(new IntegerExp(0)))),
+                    new BlockStmt(Collections.singletonList(
+                        new PrintStmt(new IntegerExp(0)))
+                    )
+                ), 0
+            )
+        );
+    }
+
+    @Test
+    public void testWhileStmt() throws ParserException {
+        assertParsesStmt(
+            Arrays.asList(
+                new WhileToken(), new LeftParenToken(), new NumbersToken(6), new LessThanToken(),
+                new NumbersToken(2), new RightParenToken(), new LeftCurlyToken(), new PrintToken(),
+                new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken()
+            ),
+            new ParseResult<>(
+                new WhileStmt(
+                    new OpExp(new IntegerExp(6), new LessThanOp(), new IntegerExp(2)),
+                    new BlockStmt(Collections.singletonList(
+                        new PrintStmt(new IntegerExp(0))))
+                ), 0
+            )
+        );
+    }
+
+    @Test
+    public void testBreakStmt() throws ParserException {
+        assertParsesStmt(
+            Arrays.asList(
+                new BreakToken(), new SemiColonToken()
+            ),
+            new ParseResult<>(
+                new BreakStmt(), 0
+            )
+        );
+    }
+
+    @Test
+    public void testReturnStmt() throws ParserException {
+        assertParsesStmt(
+            Arrays.asList(
+                new ReturnToken(), new NumbersToken(2), new GreaterThanToken(), new NumbersToken(1),
+                new SemiColonToken()
+            ),
+            new ParseResult<>(
+                new ReturnStmt(new OpExp(new IntegerExp(2), new GreaterThanOp(), new IntegerExp(1))), 0
+            )
+        );
+    }
+
+    @Test
+    public void testVardecIntDec() throws ParserException {
+        assertParsesStmt(Arrays.asList(new IntegerToken(), new VariableToken("x"), new SemiColonToken()),
+            new ParseResult<Stmt>(new Vardec(new IntType(), new VariableExp("x")), 0));
+    }
+
+    @Test
+    public void testVardecBoolDec() throws ParserException {
+        assertParsesStmt(Arrays.asList(new BooleanToken(), new VariableToken("x"), new SemiColonToken()),
+            new ParseResult<Stmt>(new Vardec(new BooleanType(), new VariableExp("x")), 0));
+    }
+
+    @Test
+    public void testVardecStringDec() throws ParserException {
+        assertParsesStmt(Arrays.asList(new StringToken(), new VariableToken("x"), new SemiColonToken()),
+            new ParseResult<Stmt>(new Vardec(new StringType(), new VariableExp("x")), 0));
+    }
+
+    @Test
+    public void testPrintStmt() throws ParserException {
+        assertParsesStmt(Arrays.asList(new PrintToken(), new LeftParenToken(), new NumbersToken(2),
+                new PlusToken(), new NumbersToken(10), new RightParenToken(), new SemiColonToken()),
+            new ParseResult<>(new PrintStmt(new OpExp(new IntegerExp(2),
+            new PlusOp(), new IntegerExp(10))), 0));
+    }
 }
