@@ -45,13 +45,17 @@ public class Parser {
             final ParseResult<Exp> inParens = parseExp(position+1);
             assertTokenHereIs(inParens.position, new RightParenToken());
             return new ParseResult<Exp>(inParens.result, inParens.position+1);
-        } else if(token instanceof TrueToken|| token instanceof FalseToken){
-            final boolean value = ((BooleanLiteralExp)token).value;
-            return new ParseResult<Exp>(new BooleanLiteralExp(value), position+1);
         } else if(token instanceof StringValueToken){
-            final String stringVal = ((StringExp)token).value;
+            final String stringVal = ((StringValueToken)token).value;
             return new ParseResult<Exp>(new StringExp(stringVal), position+1);
-        }else{
+        }else if(token instanceof TrueToken){
+            final boolean value = true;
+            return new ParseResult<Exp>(new BooleanLiteralExp(value),position+1);
+        }else if(token instanceof FalseToken){
+            final boolean value = false;
+            return new ParseResult<Exp>(new BooleanLiteralExp(value), position+1);
+        }
+        else{
             throw new ParserException("expected a variable, string, boolean, expression, integer but received "+token);
         }
     }// parsePrimaryExp
@@ -122,7 +126,7 @@ public class Parser {
     public ParseResult<Exp> parseRelationExp(final int position) throws ParserException{
         ParseResult<Exp> current = parseAddidtiveExp(position);
         try {
-            final ParseResult<Op> relationOp = parseAdditiveOp(current.position);
+            final ParseResult<Op> relationOp = parseRelationOp(current.position);
             final ParseResult<Exp> relationExp = parseAddidtiveExp(relationOp.position);
             return new ParseResult<Exp>(new OpExp(current.result, relationOp.result, relationExp.result), relationExp.position);
         }catch (final ParserException e){
@@ -144,7 +148,7 @@ public class Parser {
     public ParseResult<Exp> parseEqualityExp(final int position) throws ParserException{
         ParseResult<Exp> current = parseRelationExp(position);
         try {
-            final ParseResult<Op> equalityOp = parseRelationOp(current.position);
+            final ParseResult<Op> equalityOp = parseEqualityOp(current.position);
             final ParseResult<Exp> equalityExp = parseRelationExp(equalityOp.position);
             return new ParseResult<Exp>(new OpExp(current.result, equalityOp.result, equalityExp.result), equalityExp.position);
         }catch (final ParserException e){
@@ -164,7 +168,7 @@ public class Parser {
     public ParseResult<Exp> parseAssignmentExp(final int position) throws ParserException{
         ParseResult<Exp> current = parseEqualityExp(position);
         try {
-            final ParseResult<Op> assignmentOp = parseEqualityOp(current.position);
+            final ParseResult<Op> assignmentOp = parseAssignmentOp(current.position);
             final ParseResult<Exp> assignmentExp = parseEqualityExp(assignmentOp.position);
             return new ParseResult<Exp>(new OpExp(current.result, assignmentOp.result, assignmentExp.result), assignmentExp.position);
         } catch(final ParserException e){
