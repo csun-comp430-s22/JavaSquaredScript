@@ -1,6 +1,6 @@
 package parser;
 
-public class StringType {
+public class StringType implements Type {
 
 	public int hashCode() {
 		return 2;
