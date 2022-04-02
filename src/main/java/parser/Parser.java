@@ -2,6 +2,8 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.sun.jdi.IntegerType;
 import lexer.tokens.*;
 import parser.BooleanLiteralExp;
 import parser.DivisionOp;
@@ -211,13 +213,49 @@ public class Parser {
             // break statement
         } else if (token instanceof BreakToken) {
             assertTokenHereIs(position + 1, new SemiColonToken());
-            return new ParseResult<Stmt>(new BreakStmt(), position + 1);
+            return new ParseResult<Stmt>(new BreakStmt(), position + 2);
 
             // return statement
         } else if (token instanceof ReturnToken) {
             final ParseResult<Exp> exp = parseEqualityExp(position + 1);
             assertTokenHereIs(exp.position, new SemiColonToken());
-            return new ParseResult<Stmt>(new ReturnStmt(exp.result), exp.position);
+            return new ParseResult<Stmt>(new ReturnStmt(exp.result), exp.position + 1);
+
+            // var intg declaration
+        } else if (token instanceof IntegerToken) {
+            final ParseResult<Exp> exp = parsePrimaryExp(position + 1);
+
+            if (getToken(exp.position - 1) instanceof VariableToken) {
+                assertTokenHereIs(exp.position, new SemiColonToken());
+                return new ParseResult<Stmt>(new Vardec(new IntType(), (VariableExp) exp.result),
+                    exp.position + 1);
+            } else {
+                throw new ParserException("expected intg; received " + token);
+            }
+
+            // var bool declaration
+        } else if (token instanceof BooleanToken) {
+            final ParseResult<Exp> exp = parsePrimaryExp(position + 1);
+
+            if (getToken(exp.position - 1) instanceof VariableToken) {
+                assertTokenHereIs(exp.position, new SemiColonToken());
+                return new ParseResult<Stmt>(new Vardec(new BooleanType(), (VariableExp) exp.result),
+                    exp.position + 1);
+            } else {
+                throw new ParserException("expected bool; received " + token);
+            }
+
+            // var strg declaration
+        } else if (token instanceof StringToken) {
+            final ParseResult<Exp> exp = parsePrimaryExp(position + 1);
+
+            if (getToken(exp.position - 1) instanceof VariableToken) {
+                assertTokenHereIs(exp.position, new SemiColonToken());
+                return new ParseResult<Stmt>(new Vardec(new StringType(), (VariableExp) exp.result),
+                    exp.position + 1);
+            } else {
+                throw new ParserException("expected strg; received " + token);
+            }
 
             // print statement
         } else if (token instanceof PrintToken) {
@@ -225,7 +263,7 @@ public class Parser {
             final ParseResult<Exp> exp = parseAssignmentExp(position + 2);
             assertTokenHereIs(exp.position, new RightParenToken());
             assertTokenHereIs(exp.position + 1, new SemiColonToken());
-            return new ParseResult<Stmt>(new PrintStmt(exp.result), exp.position + 1);
+            return new ParseResult<Stmt>(new PrintStmt(exp.result), exp.position + 2);
 
             // 0 or more statements
         } else if (token instanceof LeftCurlyToken) {
@@ -249,6 +287,11 @@ public class Parser {
             throw new ParserException("expected");
         }
 
+    }
+
+    private Vardec getVardecStatement(Token token) {
+
+        return null;
     }
 
 /**
