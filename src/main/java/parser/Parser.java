@@ -183,10 +183,10 @@ public class Parser {
     }
 
     /*
-    if (exp) stmt else stmt | while (exp) stmt | { stmt* } | break; | return exp;
-    TODO: Assignment statements go here (requires type checking)
+    if (exp) stmt else stmt | while (exp) stmt | break; | return exp;
+    intg var; | bool var; | strg var;
     print(exp)
-    TODO: Method calls & object instantiation go here
+    { stmt* }
      */
     public ParseResult<Stmt> parseStmt(final int position) throws ParserException {
         final Token token = getToken(position);
@@ -194,7 +194,7 @@ public class Parser {
         // if statement
         if (token instanceof IfToken) {
             assertTokenHereIs(position + 1, new LeftParenToken());
-            final ParseResult<Exp> exp = parseEqualityExp(position + 2);  // Two token increase (if and `(`)
+            final ParseResult<Exp> exp = parseEqualityExp(position + 2);
             assertTokenHereIs(exp.position, new RightParenToken());
             final ParseResult<Stmt> trueBranch = parseStmt(exp.position + 1);
             assertTokenHereIs(trueBranch.position, new ElseToken());
@@ -263,7 +263,7 @@ public class Parser {
             final ParseResult<Exp> exp = parseAssignmentExp(position + 2);
             assertTokenHereIs(exp.position, new RightParenToken());
             assertTokenHereIs(exp.position + 1, new SemiColonToken());
-            return new ParseResult<Stmt>(new PrintStmt(exp.result), exp.position + 2);
+            return new ParseResult<Stmt>(new PrintStmt(exp.result), exp.position + 1);
 
             // 0 or more statements
         } else if (token instanceof LeftCurlyToken) {
@@ -275,13 +275,13 @@ public class Parser {
                 try {
                     final ParseResult<Stmt> stmt = parseStmt(currentPosition);
                     stmts.add(stmt.result);
-                    currentPosition = stmt.position;
+                    currentPosition = stmt.position + 1;
                 } catch (final ParserException e) {
                     shouldRun = false;
                 }
             }
 
-            return new ParseResult<>(new BlockStmt(stmts), currentPosition);
+            return new ParseResult<>(new BlockStmt(stmts), currentPosition + 1);
 
         } else {
             throw new ParserException("expected");
