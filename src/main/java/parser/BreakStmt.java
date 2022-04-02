@@ -10,4 +10,7 @@ public class BreakStmt implements Stmt {
 		return "Break()";
 	}
 
+	public boolean equals (final Object other) {
+		return other instanceof BreakStmt;
+	}
 }
