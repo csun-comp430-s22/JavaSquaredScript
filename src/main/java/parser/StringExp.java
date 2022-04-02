@@ -11,7 +11,7 @@ public class StringExp implements Exp{
     }
 
     public int hashCode() {
-        return 99;
+        return Integer.MAX_VALUE;
     }
 
     public String toString() {
