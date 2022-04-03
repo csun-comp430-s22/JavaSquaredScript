@@ -284,7 +284,8 @@ public class Parser {
             return new ParseResult<>(new BlockStmt(stmts), currentPosition + 1);
 
         } else {
-            throw new ParserException("expected");
+            throw new ParserException("expected if or while or break or return or Int or Boolean or String " +
+                "or print or {; received " + token);
         }
 
     }
