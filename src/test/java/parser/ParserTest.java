@@ -124,8 +124,12 @@ public class ParserTest {
     }
     @Test (expected= ParserException.class)
     public void checkErrorExp() throws ParserException{
-        assertParses(Arrays.asList(new LeftParenToken(), new VariableToken("i"), new PeriodToken()), new ParseResult<Exp>(new VariableExp("i"),0));
+        assertParses(Arrays.asList(new LeftParenToken(), new VariableToken("i"), new PeriodToken()), new ParseResult<Exp>(new VariableExp("i"),3));
     } 
+    @Test
+    public void checkAssignment() throws ParserException{
+        assertParses(Arrays.asList(new VariableToken("x"),new EqualsToken(),new NumbersToken(23)), new ParseResult<Exp>(new OpExp(new VariableExp("x"), new EqualsOp(), new IntegerExp(23)),3));
+    }
     @Test
     public void testIfStmt() throws ParserException {
 
