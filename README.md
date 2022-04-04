@@ -58,12 +58,14 @@ Jim Inong|jim.inong.415@my.csun.edu|
 
 # Possible Exp 
 |Exp |Hash Code|
+|----|---------|
 |Boolean Literal| value of boolean|
 |Integer| value of Integer|
 |String|0|
 
 # Possible Stmt
 |Stmt|Hash Code|
+|----|---------|
 |Block Stmt|1|
 |Break Stmt|2|
 |If Stmt| value|
@@ -71,7 +73,8 @@ Jim Inong|jim.inong.415@my.csun.edu|
 |Return Stmt| values of the exp|
 
 # Possible Op
-|Op| Hash Code|
+|Op|Hash Code|
+|--|---------|
 |Division|1|
 |Double Equals|2|
 |Equals|3|
