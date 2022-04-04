@@ -5,7 +5,7 @@ public class MultiplicationOp implements Op {
     }
 
     public int hashCode() {
-        return 1;
+        return 7;
     }
 
     public String toString() {

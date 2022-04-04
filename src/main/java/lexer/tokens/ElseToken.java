@@ -9,6 +9,6 @@ public class ElseToken implements Token{
     }
 
     public String toString() {
-        return ",";
+        return "else";
     }
 }

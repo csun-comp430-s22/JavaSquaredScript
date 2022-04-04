@@ -6,7 +6,7 @@ public class NotEqualsOp implements Op{
     }
 
     public int hashCode() {
-        return 1;
+        return 8;
     }
 
     public String toString() {

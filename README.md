@@ -35,7 +35,7 @@ Jim Inong|jim.inong.415@my.csun.edu|
 |new|16|
 |public|17|
 |protected|18|
-|private|19)
+|private|19|
 |Numbers|hashCode is the value of the number|
 |"string"|20|
 |+|21|
@@ -54,3 +54,32 @@ Jim Inong|jim.inong.415@my.csun.edu|
 |else|34|
 |.|35|
 |Constructor|36|
+
+
+# Possible Exp 
+|Exp |Hash Code|
+|Boolean Literal| value of boolean|
+|Integer| value of Integer|
+|String|0|
+
+# Possible Stmt
+|Stmt|Hash Code|
+|Block Stmt|1|
+|Break Stmt|2|
+|If Stmt| value|
+|Print Stmt| value of the exp|
+|Return Stmt| values of the exp|
+
+# Possible Op
+|Op| Hash Code|
+|Division|1|
+|Double Equals|2|
+|Equals|3|
+|GreaterThan|4|
+|LessThan|5|
+|Minus|6|
+|Multiplication|7|
+|NotEqualss|8|
+|Plus|0|
+
+

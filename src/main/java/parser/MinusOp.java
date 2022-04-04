@@ -5,7 +5,7 @@ public class MinusOp implements Op{
     }
 
     public int hashCode() {
-        return 1;
+        return 6;
     }
 
     public String toString() {

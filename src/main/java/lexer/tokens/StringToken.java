@@ -9,6 +9,6 @@ public class StringToken implements Token {
     }
 
     public String toString() {
-        return "strg";
+        return "String";
     }
 }
