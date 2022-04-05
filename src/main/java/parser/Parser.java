@@ -4,7 +4,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.text.DefaultStyledDocument.ElementSpec;
+
 import com.sun.jdi.IntegerType;
+
+import org.omg.IOP.TAG_ORB_TYPE;
+
 import lexer.tokens.*;
 import parser.BooleanLiteralExp;
 import parser.DivisionOp;
@@ -376,15 +381,45 @@ public class Parser {
         final Token token = getToken(position);
         if(token instanceof PublicToken || token instanceof PrivateToken || token instanceof ProtectedToken){
             //TODO: need to continue
+            if(getToken(position+1) instanceof IntegerToken|| getToken(position+1) instanceof BooleanToken||getToken(position+1) instanceof StringToken){
+                ParseResult<Exp> exp = parseExp(position+2);
+                ParseResult<Stmt> stmt = parseStmt(exp.position);
+                //needs a return the methodDef
+            }
         }
+    }
 
+    publicnParseResult<Stmt> parseConstructor(final int position) throws ParserException{
+        final Token token= getToken(position);
+        //ConstructorStmt(List<VarDec>)
     }
 
     // classDef::= class classname extends classname{ instancedec* methodDef* constructor(varDec*) stmt}
+    // new ParserResult<Stmt>(new ClassDef(new ClassName(classname),new ClassName(extendsclassname), List<InstanceDec>, List<MethodDef>, new ConstructorStmt(List<varDec>), stmt.result),stmt.position);
     public ParseResult<Stmt> parseClassDef(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof ClassToken){
             //TODO: need to continue
+            if(getToken(position+1) instanceof VariableToken){
+                final String className = ((VariableToken)getToken(position+1)).name;
+                if(getToken(position+2) instanceof ExtendsToken){
+                    final String extendsClassName = ((VariableToken)getToken(position+3)).name;
+                    assertTokenHereIs(position+4, new LeftCurlyToken());
+                    position = 4;
+                    boolean shouldRun = true;
+                    while(true){
+                        try{
+                            ParseResult<Stmt> constructor = parseConstructor(position+1);
+                        }catch(final ParserException e){
+                            
+                        }
+                    }
+                }
+            } else{
+                throw new ParserException("expected classname; received "+getToken(position+1));
+            }
+        }else{
+            throw new ParserException("expected class token; received "+token);
         }
 
     }
