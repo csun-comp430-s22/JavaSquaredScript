@@ -35,6 +35,7 @@ public class ParserTest {
 
     @Test
     public void testEqualsOpExp() {
+        // Test #1 {Checking 1 + 1}
         // 1 + 1 == 1 + 1
         final OpExp first = new OpExp(new IntegerExp(1),
                                       new PlusOp(),
@@ -47,6 +48,7 @@ public class ParserTest {
 
     @Test
     public void testMinusOpExp() {
+        // Test #2 {Checking 1 - 1}
         final OpExp first = new OpExp(new IntegerExp(1),
                 new MinusOp(),
                 new IntegerExp(1));
@@ -58,86 +60,103 @@ public class ParserTest {
 
     @Test
     public void testNumbersExp() throws ParserException{
+        // Test #3 {Checking 10}
         assertParses(Arrays.asList(new NumbersToken(10)), new ParseResult<Exp>(new IntegerExp(10), 1));
     }
 
     @Test
     public void testAdditionExp() throws ParserException{
+        // Test #4 {Checking 2 + 10} using Tokens
         assertParses(Arrays.asList(new NumbersToken(2), new PlusToken(), new NumbersToken(10)), 
         new ParseResult<Exp>(new OpExp(new IntegerExp(2), new PlusOp(), new IntegerExp(10)), 3));
     }
 
     @Test
     public void testThreeAdditions() throws ParserException{
+        // Test #5 {Checking 1 + 2 + 3}
         assertParses(Arrays.asList(new NumbersToken(1),new PlusToken(), new NumbersToken(2), new PlusToken(),new NumbersToken(3)), 
         new ParseResult<Exp>(new OpExp(new OpExp(new IntegerExp(1), new PlusOp(), new IntegerExp(2)), new PlusOp(), new IntegerExp(3)), 5));
     }
 
     @Test
     public void testThreeSubtractions() throws ParserException{
+        // Test #6 {Checking 6 - 2 - 1}
         assertParses(Arrays.asList(new NumbersToken(6), new MinusToken(), new NumbersToken(2), new MinusToken(), new NumbersToken(1)),
          new ParseResult<Exp>(new OpExp(new OpExp(new IntegerExp(6), new MinusOp(), new IntegerExp(2)), new MinusOp(), new IntegerExp(1)), 5));
     }
     @Test
     public void testThreeMultiplications() throws ParserException{
+        // Test #7 {Checking 6 * 2 / 1}
         assertParses(Arrays.asList(new NumbersToken(6), new TimesToken(), new NumbersToken(2), new DivisionToken(), new NumbersToken(1)),
          new ParseResult<Exp>(new OpExp(new OpExp(new IntegerExp(6), new MultiplicationOp(), new IntegerExp(2)), new DivisionOp(), new IntegerExp(1)), 5));
     }
     @Test
     public void testLessThan() throws ParserException{
+        // Test #8 {Checking 6 < 2}
         assertParses(Arrays.asList(new NumbersToken(6), new LessThanToken(), new NumbersToken(2)),
          new ParseResult<Exp>(new OpExp(new IntegerExp(6), new LessThanOp(), new IntegerExp(2)), 3));
     }
     @Test
     public void testGreaterThan() throws ParserException{
+        // Test #9 {Checking 6 > 2}
         assertParses(Arrays.asList(new NumbersToken(6), new GreaterThanToken(), new NumbersToken(2)),
          new ParseResult<Exp>(new OpExp(new IntegerExp(6), new GreaterThanOp(), new IntegerExp(2)), 3));
     }
     @Test
     public void testDoubleEquals() throws ParserException{
+        // Test #10 {Checking 6 == 2}
         assertParses(Arrays.asList(new NumbersToken(6), new DoubleEqualsToken(), new NumbersToken(2)),
          new ParseResult<Exp>(new OpExp(new IntegerExp(6), new DoubleEqualsOp(), new IntegerExp(2)), 3));
     }
     @Test
     public void testNotEquals() throws ParserException{
+        // Test #11 {Checking 6 != 2}
         assertParses(Arrays.asList(new NumbersToken(6), new NotEqualsToken(), new NumbersToken(2)),
          new ParseResult<Exp>(new OpExp(new IntegerExp(6), new NotEqualsOp(), new IntegerExp(2)), 3));
     }
     @Test 
     public void checkTrueBool() throws ParserException{
+        // Test #12 {Checking true}
         assertParses(Arrays.asList(new TrueToken()), new ParseResult<Exp>(new BooleanLiteralExp(true),1));
     }
     @Test 
     public void checkFalseBool() throws ParserException{
+        // Test #13 {Checking false}
         assertParses(Arrays.asList(new FalseToken()), new ParseResult<Exp>(new BooleanLiteralExp(false),1));
     }
     @Test 
     public void checkParenExp() throws ParserException{
+        // Test #14 {Checking (10)}
         assertParses(Arrays.asList(new LeftParenToken(), new NumbersToken(10), new RightParenToken()), new ParseResult<Exp>(new IntegerExp(10),3));
     }
     @Test 
     public void checkStringExp() throws ParserException{
+        //Test #15 {Checking ("hello")}
         assertParses(Arrays.asList(new LeftParenToken(), new StringValueToken("\"hello\""), new RightParenToken()), new ParseResult<Exp>(new StringExp("\"hello\""),3));
     }
     @Test 
     public void checkVariableExp() throws ParserException{
+        // Test #16 {Checking (i))}
         assertParses(Arrays.asList(new LeftParenToken(), new VariableToken("i"), new RightParenToken()), new ParseResult<Exp>(new VariableExp("i"),3));
     }
     @Test (expected= ParserException.class)
     public void checkErrorsExp() throws ParserException{
+        // Test #17 {Checking ;i} which should error
         assertParses(Arrays.asList(new SemiColonToken()), new ParseResult<Exp>(new VariableExp("i"),1));
     }
     @Test (expected= ParserException.class)
     public void checkErrorExp() throws ParserException{
+        // Test #18 {Checking (i.} which should error
         assertParses(Arrays.asList(new LeftParenToken(), new VariableToken("i"), new PeriodToken()), new ParseResult<Exp>(new VariableExp("i"),3));
     } 
     @Test
     public void checkAssignment() throws ParserException{
+        // Test #19 {Checking x = 23}
         assertParses(Arrays.asList(new VariableToken("x"),new EqualsToken(),new NumbersToken(23)), new ParseResult<Exp>(new OpExp(new VariableExp("x"), new EqualsOp(), new IntegerExp(23)),3));
     }
     @Test
     public void testIfStmt() throws ParserException {
-
+        // Test #20 {Checking if(6 < 2) {print(0);} else{print(0);} }
         assertParsesStmt(
             Arrays.asList(
                 new IfToken(), new LeftParenToken(), new NumbersToken(6), new LessThanToken(),
@@ -162,6 +181,7 @@ public class ParserTest {
 
     @Test
     public void testWhileStmt() throws ParserException {
+        // Test #21 {Checking while(6 < 2){ print(0);} }
         assertParsesStmt(
             Arrays.asList(
                 new WhileToken(), new LeftParenToken(), new NumbersToken(6), new LessThanToken(),
@@ -181,6 +201,7 @@ public class ParserTest {
 
     @Test
     public void testBreakStmt() throws ParserException {
+        // Test #22 {Checking break; }
         assertParsesStmt(
             Arrays.asList(
                 new BreakToken(), new SemiColonToken()
@@ -193,6 +214,7 @@ public class ParserTest {
 
     @Test
     public void testReturnStmt() throws ParserException {
+        // Test #23 {Checking return 2 > 1; }
         assertParsesStmt(
             Arrays.asList(
                 new ReturnToken(), new NumbersToken(2), new GreaterThanToken(), new NumbersToken(1),
@@ -206,6 +228,7 @@ public class ParserTest {
 
     @Test
     public void testVardecIntDec() throws ParserException {
+        // Test #24 {Checking int x; }
         assertParsesStmt(Arrays.asList(new IntegerToken(), new VariableToken("x"), new SemiColonToken()),
             new ParseResult<Stmt>(new Vardec(new IntType(), new VariableExp("x")), 3));
     }
@@ -218,6 +241,7 @@ public class ParserTest {
 
     @Test
     public void testVardecBoolDec() throws ParserException {
+        // Test #25 {Checking bool x; }
         assertParsesStmt(Arrays.asList(new BooleanToken(), new VariableToken("x"), new SemiColonToken()),
             new ParseResult<Stmt>(new Vardec(new BooleanType(), new VariableExp("x")), 3));
     }
@@ -230,6 +254,7 @@ public class ParserTest {
 
     @Test
     public void testVardecStringDec() throws ParserException {
+        // Test #26 {Checking String x; }
         assertParsesStmt(Arrays.asList(new StringToken(), new VariableToken("x"), new SemiColonToken()),
             new ParseResult<Stmt>(new Vardec(new StringType(), new VariableExp("x")), 3));
     }
@@ -242,23 +267,27 @@ public class ParserTest {
 
     @Test
     public void testPrintStmt() throws ParserException {
+        // Test #27 {Checking print(2+10); }
         assertParsesStmt(Arrays.asList(new PrintToken(), new LeftParenToken(), new NumbersToken(2),
                 new PlusToken(), new NumbersToken(10), new RightParenToken(), new SemiColonToken()),
             new ParseResult<>(new PrintStmt(new OpExp(new IntegerExp(2),
             new PlusOp(), new IntegerExp(10))), 6));
     }
     @Test (expected= ParserException.class)
+    // Test #28 {Checking int "a"; } which should error
     public void testVariableDecInt() throws ParserException{
         assertParsesStmt(Arrays.asList(new IntegerToken(), new StringValueToken("a"), new SemiColonToken()),
          new ParseResult<Stmt>(new Vardec(new IntType(),new VariableExp("x")),3));
     }
     @Test (expected= ParserException.class)
     public void testVariableDecBool() throws ParserException{
+        // Test #29 {Checking bool "a"; } which should error
         assertParsesStmt(Arrays.asList(new BooleanToken(), new StringValueToken("a"), new SemiColonToken()),
          new ParseResult<Stmt>(new Vardec(new BooleanType(),new VariableExp("x")),3));
     }
     @Test (expected= ParserException.class)
     public void testVariableDec() throws ParserException{
+        // Test #30 {Checking String "a"; } which should error
         assertParsesStmt(Arrays.asList(new StringToken(), new StringValueToken("a"), new SemiColonToken()),
          new ParseResult<Stmt>(new Vardec(new StringType(),new VariableExp("x")),3));
     }
