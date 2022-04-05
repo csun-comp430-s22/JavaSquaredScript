@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.management.StringValueExp;
+
 import static org.junit.Assert.*;
 
 public class ParserTest {
@@ -224,5 +226,51 @@ public class ParserTest {
             new ParseResult<>(new PrintStmt(new OpExp(new IntegerExp(2),
             new PlusOp(), new IntegerExp(10))), 6));
     }
-    
+    @Test (expected= ParserException.class)
+    public void testVariableDecInt() throws ParserException{
+        assertParsesStmt(Arrays.asList(new IntegerToken(), new StringValueToken("a"), new SemiColonToken()),
+         new ParseResult<Stmt>(new Vardec(new IntType(),new VariableExp("x")),3));
+    }
+    @Test (expected= ParserException.class)
+    public void testVariableDecBool() throws ParserException{
+        assertParsesStmt(Arrays.asList(new BooleanToken(), new StringValueToken("a"), new SemiColonToken()),
+         new ParseResult<Stmt>(new Vardec(new BooleanType(),new VariableExp("x")),3));
+    }
+    @Test (expected= ParserException.class)
+    public void testVariableDec() throws ParserException{
+        assertParsesStmt(Arrays.asList(new StringToken(), new StringValueToken("a"), new SemiColonToken()),
+         new ParseResult<Stmt>(new Vardec(new StringType(),new VariableExp("x")),3));
+    }
+
+    @Test
+    public void testMethodCall() throws ParserException{
+        assertParses(Arrays.asList(new VariableToken("methodA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()), 
+        new ParseResult<Exp>(new FunctionCallExp(new FunctionName("methodA"),Arrays.asList(new IntegerExp(23))),4));
+        //methodA(23,i)
+    }
+    @Test
+    public void testMethodMultipleInputsCall() throws ParserException{
+        assertParses(Arrays.asList(new VariableToken("methodB"),new LeftParenToken(),new NumbersToken(23),new CommaToken(),
+        new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new FunctionCallExp(new FunctionName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),6));
+    }
+    @Test
+    public void testMethodWithDot() throws ParserException{
+        assertParses(Arrays.asList(new VariableToken("a"),new PeriodToken(),new VariableToken("methodA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()), 
+        new ParseResult<Exp>(new OpExp(new VariableExp("a"),new PeriodOp(), new FunctionCallExp(new FunctionName("methodA"),Arrays.asList(new IntegerExp(23)))),6));
+    }
+
+    @Test
+    public void testClassCall() throws ParserException{
+        assertParses(Arrays.asList(new NewToken(),new VariableToken("methodA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()), 
+        new ParseResult<Exp>(new ClassCallExp(new ClassName("methodA"),Arrays.asList(new IntegerExp(23))),5));
+        //methodA(23,i)
+    }
+    @Test
+    public void testClassMultipleInputsCall() throws ParserException{
+        assertParses(Arrays.asList(new NewToken(),new VariableToken("methodB"),new LeftParenToken(),new NumbersToken(23),new CommaToken(),
+        new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new ClassCallExp(new ClassName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),7));
+    }
+
+
+    // methodA(5,a)
 }

@@ -4,8 +4,6 @@ import lexer.tokens.*;
 
 import java.util.List;
 
-import javax.print.attribute.standard.PrinterInfo;
-
 import java.util.ArrayList;
 
 public class Tokenizer {
@@ -28,7 +26,6 @@ public class Tokenizer {
         // if the name isn't special (e.g., "foo"), emit a variable token for it (e.g., VariableToken("foo"))
         // First character of the variable : letter
         // Every subsequent character: letter or a digit
-
         String name = "";
         if (offset<input.length() && Character.isLetter(input.charAt(offset))){
             name+=input.charAt(offset);
@@ -37,7 +34,6 @@ public class Tokenizer {
                 name += input.charAt(offset);
                 offset++;
             }
-
             // by this point, `name` holds a potential variable
             // `name` could be "true"
             if(name.equals("true")){
