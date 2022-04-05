@@ -1,5 +1,6 @@
 package parser;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lexer.tokens.IntegerToken;
 import lexer.tokens.*;
 import org.junit.Test;
@@ -314,6 +315,145 @@ public class ParserTest {
                             Arrays.asList(new PrintStmt(new IntegerExp(0)))
                         )
                     ))
+                )
+            )
+        );
+
+        assertEquals(expected,parser.parseProgram());
+    }
+
+    @Test
+    public void testProgramMultiClasses() throws ParserException {
+        List<Token> tokens = Arrays.asList(
+            new ClassToken(), new VariableToken("myclass1"), new LeftCurlyToken(),
+                new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new SemiColonToken(), new RightParenToken(), new LeftCurlyToken(),
+                    new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken(),
+            new RightCurlyToken(),
+            new ClassToken(), new VariableToken("myclass2"), new LeftCurlyToken(),
+                new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new SemiColonToken(), new RightParenToken(), new LeftCurlyToken(),
+                    new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken(),
+            new RightCurlyToken()
+        );
+
+        Parser parser = new Parser(tokens);
+
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("myclass1"),
+                    Arrays.asList(new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("myMethod"),
+                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                        new BlockStmt(
+                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                        )
+                    ))
+                ),
+                new ClassDef(
+                    new ClassName("myclass2"),
+                    Arrays.asList(new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("myMethod"),
+                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                        new BlockStmt(
+                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                        )
+                    ))
+                )
+            )
+        );
+
+        assertEquals(expected,parser.parseProgram());
+    }
+
+    @Test
+    public void testProgramMultiClassesMultiMethods() throws ParserException {
+        List<Token> tokens = Arrays.asList(
+            new ClassToken(), new VariableToken("myclass1"), new LeftCurlyToken(),
+                new PublicToken(), new IntegerToken(), new VariableToken("myMethod1"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new SemiColonToken(), new RightParenToken(), new LeftCurlyToken(),
+                    new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken(),
+                new PrivateToken(), new BooleanToken(), new VariableToken("myMethod2"), new LeftParenToken(), new StringToken(), new VariableToken("y"), new SemiColonToken(), new RightParenToken(), new LeftCurlyToken(),
+                    new PrintToken(), new LeftParenToken(), new NumbersToken(2), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken(),
+                new ProtectedToken(), new StringToken(), new VariableToken("myMethod3"), new LeftParenToken(), new BooleanToken(), new VariableToken("z"), new SemiColonToken(),
+            new RightParenToken(), new LeftCurlyToken(),
+                    new PrintToken(), new LeftParenToken(), new NumbersToken(2), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken(),
+            new RightCurlyToken(),
+            new ClassToken(), new VariableToken("myclass2"), new LeftCurlyToken(),
+                new PublicToken(), new IntegerToken(), new VariableToken("myMethod1"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new SemiColonToken(), new RightParenToken(), new LeftCurlyToken(),
+                    new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken(),
+                new PrivateToken(), new BooleanToken(), new VariableToken("myMethod2"), new LeftParenToken(), new StringToken(), new VariableToken("y"), new SemiColonToken(), new RightParenToken(), new LeftCurlyToken(),
+                    new PrintToken(), new LeftParenToken(), new NumbersToken(2), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken(),
+            new RightCurlyToken()
+        );
+
+        Parser parser = new Parser(tokens);
+
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("myclass1"),
+                    Arrays.asList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("myMethod1"),
+                            Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        ),
+                        new MethodDef(
+                            new PrivateType(),
+                            new BooleanType(),
+                            new MethodName("myMethod2"),
+                            Arrays.asList(new Vardec(new StringType(), new VariableExp("y"))),
+                            new BlockStmt(
+                                Arrays.asList(new PrintStmt(new IntegerExp(2)))
+                            )
+                        ),
+                        new MethodDef(
+                            new ProtectedType(),
+                            new StringType(),
+                            new MethodName("myMethod3"),
+                            Arrays.asList(new Vardec(new BooleanType(), new VariableExp("z"))),
+                            new BlockStmt(
+                                Arrays.asList(new PrintStmt(new IntegerExp(2)))
+                            )
+                        )
+                    )
+                ),
+                new ClassDef(
+                    new ClassName("myclass2"),
+                    Arrays.asList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("myMethod1"),
+                            Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        ),
+                        new MethodDef(
+                            new PrivateType(),
+                            new BooleanType(),
+                            new MethodName("myMethod2"),
+                            Arrays.asList(new Vardec(new StringType(), new VariableExp("y"))),
+                            new BlockStmt(
+                                Arrays.asList(new PrintStmt(new IntegerExp(2)))
+                            )
+                        )
+                    )
                 )
             )
         );
