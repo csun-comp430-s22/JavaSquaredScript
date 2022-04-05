@@ -288,6 +288,39 @@ public class ParserTest {
         new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new ClassCallExp(new ClassName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),7));
     }
 
+    @Test
+    public void testProgram() throws ParserException {
+        List<Token> tokens = Arrays.asList(
+            new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
+            new PublicToken(), new IntegerToken(), new VariableToken("myMethod"),
+            new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new SemiColonToken(),
+            new RightParenToken(), new LeftCurlyToken(),
+            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(),
+            new SemiColonToken(), new RightCurlyToken(), new RightCurlyToken()
+        );
+
+        Parser parser = new Parser(tokens);
+
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("myclass"),
+                    Arrays.asList(new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("myMethod"),
+                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                        new BlockStmt(
+                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                        )
+                    ))
+                )
+            )
+        );
+
+        assertEquals(expected,parser.parseProgram());
+    }
+
 
     // methodA(5,a)
 }
