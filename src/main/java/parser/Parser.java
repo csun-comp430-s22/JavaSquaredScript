@@ -361,9 +361,37 @@ public class Parser {
                 "or print or {; received " + token);
         }
     }
+    //instanceDec ::= accessMod varDec`;`
+    public ParseResult<Stmt> parseInstanceDec(final int position){
+        final Token token = getToken(position);
+        if(token instanceof PublicToken || token instanceof PrivateToken || token instanceof ProtectedToken){
+            ParseResult<Stmt> stmt = parseStmt(position+1);
+            assertTokenHereIs(stmt.position, new SemiColonToken());
+            // needs to return the instanceDecStmt
+        }
+    }
 
+    // methodDef::= accessMod type methodName(exp*) stmt
+    public ParseResult<Stmt> parseMethodDef(final int position) throws ParserException{
+        final Token token = getToken(position);
+        if(token instanceof PublicToken || token instanceof PrivateToken || token instanceof ProtectedToken){
+            //TODO: need to continue
+        }
+
+    }
+
+    // classDef::= class classname extends classname{ instancedec* methodDef* constructor(varDec*) stmt}
+    public ParseResult<Stmt> parseClassDef(final int position) throws ParserException{
+        final Token token = getToken(position);
+        if(token instanceof ClassToken){
+            //TODO: need to continue
+        }
+
+    }
+
+    // program::= classDef*
     public ParseResult<Program> parseProgram(final int position) throws ParserException{
-        final ParseResult<Stmt> stmt = parseStmt(position);
+        final ParseResult<Stmt> stmt = parseClassDef(position);
         return new ParseResult<Program>(new Program(stmt.result),stmt.position);
     }
 
