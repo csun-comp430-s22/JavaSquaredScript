@@ -30,6 +30,11 @@ public class ParserTest {
         assertEquals(expected,parser.parseStmt(0));
     }
 
+    public void assertParseProgram(final List<Token> input, final Program expected) throws ParserException {
+        final Parser parser = new Parser(input);
+        assertEquals(expected, parser.parseProgram());
+    }
+
     @Test
     public void testEqualsOpExp() {
         // 1 + 1 == 1 + 1
@@ -300,8 +305,6 @@ public class ParserTest {
             new SemiColonToken(), new RightCurlyToken(), new RightCurlyToken()
         );
 
-        Parser parser = new Parser(tokens);
-
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
@@ -318,8 +321,7 @@ public class ParserTest {
                 )
             )
         );
-
-        assertEquals(expected,parser.parseProgram());
+        assertParseProgram(tokens, expected);
     }
 
     @Test
@@ -336,8 +338,6 @@ public class ParserTest {
                 new RightCurlyToken(),
             new RightCurlyToken()
         );
-
-        Parser parser = new Parser(tokens);
 
         Program expected = new Program(
             Arrays.asList(
@@ -367,8 +367,7 @@ public class ParserTest {
                 )
             )
         );
-
-        assertEquals(expected,parser.parseProgram());
+        assertParseProgram(tokens, expected);
     }
 
     @Test
@@ -395,8 +394,6 @@ public class ParserTest {
                 new RightCurlyToken(),
             new RightCurlyToken()
         );
-
-        Parser parser = new Parser(tokens);
 
         Program expected = new Program(
             Arrays.asList(
@@ -458,7 +455,7 @@ public class ParserTest {
             )
         );
 
-        assertEquals(expected,parser.parseProgram());
+        assertParseProgram(tokens, expected);
     }
 
 
