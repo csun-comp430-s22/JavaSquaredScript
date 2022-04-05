@@ -282,14 +282,14 @@ public class ParserTest {
 
     @Test
     public void testClassCall() throws ParserException{
-        assertParses(Arrays.asList(new NewToken(),new VariableToken("methodA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()), 
-        new ParseResult<Exp>(new ClassCallExp(new ClassName("methodA"),Arrays.asList(new IntegerExp(23))),5));
+        assertParses(Arrays.asList(new NewToken(),new VariableToken("classA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()),
+        new ParseResult<Exp>(new ClassCallExp(new ClassName("classA"),Arrays.asList(new IntegerExp(23))),5));
         //methodA(23,i)
     }
     @Test
     public void testClassMultipleInputsCall() throws ParserException{
-        assertParses(Arrays.asList(new NewToken(),new VariableToken("methodB"),new LeftParenToken(),new NumbersToken(23),new CommaToken(),
-        new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new ClassCallExp(new ClassName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),7));
+        assertParses(Arrays.asList(new NewToken(),new VariableToken("classB"),new LeftParenToken(),new NumbersToken(23),new CommaToken(),
+        new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new ClassCallExp(new ClassName("classB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),7));
     }
     
 
