@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.sun.jdi.IntegerType;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lexer.tokens.*;
 import parser.BooleanLiteralExp;
 import parser.DivisionOp;
@@ -21,7 +22,7 @@ public class Parser {
 
     public Token getToken(final int position) throws ParserException{
         if(position>= 0&& position<tokens.size()){
-            System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
+            //System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
             return tokens.get(position);
         }else{
             throw new ParserException("Invalid Token position: "+ position);
@@ -377,111 +378,110 @@ public class Parser {
         }
     }
 
-    public ParseResult<MethodDef> parseMethods(final int position) throws ParserException {
-
-        ParseResult<AccessType> accessType = parseAccessType(position);
-        final Token token = getToken(accessType.position);
-
-        // Only handles a single method
-        if (token instanceof IntegerToken) {
-
-            final ParseResult<Exp> exp = parseExp(accessType.position + 1);
-            if (getToken(exp.position - 1) instanceof VariableToken) {
-                assertTokenHereIs(exp.position, new LeftParenToken());
-                final ParseResult<Stmt> vardec = parseStmt(exp.position + 1);
-                if (!(vardec.result instanceof Vardec)) {
-                    throw new ParserException("expected vardec; received " + token);
-                }
-                assertTokenHereIs(vardec.position, new RightParenToken());
-                final ParseResult<Stmt> body = parseStmt(vardec.position + 1);
-
-                return new ParseResult<>(new MethodDef(
-                    accessType.result,
-                    new IntType(),
-                    new MethodName(((VariableExp) exp.result).name),
-                    Arrays.asList((Vardec) vardec.result),
-                    body.result
-                ), body.position);
-            } else {
-                throw new ParserException("expected variable; received " + token);
+    public ParseResult<MethodDef> parseMethodHelper(final ParseResult<AccessType> accessType,
+        final Type returnType, final int position) throws ParserException {
+        final ParseResult<Exp> exp = parseExp(position + 1);
+        if (getToken(exp.position - 1) instanceof VariableToken) {
+            assertTokenHereIs(exp.position, new LeftParenToken());
+            final ParseResult<Stmt> vardec = parseStmt(exp.position + 1);
+            if (!(vardec.result instanceof Vardec)) {
+                throw new ParserException("expected vardec; received " + getToken(vardec.position));
             }
-        } else if (token instanceof BooleanToken) {
-            final ParseResult<Exp> exp = parseExp(accessType.position + 1);
-            if (getToken(exp.position - 1) instanceof VariableToken) {
-
-                assertTokenHereIs(exp.position, new LeftParenToken());
-                final ParseResult<Stmt> vardec = parseStmt(exp.position + 1);
-                if (!(vardec.result instanceof Vardec)) {
-                    throw new ParserException("expected vardec; received " + token);
-                }
-                assertTokenHereIs(vardec.position, new RightParenToken());
-                final ParseResult<Stmt> body = parseStmt(vardec.position + 1);
-
-                return new ParseResult<>(new MethodDef(
-                    accessType.result,
-                    new BooleanType(),
-                    new MethodName(((VariableExp) exp.result).name),
-                    Arrays.asList((Vardec) vardec.result),
-                    body.result
-                ), body.position);
-            } else {
-                throw new ParserException("expected variable; received " + token);
-            }
-        } else if (token instanceof StringToken) {
-            final ParseResult<Exp> exp = parseExp(accessType.position + 1);
-            if (getToken(exp.position - 1) instanceof VariableToken) {
-
-                assertTokenHereIs(exp.position, new LeftParenToken());
-                final ParseResult<Stmt> vardec = parseStmt(exp.position + 1);
-                if (!(vardec.result instanceof Vardec)) {
-                    throw new ParserException("expected vardec; received " + token);
-                }
-                assertTokenHereIs(vardec.position, new RightParenToken());
-                final ParseResult<Stmt> body = parseStmt(vardec.position + 1);
-
-                return new ParseResult<>(new MethodDef(
-                    accessType.result,
-                    new StringType(),
-                    new MethodName(((VariableExp) exp.result).name),
-                    Arrays.asList((Vardec) vardec.result),
-                    body.result
-                ), body.position);
-            } else {
-                throw new ParserException("expected variable; received " + token);
-            }
+            assertTokenHereIs(vardec.position, new RightParenToken());
+            final ParseResult<Stmt> body = parseStmt(vardec.position + 1);
+            return new ParseResult<>(new MethodDef(
+                accessType.result,
+                returnType,
+                new MethodName(((VariableExp) exp.result).name),
+                // TODO: Instead of checking for a single vardec, we need to check for multiple vardecs
+                //  somewhere in this method
+                Arrays.asList((Vardec) vardec.result),
+                body.result
+            ), body.position);
         } else {
-            throw new ParserException("expected type; received " + token);
+            throw new ParserException("expected variable; received " + getToken(exp.position - 1));
         }
     }
 
-    public ParseResult<ClassDef> parseClasses(final int position) throws ParserException {
-        final Token token = getToken(position);
+    public ParseResult<List<MethodDef>> parseMethods(final int position) throws ParserException {
+        List<MethodDef> methodDefs = new ArrayList<>();
+        ParseResult<AccessType> accessType;
+        Token token;
+        int currentPosition = position;
+        boolean shouldRun = true;
 
-        // Only handles a single class
-        if (token instanceof ClassToken) {
-            final ParseResult<Exp> exp = parseExp(position + 1);
-            if (getToken(exp.position - 1) instanceof VariableToken) {
-                assertTokenHereIs(exp.position, new LeftCurlyToken());
-                ParseResult<MethodDef> methodDef = parseMethods(exp.position + 1);
-                assertTokenHereIs(methodDef.position, new RightCurlyToken());
+        while (shouldRun) {
+            try {
+                accessType = parseAccessType(currentPosition);
+                token = getToken(accessType.position);
 
-                return new ParseResult<>(new ClassDef(
-                    new ClassName(((VariableExp) exp.result).name),
-                    Arrays.asList(methodDef.result)
-                ), methodDef.position + 1);
-            } else {
-                throw new ParserException("expected variable; received " + token);
+                if (token instanceof IntegerToken) {
+                    ParseResult<MethodDef> methodDef = parseMethodHelper(accessType, new IntType(),
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    methodDefs.add(methodDef.result);
+
+                } else if (token instanceof BooleanToken) {
+                    ParseResult<MethodDef> methodDef = parseMethodHelper(accessType, new BooleanType(),
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    methodDefs.add(methodDef.result);
+                } else if (token instanceof StringToken) {
+                    ParseResult<MethodDef> methodDef = parseMethodHelper(accessType, new StringType(),
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    methodDefs.add(methodDef.result);
+                } else {
+                    throw new ParserException("expected type; received " + token);
+                }
+            } catch (final ParserException e) {
+                shouldRun = false;
             }
-        } else {
-            throw new ParserException("expected class; received " + token);
         }
+        return new ParseResult<>(methodDefs, currentPosition);
+    }
+
+    public ParseResult<List<ClassDef>> parseClasses(final int position) throws ParserException {
+        List<ClassDef> classDefs = new ArrayList<>();
+        Token token;
+        int currentPosition = position;
+        boolean shouldRun = true;
+
+        while (shouldRun) {
+            try {
+                token = getToken(currentPosition);
+                if (token instanceof ClassToken) {
+                    final ParseResult<Exp> exp = parseExp(currentPosition + 1);
+                    if (getToken(exp.position - 1) instanceof VariableToken) {
+                        assertTokenHereIs(exp.position, new LeftCurlyToken());
+                        ParseResult<List<MethodDef>> methodDefs = parseMethods(exp.position + 1);
+                        assertTokenHereIs(methodDefs.position, new RightCurlyToken());
+                        currentPosition = methodDefs.position + 1;
+
+                        classDefs.add(new ClassDef(
+                            new ClassName(((VariableExp) exp.result).name),
+                            methodDefs.result
+                        ));
+                    } else {
+                        shouldRun = false;
+                    }
+
+                } else {
+                    throw new ParserException("expected class; received " + token);
+                }
+            } catch (final ParserException e) {
+                shouldRun = false;
+            }
+        }
+
+        return new ParseResult<>(classDefs, currentPosition);
     }
 
     public ParseResult<Program> parseProgram(final int position) throws ParserException {
-        final ParseResult<ClassDef> classDef = parseClasses(position);
+        final ParseResult<List<ClassDef>> classDef = parseClasses(position);
 
         return new ParseResult<>(new Program(
-            Arrays.asList(classDef.result)
+            classDef.result
         ), classDef.position);
     }
 
@@ -491,6 +491,7 @@ public class Parser {
         if (program.position == tokens.size()) {
             return program.result;
         } else {
+            System.out.println(tokens.size());
             throw new ParserException("Tokens still exist");
         }
     }
