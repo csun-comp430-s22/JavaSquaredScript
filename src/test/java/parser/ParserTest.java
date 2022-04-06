@@ -324,6 +324,19 @@ public class ParserTest {
         assertParseProgram(tokens, expected);
     }
 
+    /*
+        class myclass1 {
+            public Int myMethod(Int x;) {
+                print(0);
+            }
+        }
+
+        class myclass2 {
+            public Int myMethod(Int x;) {
+                print(0);
+            }
+        }
+     */
     @Test
     public void testProgramMultiClasses() throws ParserException {
         List<Token> tokens = Arrays.asList(
@@ -370,6 +383,35 @@ public class ParserTest {
         assertParseProgram(tokens, expected);
     }
 
+    /*
+        class myclass1 {
+            public Int myMethod1(Int x;) {
+                print(0);
+            }
+
+            private Boolean myMethod2(String y;) {
+                print(2);
+            }
+
+            protected String myMethod3(Boolean z;) {
+                print(2);
+            }
+        }
+
+        class myclass2 {
+            public Int myMethod1(Int x;) {
+                print(0);
+            }
+
+            private Boolean myMethod2(String y;) {
+                print(2);
+            }
+
+            protected String myMethod3(Boolean z;) {
+                print(2);
+            }
+        }
+     */
     @Test
     public void testProgramMultiClassesMultiMethods() throws ParserException {
         List<Token> tokens = Arrays.asList(
