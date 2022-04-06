@@ -366,13 +366,17 @@ public class Parser {
         }
     }
     //instanceDec ::= accessMod varDec`;`
-    public ParseResult<InstanceDec> parseInstanceDec(final int position){
+    public ParseResult<InstanceDec> parseInstanceDec(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof PublicToken || token instanceof PrivateToken || token instanceof ProtectedToken){
             ParseResult<AccessMod> accesmod = parseAccessMod(position);
-            ParseResult<Stmt> stmt = parseStmt(accesmod.position);
-            assertTokenHereIs(stmt.position, new SemiColonToken());
-            return new ParseResult<InstanceDec>(new InstanceDec(accesmod.result, stmt.result), stmt.position);
+            final Token temp = getToken(position + 1);
+            if (temp instanceof IntegerToken || temp instanceof BooleanToken || temp instanceof StringToken) {
+                ParseResult<Stmt> stmt = parseStmt(accesmod.position);
+                return new ParseResult<InstanceDec>(new InstanceDec(accesmod.result, stmt.result), stmt.position);
+            } else {
+                throw new ParserException("expected type; received " + temp);
+            }
         }else{
             throw new ParserException("expected Access Modifier; received "+token);
         }
