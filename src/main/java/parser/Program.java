@@ -2,9 +2,9 @@ package parser;
 import java.util.List;
 
 public class Program {
-    public final List<ClassDef> classes;
+    public final ClassDef classes;
 
-    public Program(final List<ClassDef> classes) {
+    public Program(final ClassDef classes) {
         this.classes = classes;
     }
 
