@@ -25,7 +25,7 @@ public class InstanceDec {
 	}
 
 	public String toString() {
-		return ("MethodDef(" +
+		return ("InstanceDec(" +
 			accessType.toString() + ", " +
 			vardec.toString() +")");
 	}

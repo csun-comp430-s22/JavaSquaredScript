@@ -5,7 +5,6 @@ import lexer.tokens.IntegerToken;
 import lexer.tokens.*;
 import org.junit.Test;
 
-import java.beans.Transient;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -293,7 +292,33 @@ public class ParserTest {
         assertParses(Arrays.asList(new NewToken(),new VariableToken("methodB"),new LeftParenToken(),new NumbersToken(23),new CommaToken(),
         new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new ClassCallExp(new ClassName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),7));
     }
+    
 
+    /*
+        class myclass extends class{
+            constructor(){
+            }
+        }
+    */
+    @Test
+    public void testExtends() throws ParserException{
+        List<Token> tokens = Arrays.asList(
+            new ClassToken(), new VariableToken("myclass"), new ExtendsToken(), new VariableToken("class"),new LeftCurlyToken(),
+            new PublicToken(), new IntegerToken(), new VariableToken("a"), new SemiColonToken(),
+            new ConstructorToken(), new LeftParenToken(), new RightParenToken(), new LeftCurlyToken(), new RightCurlyToken(),
+            new RightCurlyToken());
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("myclass"),
+                    new ClassName("class"),
+                    Arrays.asList(new ConstructorDef(new ArrayList<>(), new BlockStmt(new ArrayList<>()))),
+                    new ArrayList<>(),
+                    Arrays.asList(new InstanceDec(new PublicType(), new Vardec(new IntType(), new VariableExp("a"))))
+                )));
+        assertParseProgram(tokens, expected);
+    }
+    
     @Test
     public void testProgram() throws ParserException {
         List<Token> tokens = Arrays.asList(
@@ -345,6 +370,5 @@ public class ParserTest {
         );
         assertParseProgram(tokens, expected);
     }
-
     // methodA(5,a)
 }
