@@ -1,31 +1,33 @@
 package parser;
+
 import java.util.List;
-public class ConstructorDef{
-    public final List<Stmt> parameters;
-    public final Stmt body;
 
-    public ConstructorDef(final List<Stmt> parameters, final Stmt body){
-        this.parameters = parameters;
-        this.body = body;
-    }
+public class ConstructorDef {
 
-    public int hashCode(){
-        return (parameters.hashCode()+body.hashCode());
-    }
+	public final List<Vardec> parameters;
+	public final Stmt body;
 
-    public boolean equals(final Object other){
-        if (other instanceof ConstructorDef) {
-            final ConstructorDef otherDef = (ConstructorDef)other;
-            return (parameters.equals(otherDef.parameters) &&
-                    body.equals(otherDef.body));
-        } else {
-            return false;
-        }
-    }
+	public ConstructorDef( final List<Vardec> parameters, final Stmt body) {
+		this.parameters = parameters;
+		this.body = body;
+	}
 
-    public String toString() {
-        return ("ConstructorDef(" + 
-                parameters.toString() + ", " +
-                body.toString() + ")");
-    }
+	public int hashCode() {
+		return parameters.hashCode() + body.hashCode();
+	}
+
+	public boolean equals(final Object other) {
+		if (other instanceof ConstructorDef) {
+			final ConstructorDef otherDef = (ConstructorDef) other;
+
+			return parameters.equals(otherDef.parameters) && body.equals(otherDef.body);
+		} else {
+			return false;
+		}
+	}
+
+	public String toString() {
+		return "ClassDef(" + parameters.hashCode() + body.hashCode() + ")";
+	}
+
 }

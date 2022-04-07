@@ -1,45 +1,46 @@
 package parser;
+
 import java.util.List;
 
-public class MethodDef{
-    public final AccessMod accessmod;
-    public final Type returnType;
-    public final Exp exp;
-    public final Stmt body;
+public class MethodDef {
 
-    public MethodDef(final AccessMod accessmod, final Type returnType,
-                final Exp exp,
-                final Stmt body) {
-        this.accessmod = accessmod;
-        this.returnType = returnType;
-        this.exp = exp;
-        this.body = body;
-    }
+	public final AccessType accessType;
+	public final Type returnType;
+	public final MethodName methodName;
+	final List<Vardec> arguments;
+	public final Stmt body;
 
-    public int hashCode() {
-        return (accessmod.hashCode() + 
-                returnType.hashCode() +
-                exp.hashCode() +
-                body.hashCode());
-    }
+	public MethodDef(final AccessType accessType, final Type returnType, final MethodName methodName,
+		List<Vardec> arguments, final Stmt body) {
+		this.accessType = accessType;
+		this.returnType = returnType;
+		this.methodName = methodName;
+		this.arguments = arguments;
+		this.body = body;
+	}
 
-    public boolean equals(final Object other) {
-        if (other instanceof MethodDef) {
-            final MethodDef otherDef = (MethodDef)other;
-            return (accessmod.equals(otherDef.accessmod) && 
-                    (returnType.equals(otherDef.returnType)) &&
-                    (exp.equals(otherDef.exp)) &&
-                    body.equals(otherDef.body));
-        } else {
-            return false;
-        }
-    }
+	public int hashCode() {
+		return accessType.hashCode() + returnType.hashCode() + methodName.hashCode() + arguments.hashCode() +
+			body.hashCode();
+	}
 
-    public String toString() {
-        return ("MethodDef(" + 
-                accessmod.toString() + ", " +
-                returnType.toString() + ", " +
-                exp.toString() + ", " +
-                body.toString() + ")");
-    }
+	public boolean equals(final Object other) {
+		if (other instanceof MethodDef) {
+			final MethodDef otherDef = (MethodDef) other;
+
+			return accessType.equals(otherDef.accessType) &&
+				returnType.equals(otherDef.returnType) &&
+				methodName.equals(otherDef.methodName) &&
+				arguments.equals(otherDef.arguments) &&
+				body.equals(otherDef.body);
+		} else {
+			return false;
+		}
+	}
+
+	public String toString() {
+		return "MethodDef(" + accessType.toString() + ", " + returnType.toString() + ", " + methodName.toString() +
+			", " + arguments.toString() + ", " + body.toString() + ")";
+	}
+
 }

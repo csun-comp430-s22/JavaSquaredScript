@@ -1,9 +1,11 @@
 package parser;
 
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import com.sun.jdi.IntegerType;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lexer.tokens.*;
 import parser.BooleanLiteralExp;
 import parser.BooleanType;
@@ -26,6 +28,7 @@ public class Parser {
 
     public Token getToken(final int position) throws ParserException{
         if(position>= 0&& position<tokens.size()){
+            //System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
             return tokens.get(position);
         }else{
             throw new ParserException("Invalid Token position: "+ position);
@@ -61,9 +64,7 @@ public class Parser {
                             assertTokenHereIs(position+counter, new CommaToken());
                             counter++;
                         }catch(final ParserException exception){
-                            assertTokenHereIs(position+counter, new RightParenToken());
-                            shouldRun = false;
-                        }  
+                        }
                     }
                 }
                 counter++;
@@ -105,7 +106,7 @@ public class Parser {
                             assertTokenHereIs(position+counter, new CommaToken());
                             counter++;
                         }catch(final ParserException exception){
-                        }  
+                        }
                     }
                 }
                 counter++;
@@ -155,7 +156,7 @@ public class Parser {
     }
 
     public ParseResult<Exp> parseMultiplicativeExp(final int position) throws ParserException{
-        ParseResult<Exp> current = parsePeriodExp(position); 
+        ParseResult<Exp> current = parsePeriodExp(position);
         boolean shouldRun = true;
         while(shouldRun){
             try {
@@ -365,179 +366,312 @@ public class Parser {
                 "or print or {; received " + token);
         }
     }
-    //instanceDec ::= accessMod varDec`;`
-    public ParseResult<InstanceDec> parseInstanceDec(final int position) throws ParserException{
-        final Token token = getToken(position);
-        if(token instanceof PublicToken || token instanceof PrivateToken || token instanceof ProtectedToken){
-            ParseResult<AccessMod> accesmod = parseAccessMod(position);
-            final Token temp = getToken(position + 1);
-            if (temp instanceof IntegerToken || temp instanceof BooleanToken || temp instanceof StringToken) {
-                ParseResult<Stmt> stmt = parseStmt(accesmod.position);
-                return new ParseResult<InstanceDec>(new InstanceDec(accesmod.result, stmt.result), stmt.position);
-            } else {
-                throw new ParserException("expected type; received " + temp);
+
+    public ParseResult<AccessType> parseAccessType(final int position) throws ParserException {
+        Token token = getToken(position);
+
+        if (token instanceof PrivateToken) {
+            return new ParseResult<>(new PrivateType(), position + 1);
+        } else if (token instanceof PublicToken) {
+            return new ParseResult<>(new PublicType(), position + 1);
+        } else if (token instanceof ProtectedToken) {
+            return new ParseResult<>(new ProtectedType(), position + 1);
+        } else {
+            throw new ParserException("expected private or public or protected; received " + token);
+        }
+    }
+
+    public ParseResult<Type> parseReturnType(final int position) throws ParserException {
+        Token token = getToken(position);
+
+        if (token instanceof IntegerToken) {
+            return new ParseResult<>(new IntType(), position + 1);
+        } else if (token instanceof BooleanToken) {
+            return new ParseResult<>(new BooleanType(), position + 1);
+        } else if (token instanceof StringToken) {
+            return new ParseResult<>(new StringType(), position + 1);
+        } else {
+            throw new ParserException("expected Int or Boolean or String; received " + token);
+        }
+    }
+
+    public ParseResult<MethodDef> parseMethodHelper(final ParseResult<AccessType> accessType,
+        final Type returnType, final int position) throws ParserException {
+        final ParseResult<Exp> exp = parseExp(position + 1);
+        if (getToken(exp.position - 1) instanceof VariableToken) {
+            assertTokenHereIs(exp.position, new LeftParenToken());
+            final ParseResult<Stmt> vardec = parseStmt(exp.position + 1);
+            if (!(vardec.result instanceof Vardec)) {
+                throw new ParserException("expected vardec; received " + getToken(vardec.position));
             }
-        }else{
-            throw new ParserException("expected Access Modifier; received "+token);
+            assertTokenHereIs(vardec.position, new RightParenToken());
+            final ParseResult<Stmt> body = parseStmt(vardec.position + 1);
+            return new ParseResult<>(new MethodDef(
+                accessType.result,
+                returnType,
+                new MethodName(((VariableExp) exp.result).name),
+                // TODO: Instead of checking for a single vardec, we need to check for multiple vardecs
+                //  somewhere in this method
+                Arrays.asList((Vardec) vardec.result),
+                body.result
+            ), body.position);
+        } else {
+            throw new ParserException("expected variable; received " + getToken(exp.position - 1));
         }
     }
 
-    // methodDef::= accessMod type methodName(exp*) stmt
-    public ParseResult<MethodDef> parseMethodDef(final int position) throws ParserException{
-        final Token token = getToken(position);
-        if(token instanceof PublicToken || token instanceof PrivateToken || token instanceof ProtectedToken){
-            ParseResult<AccessMod> accessMod = parseAccessMod(position);
-            final Token nextToken = getToken(accessMod.position);
-            if(nextToken instanceof IntegerToken|| nextToken instanceof BooleanToken||nextToken instanceof StringToken){
-                ParseResult<Type> type = parseType(accessMod.position);
-                ParseResult<Exp> functionCallParam = parseExp(type.position);
-                ParseResult<Stmt> stmt = parseStmt(functionCallParam.position);
-                //needs a return the methodDef
-                return new ParseResult<MethodDef>(new MethodDef(accessMod.result,type.result,functionCallParam.result, stmt.result), stmt.position+1);
-            }else{
-                throw new ParserException("expected Type; received "+nextToken);
+    public ParseResult<InstanceDec> parseInstanceHelper(final ParseResult<AccessType> accessType,
+        final int position) throws ParserException {
+        final ParseResult<Stmt> vardec = parseStmt(position);
+        if (vardec.result instanceof Vardec) {
+            return new ParseResult<>(new InstanceDec(accessType.result, (Vardec) vardec.result),
+                vardec.position);
+        } else {
+            throw new ParserException("expected vardec; received " + vardec.result);
+        }
+    }
+
+    public ParseResult<List<InstanceDec>> parseInstances(final int position) throws ParserException {
+        List<InstanceDec> instanceDecs = new ArrayList<>();
+        ParseResult<AccessType> accessType;
+        Token token;
+        int currentPosition = position;
+        boolean shouldRun = true;
+
+        while (shouldRun) {
+            try {
+                accessType = parseAccessType(currentPosition);
+                token = getToken(accessType.position);
+
+                if (token instanceof IntegerToken) {
+                    ParseResult<InstanceDec> methodDef = parseInstanceHelper(accessType,
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    instanceDecs.add(methodDef.result);
+
+                } else if (token instanceof BooleanToken) {
+                    ParseResult<InstanceDec> methodDef = parseInstanceHelper(accessType,
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    instanceDecs.add(methodDef.result);
+                } else if (token instanceof StringToken) {
+                    ParseResult<InstanceDec> methodDef = parseInstanceHelper(accessType,
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    instanceDecs.add(methodDef.result);
+                } else {
+                    throw new ParserException("expected type; received " + token);
+                }
+
+            } catch (final ParserException e) {
+                shouldRun = false;
             }
-        }else{
-            throw new ParserException("expected Access Modifier; received "+token);
+        }
+
+        return new ParseResult<>(instanceDecs, currentPosition);
+    }
+
+    public ParseResult<List<MethodDef>> parseMethods(final int position) throws ParserException {
+        List<MethodDef> methodDefs = new ArrayList<>();
+        ParseResult<AccessType> accessType;
+        Token token;
+        int currentPosition = position;
+        boolean shouldRun = true;
+
+        while (shouldRun) {
+            try {
+                accessType = parseAccessType(currentPosition);
+                token = getToken(accessType.position);
+
+                if (token instanceof IntegerToken) {
+                    ParseResult<MethodDef> methodDef = parseMethodHelper(accessType, new IntType(),
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    methodDefs.add(methodDef.result);
+
+                } else if (token instanceof BooleanToken) {
+                    ParseResult<MethodDef> methodDef = parseMethodHelper(accessType, new BooleanType(),
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    methodDefs.add(methodDef.result);
+                } else if (token instanceof StringToken) {
+                    ParseResult<MethodDef> methodDef = parseMethodHelper(accessType, new StringType(),
+                        currentPosition + 1);
+                    currentPosition = methodDef.position;
+                    methodDefs.add(methodDef.result);
+                } else {
+                    throw new ParserException("expected type; received " + token);
+                }
+            } catch (final ParserException e) {
+                shouldRun = false;
+            }
+        }
+        return new ParseResult<>(methodDefs, currentPosition);
+    }
+    /*
+
+    class {
+        private bool temp;
+
+        private int myMethod() {
+
         }
     }
 
-    public ParseResult<Type> parseType(final int position){
-        final Token token = getToken(position);
-        if(token instanceof IntegerToken){
-            return new ParseResult<Type>(new IntType(), position+1);
-        }else if(token instanceof BooleanToken){
-            return new ParseResult<Type>(new BooleanType(), position+1);
-        }else if(token instanceof StringToken){
-            return new ParseResult<Type>(new StringType(), position+1);
-        }else{
-            throw new ParserException("expected Type; received "+token);
-        }
-    }
+     */
+    public ParseResult<List<Vardec>> parseMethodParameters(final int position) throws ParserException {
+        List<Vardec> vardecs = new ArrayList<>();
+        int counter = position;
+        boolean shouldRun = true;
 
-    public ParseResult<AccessMod> parseAccessMod(final int position){
-        final Token token = getToken(position);
-        if(token instanceof PublicToken){
-            return new ParseResult<AccessMod>(new PublicModifier(), position+1);
-        }else if(token instanceof PrivateToken){
-            return new ParseResult<AccessMod>(new PrivateModifier(), position+1);
-        } else if(token instanceof ProtectedToken){
-            return new ParseResult<AccessMod>(new ProtectedModifier(), position+1);
-        }else{
-            throw new ParserException("Expected Access Modifier; received "+token);
-        }
-    }
+        while (shouldRun) {
+            ParseResult<Type> type = parseReturnType(counter);
 
-    public ParseResult<ConstructorDef> parseConstructor(final int position) throws ParserException{
-        final Token token= getToken(position);
-        List<Stmt> varDec = new ArrayList<>();
-        ParseResult<Stmt> stmt;
-        int counter =0;
-        assertTokenHereIs(position, new ConstructorToken());
-        counter++;
-        assertTokenHereIs(position+1, new LeftParenToken());
-        counter++;
-        boolean shouldRun= true;
-        while(true){
-            shouldRun = false;
-            try{
-                assertTokenHereIs(position+counter, new RightParenToken());
-                stmt = parseStmt(position+counter+1);
-            }catch(final ParserException parserException){
-                shouldRun = true;
-                if(getToken(position+counter) instanceof IntegerToken || getToken(position+counter) instanceof StringToken || getToken(position+counter) instanceof BooleanToken){
-                    varDec.add(parseStmt(position+counter).result);
+            if (getToken(type.position) instanceof VariableToken) {
+                vardecs.add(new Vardec(type.result,
+                    new VariableExp(((VariableToken) getToken(type.position)).name)));
+                counter++;
+                try {
+                    assertTokenHereIs(type.position + 1, new CommaToken());
                     counter++;
-                    try{
-                        assertTokenHereIs(position+counter, new CommaToken());
-                        counter++;
-                    }catch(final ParserException e){
-                        assertTokenHereIs(position+counter, new RightParenToken());
+                } catch (final ParserException e) {
+                    shouldRun = false;
+                }
+            } else {
+                throw new ParserException("expected variable; received " + getToken(type.position));
+            }
+        }
+
+        return new ParseResult<>(vardecs, counter + 1);
+    }
+
+    public ParseResult<List<ClassDef>> parseClasses(final int position) throws ParserException {
+        List<ClassDef> classDefs = new ArrayList<>();
+        List<MethodDef> methodDefs = new ArrayList<>();
+        List<ConstructorDef> constructorDefs = new ArrayList<>();
+        List<InstanceDec> instanceDecs = new ArrayList<>();
+        final Token token = getToken(position);
+        String extendsName = "", className = "";
+        int currentPosition = position;
+        boolean shouldRun = true;
+
+        while (shouldRun) {
+            if (token instanceof ClassToken) {
+                if (getToken(currentPosition + 1) instanceof VariableToken) {
+                    className = ((VariableToken) getToken(currentPosition + 1)).name;
+                    if (getToken(currentPosition + 2) instanceof ExtendsToken) {
+                        if (getToken(currentPosition + 3) instanceof VariableToken) {
+                            extendsName = ((VariableToken) getToken(currentPosition + 3)).name;
+                            currentPosition += 4;
+                        } else {
+                            throw new ParserException("expected extend name; received " + getToken(currentPosition + 3));
+                        }
+                    } else {
+                        currentPosition += 2;
+                    }
+                    assertTokenHereIs(currentPosition, new LeftCurlyToken());
+                    currentPosition++;
+
+                    while (!(getToken(currentPosition) instanceof RightCurlyToken)) {
+                        // Handles constructor
+                        if (getToken(currentPosition) instanceof ConstructorToken) {
+                            assertTokenHereIs(currentPosition + 1, new LeftParenToken());
+                            ParseResult<List<Vardec>> params = parseMethodParameters(currentPosition + 2);
+                            assertTokenHereIs(params.position, new RightParenToken());
+
+                            ParseResult<Stmt> body = parseStmt(params.position + 1);
+                            constructorDefs.add(new ConstructorDef(params.result, body.result));
+                            currentPosition += body.position;
+                        } else if (getToken(currentPosition + 2) instanceof VariableToken) {
+                            ParseResult<AccessType> accessType = parseAccessType(currentPosition);
+                            ParseResult<Type> returnType = parseReturnType(currentPosition + 1);
+
+                            String methodName = ((VariableToken) getToken(currentPosition + 2)).name;
+
+                                // Handles methods
+                            if (getToken(currentPosition + 3) instanceof LeftParenToken) {
+                                ParseResult<List<Vardec>> params = parseMethodParameters(currentPosition + 4);
+                                assertTokenHereIs(params.position, new RightParenToken());
+                                methodDefs = new ArrayList<>();
+
+                                final ParseResult<Stmt> body = parseStmt(params.position + 1);
+                                methodDefs.add(new MethodDef(
+                                    accessType.result,
+                                    returnType.result,
+                                    new MethodName(methodName),
+                                    params.result,
+                                    body.result
+                                ));
+
+                                currentPosition = body.position;
+
+                                // Handles instance declarations
+                            } else if (getToken(currentPosition + 3) instanceof SemiColonToken) {
+                                instanceDecs.add(
+                                    new InstanceDec(
+                                        accessType.result,
+                                        new Vardec(returnType.result, new VariableExp(methodName))
+                                    )
+                                );
+                                currentPosition++;
+                            } else {
+                                throw new ParserException("expected `(` or `;`; received " + getToken(currentPosition + 3));
+                            }
+
+                        } else {
+                            throw new ParserException("expected constructor or access modifier; received " + getToken(currentPosition));
+                        }
+                    }
+                    currentPosition++;
+
+                    System.out.println("Current position: " + currentPosition);
+
+                    classDefs.add(
+                        new ClassDef(
+                            new ClassName(className),
+                            new ClassName(extendsName),
+                            constructorDefs,
+                            methodDefs,
+                            instanceDecs
+                        )
+                    );
+
+                    try {
+                        assertTokenHereIs(currentPosition, new ClassToken());
+                    } catch (final ParserException e) {
                         shouldRun = false;
                     }
-                }else{
-                    throw new ParserException("expected varDec; received "+getToken(position+counter));
+                } else {
+                    throw new ParserException("expected class name; received " + getToken(position + 1));
                 }
-                
+            } else {
+                throw new ParserException("expected class; received " + token);
             }
         }
-        counter++;
-        return new ParseResult<ConstructorDef>(new ConstructorDef(varDec, stmt.result), stmt.position+1);
-        //ConstructorStmt(List<VarDec>)
+
+        return new ParseResult<>(classDefs, currentPosition);
     }
 
-    // classDef::= class classname extends classname{ instancedec* methodDef* constructor(varDec*) stmt}
-    // new ParserResult<Stmt>(new ClassDef(new ClassName(classname),new ClassName(extendsclassname), List<InstanceDec>, List<MethodDef>, new ConstructorStmt(List<varDec>), stmt.result),stmt.position);
-    public ParseResult<ClassDef> parseClassDef(final int position) throws ParserException{
-        final Token token = getToken(position);
-        List<InstanceDec> instanceDecList = new ArrayList<>();
-        List<MethodDef> methodDefList = new ArrayList<>();
-        List<ConstructorDef> constructorDefList = new ArrayList<>();
-        ParseResult<ConstructorDef> constructor;
-        if(token instanceof ClassToken){
-            //TODO: need to continue
-            if(getToken(position+1) instanceof VariableToken){
-                final String className = ((VariableToken)getToken(position+1)).name;
-                if(getToken(position+2) instanceof ExtendsToken){
-                    if(getToken(position+3) instanceof VariableToken){
-                        final String extendsClassName = ((VariableToken)getToken(position+3)).name;
-                        assertTokenHereIs(position+4, new LeftCurlyToken());
-                        boolean shouldRun = true;
-                        int currentPos = 0;
-                        while(shouldRun){
-                            shouldRun = false;
-                            try{
-                                assertTokenHereIs(position+currentPos, new RightCurlyToken());
-                            }catch(final ParserException parserException){
-                                shouldRun = true;
-                                if(getToken(position+currentPos) instanceof ConstructorToken){
-                                    //ParseResult<ConstructorDef> constructor = parseConstructor(position+currentPos);
-                                    currentPos = constructor.position;
-                                    constructor = parseConstructor(position+currentPos);
-                                    constructorDefList.add(constructor.result);
-                                }else if(getToken(position + currentPos) instanceof PublicToken || getToken(position+currentPos) instanceof PrivateToken || getToken(position+currentPos) instanceof ProtectedToken){
-                                    if(getToken(position+currentPos+1) instanceof VariableToken){
-                                        ParseResult<InstanceDec> instanceDec = parseInstanceDec(position+currentPos);
-                                        currentPos = instanceDec.position;
-                                        instanceDecList.add(instanceDec.result);
-                                    }else if(getToken(position+currentPos+1) instanceof IntegerToken||getToken(position+currentPos+1) instanceof BooleanToken || getToken(position+currentPos+1) instanceof StringToken){
-                                        ParseResult<MethodDef> method = parseMethodDef(position+currentPos);
-                                        currentPos = method.position;
-                                        methodDefList.add(method.result);
-                                    }
-                                }
-                            }
-                            
-                        }
-                        currentPos++;
-                        return new ParseResult<ClassDef>(new ClassDef(new ClassName(className), new ClassName(extendsClassName),instanceDecList,constructor.result,methodDefList) , position+currentPos);
-                    }else{
-                        throw new ParserException("expected className; received "+ getToken(position+3));
-                    }
-                }else{
-                    assertTokenHereIs(position+2, new LeftParenToken());
-                    
-                }
-            } else{
-                throw new ParserException("expected classname; received "+getToken(position+1));
-            }
-        }else{
-            throw new ParserException("expected class token; received "+token);
-        }
+    public ParseResult<Program> parseProgram(final int position) throws ParserException {
+        final ParseResult<List<ClassDef>> classDef = parseClasses(position);
+
+        return new ParseResult<>(new Program(classDef.result), classDef.position);
     }
 
-    // program::= classDef*
-    public ParseResult<Program> parseProgram(final int position) throws ParserException{
-        final ParseResult<ClassDef> stmt = parseClassDef(position);
-        return new ParseResult<Program>(new Program(stmt.result),stmt.position);
-    }
-
-    public Program parseProgram() throws ParserException{
+    public Program parseProgram() throws ParserException {
         final ParseResult<Program> program = parseProgram(0);
-        if(program.position == tokens.size()){
+
+        if (program.position == tokens.size()) {
             return program.result;
-        }else{
-            throw new ParserException("Remaining tokens at end");
+        } else {
+            System.out.println(tokens.size());
+            throw new ParserException("Tokens still exist");
         }
+    }
+
+
+    private Vardec getVardecStatement(Token token) {
+
+        return null;
     }
 }

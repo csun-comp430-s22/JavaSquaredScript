@@ -1,10 +1,11 @@
 package parser;
+
 import java.util.List;
 
 public class Program {
-    public final ClassDef classes;
+    public final List<ClassDef> classes;
 
-    public Program(final ClassDef classes) {
+    public Program(final List<ClassDef> classes) {
         this.classes = classes;
     }
 
@@ -13,8 +14,14 @@ public class Program {
     }
 
     public boolean equals(final Object other) {
-        return (other instanceof Program &&
-                classes.equals(((Program)other).classes));
+        if (other instanceof Program) {
+            final Program otherProg = (Program) other;
+
+            return classes.equals(otherProg.classes);
+        } else
+        {
+            return false;
+        }
     }
 
     public String toString() {

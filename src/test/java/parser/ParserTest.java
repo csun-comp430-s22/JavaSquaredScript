@@ -1,5 +1,6 @@
 package parser;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lexer.tokens.IntegerToken;
 import lexer.tokens.*;
 import org.junit.Test;
@@ -26,8 +27,12 @@ public class ParserTest {
     public void assertParsesStmt(final List<Token> input, final ParseResult<Stmt> expected) throws ParserException{
         //List<Token> tokensList =  Arrays.asList(input);
         final Parser parser = new Parser(input);
-        final ParseResult<Stmt> received = parser.parseStmt(0);
-        assertEquals(expected,received);
+        assertEquals(expected,parser.parseStmt(0));
+    }
+
+    public void assertParseProgram(final List<Token> input, final Program expected) throws ParserException {
+        final Parser parser = new Parser(input);
+        assertEquals(expected, parser.parseProgram());
     }
 
     @Test
@@ -207,15 +212,33 @@ public class ParserTest {
             new ParseResult<Stmt>(new Vardec(new IntType(), new VariableExp("x")), 3));
     }
 
+    @Test(expected = ParserException.class)
+    public void testVardecIntDecFail() throws ParserException {
+        assertParsesStmt(Arrays.asList(new IntegerToken(), new NumbersToken(1), new SemiColonToken()),
+            new ParseResult<Stmt>(new Vardec(new IntType(), new VariableExp("x")), 3));
+    }
+
     @Test
     public void testVardecBoolDec() throws ParserException {
         assertParsesStmt(Arrays.asList(new BooleanToken(), new VariableToken("x"), new SemiColonToken()),
             new ParseResult<Stmt>(new Vardec(new BooleanType(), new VariableExp("x")), 3));
     }
 
+    @Test(expected = ParserException.class)
+    public void testVardecBoolDecFail() throws ParserException {
+        assertParsesStmt(Arrays.asList(new BooleanToken(), new NumbersToken(1), new SemiColonToken()),
+            new ParseResult<Stmt>(new Vardec(new BooleanType(), new VariableExp("x")), 3));
+    }
+
     @Test
     public void testVardecStringDec() throws ParserException {
         assertParsesStmt(Arrays.asList(new StringToken(), new VariableToken("x"), new SemiColonToken()),
+            new ParseResult<Stmt>(new Vardec(new StringType(), new VariableExp("x")), 3));
+    }
+
+    @Test(expected = ParserException.class)
+    public void testVardecStringDecFail() throws ParserException {
+        assertParsesStmt(Arrays.asList(new StringToken(), new NumbersToken(1), new SemiColonToken()),
             new ParseResult<Stmt>(new Vardec(new StringType(), new VariableExp("x")), 3));
     }
 
@@ -271,6 +294,57 @@ public class ParserTest {
         new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new ClassCallExp(new ClassName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),7));
     }
 
+    @Test
+    public void testProgram() throws ParserException {
+        List<Token> tokens = Arrays.asList(
+            new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
+                new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
+                    new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+                new RightCurlyToken(),
+            new RightCurlyToken(),
+            new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
+            new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
+            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+            new RightCurlyToken(),
+            new RightCurlyToken()
+        );
+
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("myclass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Arrays.asList(new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("myMethod"),
+                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                        new BlockStmt(
+                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                        )
+                    )),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myclass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Arrays.asList(new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("myMethod"),
+                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                        new BlockStmt(
+                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                        )
+                    )),
+                    new ArrayList<>()
+                )
+            )
+        );
+        assertParseProgram(tokens, expected);
+    }
 
     // methodA(5,a)
 }
