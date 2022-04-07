@@ -14,7 +14,14 @@ public class Program {
     }
 
     public boolean equals(final Object other) {
-        return (other instanceof Program) && classes.equals(((Program) other).classes);
+        if (other instanceof Program) {
+            final Program otherProg = (Program) other;
+
+            return classes.equals(otherProg.classes);
+        } else
+        {
+            return false;
+        }
     }
 
     public String toString() {
