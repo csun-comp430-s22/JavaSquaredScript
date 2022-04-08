@@ -26,7 +26,7 @@ public class Parser {
 
     public Token getToken(final int position) throws ParserException{
         if(position>= 0&& position<tokens.size()){
-            System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
+            //System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
             return tokens.get(position);
         }else{
             throw new ParserException("Invalid Token position: "+ position);
@@ -36,7 +36,7 @@ public class Parser {
     public void assertTokenHereIs(final int position, final Token expected) throws ParserException{
         final Token received = getToken(position);
         if(!expected.equals(received)){
-            throw new ParserException("expected: "+ expected + "; received" + received);
+            throw new ParserException("expected: "+ expected + "; received " + received);
         }
     }
     public ParseResult<Exp> parsePrimaryExp(final int position) throws ParserException{
@@ -53,12 +53,14 @@ public class Parser {
                 while(shouldRun){
                     shouldRun = false;
                     try{
+                        System.out.print("TOKEN IS: "+getToken(position+counter));
                         assertTokenHereIs(position+counter, new RightParenToken());
                     }catch(final ParserException e){
                         shouldRun=true;
                         exp.add(parseExp(position+counter).result);
                         counter++;
                         try{
+                            System.out.println("TOKEN: "+getToken(position+counter));
                             assertTokenHereIs(position+counter, new CommaToken());
                             counter++;
                         }catch(final ParserException exception){
@@ -493,8 +495,9 @@ public class Parser {
                         new VariableExp(((VariableToken) getToken(type.position)).name)));
                     counter++;
                     try {
+                        System.out.println("Entered Here.");
                         assertTokenHereIs(type.position + 1, new CommaToken());
-                        counter++;
+                        counter+=2;
                     } catch (final ParserException e) {
                         shouldRun = false;
                     }
@@ -507,7 +510,7 @@ public class Parser {
             }
         }
 
-        return new ParseResult<>(vardecs, counter + 1);
+        return new ParseResult<>(vardecs, counter+1);
     }
 
     public ParseResult<List<ClassDef>> parseClasses(final int position) throws ParserException {
@@ -550,9 +553,7 @@ public class Parser {
                         } else if (getToken(currentPosition + 2) instanceof VariableToken) {
                             ParseResult<AccessType> accessType = parseAccessType(currentPosition);
                             ParseResult<Type> returnType = parseReturnType(currentPosition + 1);
-
                             String methodName = ((VariableToken) getToken(currentPosition + 2)).name;
-
                                 // Handles methods
                             if (getToken(currentPosition + 3) instanceof LeftParenToken) {
                                 ParseResult<List<Vardec>> params = parseMethodParameters(currentPosition + 4);
@@ -567,20 +568,19 @@ public class Parser {
                                     params.result,
                                     body.result
                                 ));
-
                                 currentPosition = body.position;
 
                                 // Handles instance declarations
                             } else if (getToken(currentPosition + 3) instanceof SemiColonToken) {
                                 instanceDecs = new ArrayList<>();
-                                System.out.println("SemiColon: "+getToken(currentPosition+3).toString());
+                                //System.out.println("SemiColon: "+getToken(currentPosition+3).toString());
                                 instanceDecs.add(
                                     new InstanceDec(
                                         accessType.result,
                                         new Vardec(returnType.result, new VariableExp(methodName))
                                     )
                                 );
-                                System.out.println("Instance Dec "+ instanceDecs.get(0));
+                                //.out.println("Instance Dec "+ instanceDecs.get(0));
                                 currentPosition+=4;
                             } else {
                                 throw new ParserException("expected `(` or `;`; received " + getToken(currentPosition + 3));
