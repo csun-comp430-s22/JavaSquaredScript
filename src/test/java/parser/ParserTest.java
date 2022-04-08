@@ -356,7 +356,8 @@ public class ParserTest {
     
     @Test
     public void testProgram() throws ParserException {
-        // Test #39 {Checking class myclass {public int myMethod(int x){print(0);}} class myclass{public int myMethod(int x){print(0);}} }
+        // Test #39 {Checking class myclass {public int myMethod(int x){print(0);}} class myclass{public int myMethod(int x){print(0);}} class myclass {public int myMethod(int x){print(0);}} }
+        //Also tests access modifiers and type declarations
         List<Token> tokens = Arrays.asList(
             new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
                 new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), 
@@ -366,9 +367,17 @@ public class ParserTest {
                 new LeftCurlyToken(),new PrintToken(), new LeftParenToken(), 
                 new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
                 new RightCurlyToken(),
+            new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
+            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+            new RightCurlyToken(),
             new RightCurlyToken(),
             new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
-            new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
+            new PrivateToken(), new StringToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
+            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+            new RightCurlyToken(),
+            new RightCurlyToken(),
+            new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
+            new ProtectedToken(), new BooleanToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
             new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
             new RightCurlyToken(),
             new RightCurlyToken()
@@ -398,8 +407,8 @@ public class ParserTest {
                     new ClassName(""),
                     new ArrayList<>(),
                     Arrays.asList(new MethodDef(
-                        new PublicType(),
-                        new IntType(),
+                        new PrivateType(),
+                        new StringType(),
                         new MethodName("myMethod"),
                         Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
                         new BlockStmt(
@@ -407,114 +416,23 @@ public class ParserTest {
                         )
                     )),
                     new ArrayList<>()
-                )
+                ),
+                    new ClassDef(
+                            new ClassName("myclass"),
+                            new ClassName(""),
+                            new ArrayList<>(),
+                            Arrays.asList(new MethodDef(
+                                    new ProtectedType(),
+                                    new BooleanType(),
+                                    new MethodName("myMethod"),
+                                    Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                                    new BlockStmt(
+                                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                                    )
+                            )),
+                            new ArrayList<>()
+                    )
             )
-        );
-        assertParseProgram(tokens, expected);
-    }
-
-    @Test
-    public void testProgramWithProtectedString() throws ParserException {
-        // Test #40 {Checking class myclass {protected String myMethod(int x){print(0);}} class myclass{public int myMethod(int x){print(0);}} }
-        List<Token> tokens = Arrays.asList(
-                new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
-                new ProtectedToken(), new StringToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-                new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-                new RightCurlyToken(),
-                new RightCurlyToken(),
-                new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
-                new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-                new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-                new RightCurlyToken(),
-                new RightCurlyToken()
-        );
-
-        Program expected = new Program(
-                Arrays.asList(
-                        new ClassDef(
-                                new ClassName("myclass"),
-                                new ClassName(""),
-                                new ArrayList<>(),
-                                Arrays.asList(new MethodDef(
-                                        new ProtectedType(),
-                                        new StringType(),
-                                        new MethodName("myMethod"),
-                                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
-                                        new BlockStmt(
-                                                Arrays.asList(new PrintStmt(new IntegerExp(0)))
-                                        )
-                                )),
-                                new ArrayList<>()
-                        ),
-                        new ClassDef(
-                                new ClassName("myclass"),
-                                new ClassName(""),
-                                new ArrayList<>(),
-                                Arrays.asList(new MethodDef(
-                                        new PublicType(),
-                                        new IntType(),
-                                        new MethodName("myMethod"),
-                                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
-                                        new BlockStmt(
-                                                Arrays.asList(new PrintStmt(new IntegerExp(0)))
-                                        )
-                                )),
-                                new ArrayList<>()
-                        )
-                )
-        );
-        assertParseProgram(tokens, expected);
-    }
-
-    @Test
-    public void testProgramWithPrivateBool() throws ParserException {
-        // Test #41 {Checking class myclass {private bool myMethod(int x){print(0);}} class myclass{public int myMethod(int x){print(0);}} }
-        List<Token> tokens = Arrays.asList(
-                new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
-                new PrivateToken(), new BooleanToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-                new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-                new RightCurlyToken(),
-                new RightCurlyToken(),
-                new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
-                new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-                new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-                new RightCurlyToken(),
-                new RightCurlyToken()
-        );
-
-        Program expected = new Program(
-                Arrays.asList(
-                        new ClassDef(
-                                new ClassName("myclass"),
-                                new ClassName(""),
-                                new ArrayList<>(),
-                                Arrays.asList(new MethodDef(
-                                        new PrivateType(),
-                                        new BooleanType(),
-                                        new MethodName("myMethod"),
-                                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
-                                        new BlockStmt(
-                                                Arrays.asList(new PrintStmt(new IntegerExp(0)))
-                                        )
-                                )),
-                                new ArrayList<>()
-                        ),
-                        new ClassDef(
-                                new ClassName("myclass"),
-                                new ClassName(""),
-                                new ArrayList<>(),
-                                Arrays.asList(new MethodDef(
-                                        new PublicType(),
-                                        new IntType(),
-                                        new MethodName("myMethod"),
-                                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
-                                        new BlockStmt(
-                                                Arrays.asList(new PrintStmt(new IntegerExp(0)))
-                                        )
-                                )),
-                                new ArrayList<>()
-                        )
-                )
         );
         assertParseProgram(tokens, expected);
     }
