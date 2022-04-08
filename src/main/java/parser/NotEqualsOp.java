@@ -1,7 +1,8 @@
-package lexer.tokens;
-public class StringToken implements Token {
+package parser;
+
+public class NotEqualsOp implements Op{
     public boolean equals(final Object other) {
-        return other instanceof StringToken;
+        return other instanceof NotEqualsOp;
     }
 
     public int hashCode() {
@@ -9,6 +10,6 @@ public class StringToken implements Token {
     }
 
     public String toString() {
-        return "String";
+        return "NotEqualsOp";
     }
 }
