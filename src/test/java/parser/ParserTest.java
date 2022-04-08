@@ -32,7 +32,6 @@ public class ParserTest {
         final Parser parser = new Parser(input);
         assertEquals(expected, parser.parseProgram());
     }
-    /*
 
     @Test
     public void testEqualsOpExp() {
@@ -299,6 +298,7 @@ public class ParserTest {
             constructor(){
             }
         }
+        */
     @Test
     public void testExtends() throws ParserException{
         List<Token> tokens = Arrays.asList(
@@ -317,15 +317,17 @@ public class ParserTest {
                 )));
         assertParseProgram(tokens, expected);
     }
-    */
     
     @Test
     public void testProgram() throws ParserException {
         List<Token> tokens = Arrays.asList(
             new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
                 new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), 
-                new IntegerToken(), new VariableToken("x"),new CommaToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-                new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
+                new IntegerToken(), new VariableToken("x"),new CommaToken(), 
+                new BooleanToken(), new VariableToken("x"), new CommaToken(),
+                new StringToken(), new VariableToken("y"), new RightParenToken(),
+                new LeftCurlyToken(),new PrintToken(), new LeftParenToken(), 
+                new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
                 new RightCurlyToken(),
             new RightCurlyToken(),
             new ClassToken(), new VariableToken("myclass"), new LeftCurlyToken(),
@@ -346,7 +348,8 @@ public class ParserTest {
                         new IntType(),
                         new MethodName("myMethod"),
                         Arrays.asList(new Vardec(new IntType(), new VariableExp("x")),
-                                      new Vardec(new IntType(), new VariableExp("x"))),
+                                      new Vardec(new BooleanType(), new VariableExp("x")),
+                                      new Vardec(new StringType(), new VariableExp("y"))),
                         new BlockStmt(
                             Arrays.asList(new PrintStmt(new IntegerExp(0)))
                         )
