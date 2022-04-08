@@ -546,10 +546,4 @@ public class Parser {
             throw new ParserException("Tokens still exist");
         }
     }
-
-
-    private Vardec getVardecStatement(Token token) {
-
-        return null;
-    }
 }
