@@ -1,6 +1,6 @@
 package parser;
 
-import lexer.tokens.IntegerToken;
+import lexer.*;
 import lexer.tokens.*;
 import org.junit.Test;
 
@@ -11,11 +11,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.management.StringValueExp;
-
 import static org.junit.Assert.*;
 
 public class ParserTest {
+
+    public List<Token> tokenizes(final String input) throws TokenizerException{
+        final Tokenizer tokenizer = new Tokenizer(input);
+        final List<Token> received = tokenizer.tokenize();
+        return received;
+    }
     public void assertParses(final List<Token> input, final ParseResult<Exp> expected) throws ParserException{
         //List<Token> tokensList =  Arrays.asList(input);
         final Parser parser = new Parser(input);
@@ -30,9 +34,9 @@ public class ParserTest {
 
     public void assertParseProgram(final List<Token> input, final Program expected) throws ParserException {
         final Parser parser = new Parser(input);
+        System.out.print(parser.parseProgram());
         assertEquals(expected, parser.parseProgram());
     }
-
     @Test
     public void testEqualsOpExp() {
         // Test #1 {Checking 1 + 1}
@@ -473,13 +477,13 @@ public class ParserTest {
     
     @Test
     public void testProgram() throws ParserException {
-        // Test #47 {Checking class myClass {public int myMethod(int x){print(0);}
+        // Test #47 {Checking class myClass extends classA{public int myMethod(int x){print(0);}
         //                      public int myMethod(int x, bool x, String y){print(0);}}
         //                      class myClass{private String myMethod(int x){print(0);}}
         //                      class myClass {protected bool myMethod(int x){print(0);}} }
         //This tests the Program as well as all Access Modifiers and Type Declarations
         List<Token> tokens = Arrays.asList(
-            new ClassToken(), new VariableToken("myClass"), new LeftCurlyToken(),
+            new ClassToken(), new VariableToken("myClass"), new ExtendsToken(), new VariableToken("classA"),new LeftCurlyToken(),
             new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
             new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
             new RightCurlyToken(),
@@ -507,7 +511,7 @@ public class ParserTest {
             Arrays.asList(
                 new ClassDef(
                     new ClassName("myClass"),
-                    new ClassName(""),
+                    new ClassName("classA"),
                     new ArrayList<>(),
                     Arrays.asList(new MethodDef(
                         new PublicType(),
@@ -636,4 +640,98 @@ public class ParserTest {
         );
         assertParseProgram(tokens, expected);
     }
+
+    @Test
+    public void testStringToken()  throws ParserException, TokenizerException{
+        //class myClass extends classA {public int a; constructor(){}}
+        final String input = "class myClass extends classA { public Int a; constructor(){} }";
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName("classA"),
+                    Arrays.asList(new ConstructorDef(new ArrayList<>(), new BlockStmt(new ArrayList<>()))),
+                    new ArrayList<>(),
+                    Arrays.asList(new InstanceDec(new PublicType(), new Vardec(new IntType(), new VariableExp("a"))))
+                )));
+        assertParseProgram(tokenizes(input), expected);
+    }
+    @Test
+    public void testMultipleTokensWithStringToken() throws ParserException, TokenizerException{
+        // Test #47 {Checking class myClass extends classA{public int myMethod(int x){print(0);}
+        //                      public int myMethod(int x, bool x, String y){print(0);}}
+        //                      class myClass{private String myMethod(int x){print(0);}}
+        //                      class myClass {protected bool myMethod(int x){print(0);}} }
+        final String input = "class myClass extends classA{\n"+
+                                "public Int myMethod(Int x){\n"+
+                                    "print(0);\n"+"}\n"+
+                                "public Int myMethod(Int x, Boolean x, strg y){\n"+
+                                    "print(0);\n"+
+                                "}\n"+
+                             "}\n"+
+                             "class myClass{\n"+
+                                "private strg myMethod(Int x){\n"+
+                                    "print(0);\n"+
+                                "}\n"+
+                             "}\n"+
+                             "class myClass {\n"+
+                                "protected Boolean myMethod(Int x){\n"+
+                                    "print(0);\n"+
+                                "}\n"+
+                             "} ";
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName("classA"),
+                    new ArrayList<>(),
+                    Arrays.asList(new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("myMethod"),
+                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x")),
+                                      new Vardec(new BooleanType(), new VariableExp("x")),
+                                      new Vardec(new StringType(), new VariableExp("y"))),
+                        new BlockStmt(
+                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                        )
+                    )),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Arrays.asList(new MethodDef(
+                        new PrivateType(),
+                        new StringType(),
+                        new MethodName("myMethod"),
+                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                        new BlockStmt(
+                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                        )
+                    )),
+                    new ArrayList<>()
+                ),
+                    new ClassDef(
+                            new ClassName("myClass"),
+                            new ClassName(""),
+                            new ArrayList<>(),
+                            Arrays.asList(new MethodDef(
+                                    new ProtectedType(),
+                                    new BooleanType(),
+                                    new MethodName("myMethod"),
+                                    Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
+                                    new BlockStmt(
+                                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                                    )
+                            )),
+                            new ArrayList<>()
+                    )
+            )
+        );
+        //System.out.println(tokenizes(input));
+        assertParseProgram(tokenizes(input), expected);
+    }
+
 }

@@ -53,14 +53,12 @@ public class Parser {
                 while(shouldRun){
                     shouldRun = false;
                     try{
-                        System.out.print("TOKEN IS: "+getToken(position+counter));
                         assertTokenHereIs(position+counter, new RightParenToken());
                     }catch(final ParserException e){
                         shouldRun=true;
                         exp.add(parseExp(position+counter).result);
                         counter++;
                         try{
-                            System.out.println("TOKEN: "+getToken(position+counter));
                             assertTokenHereIs(position+counter, new CommaToken());
                             counter++;
                         }catch(final ParserException exception){
@@ -408,7 +406,6 @@ public class Parser {
                         new VariableExp(((VariableToken) getToken(type.position)).name)));
                     counter++;
                     try {
-                        System.out.println("Entered Here.");
                         assertTokenHereIs(type.position + 1, new CommaToken());
                         counter+=2;
                     } catch (final ParserException e) {
@@ -437,6 +434,7 @@ public class Parser {
         boolean shouldRun = true;
 
         while (shouldRun) {
+            extendsName = "";
             if (token instanceof ClassToken) {
                 if (getToken(currentPosition + 1) instanceof VariableToken) {
                     className = ((VariableToken) getToken(currentPosition + 1)).name;
@@ -542,7 +540,7 @@ public class Parser {
         if (program.position == tokens.size()) {
             return program.result;
         } else {
-            System.out.println(tokens.size());
+            //System.out.println(tokens.size());
             throw new ParserException("Tokens still exist");
         }
     }
