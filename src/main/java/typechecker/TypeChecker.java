@@ -4,19 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.HashMap;
-public class Typechecker {
+public class TypeChecker {
     public final List<ClassDef> classes;
     public final Program program;
 
-    public Typechecker(final Program program){
+    public TypeChecker(final Program program){
         this.program = program;
         this.classes = program.classes;
     }
-    public Type typeOfOp(final Exp exp, 
+    public Type typeOfOp(final OpExp exp,
                             final Map<Variable,Type> typeEnvironment,
                             final ClassName classWeAreIn) throws TypeErrorException{
         final Type leftType = typeOf(exp.left, typeEnvironment,classWeAreIn);
-        final type rightType = typeof(exp.right, typeEnvironment, classWeAreIn);
+        final Type rightType = typeOf(exp.right, typeEnvironment, classWeAreIn);
         if(exp.op instanceof PlusOp){
             if(leftType instanceof IntType && rightType instanceof IntType){
                 return new IntType();
@@ -135,7 +135,7 @@ public class Typechecker {
 
     public Map<Variable, Type> isWellTyped(final Stmt stmt, final Map<Variable, Type> typeEnvironment, 
                                             final ClassName classWeAreIn, final Type functionReturnType) throws TypeErrorException{
-        if(stmt instanceof VarDecStmt){
+        if(stmt instanceof VardecStmt){
             return isWellTypedVar((Vardec)stmt, typeEnvironment, classWeAreIn,functionReturnType);
         }else if(stmt instanceof IfStmt){
             return isWellTypedIf((IfStmt)stmt, typeEnvironment, classWeAreIn,functionReturnType);
