@@ -1,22 +1,9 @@
 package parser;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import lexer.tokens.*;
-import parser.BooleanLiteralExp;
-import parser.BooleanType;
-import parser.DivisionOp;
-import parser.GreaterThanOp;
-import parser.IntType;
-import parser.LessThanOp;
-import parser.ParseResult;
-import parser.ParserException;
-import parser.PrivateModifier;
-import parser.ProtectedModifier;
-import parser.PublicModifier;
-import parser.StringType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Parser {
     private final List<Token> tokens;
@@ -66,7 +53,7 @@ public class Parser {
                     }
                 }
                 counter++;
-                return new ParseResult<Exp>(new FunctionCallExp(new FunctionName(name),exp), position+counter);
+                return new ParseResult<Exp>(new FunctionCallExp(new MethodName(name),exp), position+counter);
             }catch(final ParserException e){
                 final String name = ((VariableToken)token).name;
                 return new ParseResult<Exp>(new VariableExp(name), position + 1);

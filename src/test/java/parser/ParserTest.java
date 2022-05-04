@@ -1,17 +1,16 @@
 package parser;
 
-import lexer.*;
+import lexer.Tokenizer;
+import lexer.TokenizerException;
 import lexer.tokens.*;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ParserTest {
 
@@ -305,21 +304,21 @@ public class ParserTest {
     public void testMethodCall() throws ParserException{
         // Test #34 {Checking methodA(23) }
         assertParses(Arrays.asList(new VariableToken("methodA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()), 
-        new ParseResult<Exp>(new FunctionCallExp(new FunctionName("methodA"),Arrays.asList(new IntegerExp(23))),4));
+        new ParseResult<Exp>(new FunctionCallExp(new MethodName("methodA"),Arrays.asList(new IntegerExp(23))),4));
     }
 
     @Test
     public void testMethodMultipleInputsCall() throws ParserException{
         // Test #35 {Checking methodB(23,"hello") }
         assertParses(Arrays.asList(new VariableToken("methodB"),new LeftParenToken(),new NumbersToken(23),new CommaToken(),
-        new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new FunctionCallExp(new FunctionName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),6));
+        new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new FunctionCallExp(new MethodName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),6));
     }
 
     @Test
     public void testMethodWithDot() throws ParserException{
         // Test #36 {Checking a.methodA(23) }
         assertParses(Arrays.asList(new VariableToken("a"),new PeriodToken(),new VariableToken("methodA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()), 
-        new ParseResult<Exp>(new OpExp(new VariableExp("a"),new PeriodOp(), new FunctionCallExp(new FunctionName("methodA"),Arrays.asList(new IntegerExp(23)))),6));
+        new ParseResult<Exp>(new OpExp(new VariableExp("a"),new PeriodOp(), new FunctionCallExp(new MethodName("methodA"),Arrays.asList(new IntegerExp(23)))),6));
     }
 
     @Test

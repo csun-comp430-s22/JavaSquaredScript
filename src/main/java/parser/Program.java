@@ -5,9 +5,12 @@ import java.util.List;
 public class Program {
     public final List<ClassDef> classes;
 
-    public Program(final List<ClassDef> classes) {
+    public Program(List<ClassDef> classes) {
         this.classes = classes;
+        //this.entryPoint = entryPoint;
     }
+
+    //public final Stmt entryPoint;
 
     public int hashCode() {
         return classes.hashCode();

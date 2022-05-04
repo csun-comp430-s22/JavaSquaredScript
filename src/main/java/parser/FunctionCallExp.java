@@ -1,12 +1,13 @@
 package parser;
+
 import java.util.List;
 
 
 public class FunctionCallExp implements Exp {
-    public final FunctionName fname;
+    public final MethodName fname;
     public final List<Exp> params;
 
-    public FunctionCallExp(final FunctionName fname,
+    public FunctionCallExp(final MethodName fname,
                            final List<Exp> params) {
         this.fname = fname;
         this.params = params;

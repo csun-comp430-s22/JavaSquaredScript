@@ -7,7 +7,7 @@ public class MethodDef {
 	public final AccessType accessType;
 	public final Type returnType;
 	public final MethodName methodName;
-	final List<Vardec> arguments;
+	public final List<Vardec> arguments;
 	public final Stmt body;
 
 	public MethodDef(final AccessType accessType, final Type returnType, final MethodName methodName,
