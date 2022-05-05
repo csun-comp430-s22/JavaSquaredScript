@@ -146,17 +146,47 @@ public class Typechecker {
             } else {
                 throw new TypeErrorException("Operand type mismatch for +");
             }
+        } else if (exp.op instanceof MinusOp) {
+            if (leftType instanceof IntType && rightType instanceof IntType) {
+                return new IntType();
+            } else {
+                throw new TypeErrorException("Operand type mismatch for -");
+            }
+        } else if (exp.op instanceof MultiplicationOp) {
+            if (leftType instanceof IntType && rightType instanceof IntType) {
+                return new IntType();
+            } else {
+                throw new TypeErrorException("Operand type mismatch for *");
+            }
+        } else if (exp.op instanceof DivisionOp) {
+            if (leftType instanceof IntType && rightType instanceof IntType) {
+                return new IntType();
+            } else {
+                throw new TypeErrorException("Operand type mismatch for /");
+            }
         } else if (exp.op instanceof LessThanOp) {
             if (leftType instanceof IntType && rightType instanceof IntType) {
                 return new BooleanType();
             } else {
                 throw new TypeErrorException("Operand type mismatch for <");
             }
+        }  else if (exp.op instanceof GreaterThanOp) {
+            if (leftType instanceof IntType && rightType instanceof IntType) {
+                return new BooleanType();
+            } else {
+                throw new TypeErrorException("Operand type mismatch for >");
+            }
         } else if (exp.op instanceof DoubleEqualsOp) {
             if (leftType instanceof IntType && rightType instanceof IntType) {
                 return new BooleanType();
             } else {
                 throw new TypeErrorException("Operand type mismatch for ==");
+            }
+        }  else if (exp.op instanceof NotEqualsOp) {
+            if (leftType instanceof IntType && rightType instanceof IntType) {
+                return new BooleanType();
+            } else {
+                throw new TypeErrorException("Operand type mismatch for !=");
             }
         } else {
             throw new TypeErrorException("Unsupported operation: " + exp.op);
