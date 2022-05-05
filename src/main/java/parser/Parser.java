@@ -48,32 +48,32 @@ public class Parser {
                         try{
                             assertTokenHereIs(position+counter, new CommaToken());
                             counter++;
-                        }catch(final ParserException exception){
+                        }catch(final ParserException ignored){
                         }
                     }
                 }
                 counter++;
-                return new ParseResult<Exp>(new FunctionCallExp(new MethodName(name),exp), position+counter);
+                return new ParseResult<>(new FunctionCallExp(new MethodName(name),exp), position+counter);
             }catch(final ParserException e){
                 final String name = ((VariableToken)token).name;
-                return new ParseResult<Exp>(new VariableExp(name), position + 1);
+                return new ParseResult<>(new VariableExp(name), position + 1);
             }
         } else if(token instanceof NumbersToken){
             final int value = ((NumbersToken)token).value;
-            return new ParseResult<Exp>(new IntegerExp(value), position+1);
+            return new ParseResult<>(new IntegerExp(value), position+1);
         } else if(token instanceof LeftParenToken){
             final ParseResult<Exp> inParens = parseExp(position+1);
             assertTokenHereIs(inParens.position, new RightParenToken());
-            return new ParseResult<Exp>(inParens.result, inParens.position+1);
+            return new ParseResult<>(inParens.result, inParens.position+1);
         } else if(token instanceof StringValueToken){
             final String stringVal = ((StringValueToken)token).value;
-            return new ParseResult<Exp>(new StringExp(stringVal), position+1);
+            return new ParseResult<>(new StringExp(stringVal), position+1);
         }else if(token instanceof TrueToken){
             final boolean value = true;
-            return new ParseResult<Exp>(new BooleanLiteralExp(value),position+1);
+            return new ParseResult<>(new BooleanLiteralExp(value),position+1);
         }else if(token instanceof FalseToken){
             final boolean value = false;
-            return new ParseResult<Exp>(new BooleanLiteralExp(value), position+1);
+            return new ParseResult<>(new BooleanLiteralExp(value), position+1);
         } else if(token instanceof NewToken){
             if(getToken(position+1) instanceof VariableToken && getToken(position+2) instanceof LeftParenToken){
                 final String name = ((VariableToken)getToken(position+1)).name;
@@ -90,12 +90,12 @@ public class Parser {
                         try{
                             assertTokenHereIs(position+counter, new CommaToken());
                             counter++;
-                        }catch(final ParserException exception){
+                        }catch(final ParserException ignored){
                         }
                     }
                 }
                 counter++;
-                return new ParseResult<Exp>(new ClassCallExp(new ClassName(name),exp), position+counter);
+                return new ParseResult<>(new ClassCallExp(new ClassName(name),exp), position+counter);
             }else{
                 throw new ParserException("expected new token; received: "+token);
             }
@@ -107,7 +107,7 @@ public class Parser {
     public ParseResult<Op> parsePeriodOp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof PeriodToken){
-            return new ParseResult<Op>(new PeriodOp(), position+1);
+            return new ParseResult<>(new PeriodOp(), position+1);
         }
         else{
             throw new ParserException("expected .; received "+token);
@@ -121,7 +121,7 @@ public class Parser {
             try{
                 final ParseResult<Op> periodOp = parsePeriodOp(current.position);
                 final ParseResult<Exp> periodExp = parsePrimaryExp(periodOp.position);
-                current = new ParseResult<Exp>(new OpExp(current.result, periodOp.result, periodExp.result), periodExp.position);
+                current = new ParseResult<>(new OpExp(current.result, periodOp.result, periodExp.result), periodExp.position);
             }catch(final ParserException e){
                 shouldRun = false;
             }
@@ -132,9 +132,9 @@ public class Parser {
     public ParseResult<Op> parseMultiplicativeOp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof TimesToken){
-            return new ParseResult<Op>(new MultiplicationOp(), position+1);
+            return new ParseResult<>(new MultiplicationOp(), position+1);
         } else if(token instanceof DivisionToken){
-            return new ParseResult<Op>(new DivisionOp(), position+1);
+            return new ParseResult<>(new DivisionOp(), position+1);
         } else{
             throw new ParserException("expected * or /; received "+token);
         }
@@ -147,7 +147,7 @@ public class Parser {
             try {
                 final ParseResult<Op> multiplicativeOp = parseMultiplicativeOp(current.position);
                 final ParseResult<Exp> multiplicativeExp = parsePeriodExp(multiplicativeOp.position);
-                current = new ParseResult<Exp>(new OpExp(current.result,multiplicativeOp.result,multiplicativeExp.result), multiplicativeExp.position);
+                current = new ParseResult<>(new OpExp(current.result,multiplicativeOp.result,multiplicativeExp.result), multiplicativeExp.position);
             } catch (final ParserException e) {
                 shouldRun = false;
             }
@@ -158,9 +158,9 @@ public class Parser {
     public ParseResult<Op> parseAdditiveOp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof PlusToken){
-            return new ParseResult<Op>(new PlusOp(), position+1);
+            return new ParseResult<>(new PlusOp(), position+1);
         } else if (token instanceof MinusToken){
-            return new ParseResult<Op>(new MinusOp(), position+1);
+            return new ParseResult<>(new MinusOp(), position+1);
         } else{
             throw new ParserException("expected + or -; received "+token);
         }
@@ -173,7 +173,7 @@ public class Parser {
             try{
                 final ParseResult<Op> additiveOp = parseAdditiveOp(current.position);
                 final ParseResult<Exp> anotherPrimary =  parseMultiplicativeExp(additiveOp.position);
-                current = new ParseResult<Exp>(new OpExp(current.result, additiveOp.result,anotherPrimary.result), anotherPrimary.position);
+                current = new ParseResult<>(new OpExp(current.result, additiveOp.result,anotherPrimary.result), anotherPrimary.position);
             }catch(final ParserException e){
                 shouldRun = false;
             }
@@ -184,9 +184,9 @@ public class Parser {
     public ParseResult<Op> parseRelationOp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof LessThanToken){
-            return new ParseResult<Op>(new LessThanOp(), position+1);
+            return new ParseResult<>(new LessThanOp(), position+1);
         } else if(token instanceof GreaterThanToken){
-            return new ParseResult<Op>(new GreaterThanOp(), position+1);
+            return new ParseResult<>(new GreaterThanOp(), position+1);
         }else{
             throw new ParserException("expected < or >; received "+token);
         }
@@ -197,7 +197,7 @@ public class Parser {
         try {
             final ParseResult<Op> relationOp = parseRelationOp(current.position);
             final ParseResult<Exp> relationExp = parseAddidtiveExp(relationOp.position);
-            return new ParseResult<Exp>(new OpExp(current.result, relationOp.result, relationExp.result), relationExp.position);
+            return new ParseResult<>(new OpExp(current.result, relationOp.result, relationExp.result), relationExp.position);
         }catch (final ParserException e){
             return current;
         }
@@ -206,9 +206,9 @@ public class Parser {
     public ParseResult<Op> parseEqualityOp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof DoubleEqualsToken){
-            return new ParseResult<Op>(new DoubleEqualsOp(), position+1);
+            return new ParseResult<>(new DoubleEqualsOp(), position+1);
         } else if(token instanceof NotEqualsToken){
-            return new ParseResult<Op>(new NotEqualsOp(), position+1);
+            return new ParseResult<>(new NotEqualsOp(), position+1);
         }else{
             throw new ParserException("expected == or !=; received "+token);
         }
@@ -219,7 +219,7 @@ public class Parser {
         try {
             final ParseResult<Op> equalityOp = parseEqualityOp(current.position);
             final ParseResult<Exp> equalityExp = parseRelationExp(equalityOp.position);
-            return new ParseResult<Exp>(new OpExp(current.result, equalityOp.result, equalityExp.result), equalityExp.position);
+            return new ParseResult<>(new OpExp(current.result, equalityOp.result, equalityExp.result), equalityExp.position);
         }catch (final ParserException e){
             return current;
         }
@@ -228,7 +228,7 @@ public class Parser {
     public ParseResult<Op> parseAssignmentOp(final int position) throws ParserException{
         final Token token = getToken(position);
         if(token instanceof EqualsToken){
-            return new ParseResult<Op>(new EqualsOp(), position+1);
+            return new ParseResult<>(new EqualsOp(), position+1);
         }else{
             throw new ParserException("expected =; received "+token);
         }
@@ -239,7 +239,7 @@ public class Parser {
         try {
             final ParseResult<Op> assignmentOp = parseAssignmentOp(current.position);
             final ParseResult<Exp> assignmentExp = parseEqualityExp(assignmentOp.position);
-            return new ParseResult<Exp>(new OpExp(current.result, assignmentOp.result, assignmentExp.result), assignmentExp.position);
+            return new ParseResult<>(new OpExp(current.result, assignmentOp.result, assignmentExp.result), assignmentExp.position);
         } catch(final ParserException e){
             return current;
         }
@@ -266,7 +266,7 @@ public class Parser {
             final ParseResult<Stmt> trueBranch = parseStmt(exp.position + 1);
             assertTokenHereIs(trueBranch.position, new ElseToken());
             final ParseResult<Stmt> falseBranch = parseStmt(trueBranch.position + 1);
-            return new ParseResult<Stmt>(new IfStmt(exp.result, trueBranch.result, falseBranch.result),
+            return new ParseResult<>(new IfStmt(exp.result, trueBranch.result, falseBranch.result),
                 falseBranch.position);
 
             // while statement
@@ -275,24 +275,24 @@ public class Parser {
             final ParseResult<Exp> exp = parseExp(position + 2);
             assertTokenHereIs(exp.position, new RightParenToken());
             final ParseResult<Stmt> whileBranch = parseStmt(exp.position + 1);
-            return new ParseResult<Stmt>(new WhileStmt(exp.result, whileBranch.result), whileBranch.position);
+            return new ParseResult<>(new WhileStmt(exp.result, whileBranch.result), whileBranch.position);
 
             // break statement::= break;
         } else if (token instanceof BreakToken) {
             assertTokenHereIs(position + 1, new SemiColonToken());
-            return new ParseResult<Stmt>(new BreakStmt(), position + 2);
+            return new ParseResult<>(new BreakStmt(), position + 2);
             // return statement
         } else if (token instanceof ReturnToken) {
             final ParseResult<Exp> exp = parseExp(position + 1);
             assertTokenHereIs(exp.position, new SemiColonToken());
-            return new ParseResult<Stmt>(new ReturnStmt(exp.result), exp.position + 1);
+            return new ParseResult<>(new ReturnStmt(exp.result), exp.position + 1);
 
             // var intg declaration::= int var;
         } else if (token instanceof IntegerToken) {
             final ParseResult<Exp> exp = parseExp(position + 1);
             if (getToken(exp.position - 1) instanceof VariableToken) {
                 assertTokenHereIs(exp.position, new SemiColonToken());
-                return new ParseResult<Stmt>(new Vardec(new IntType(), (VariableExp) exp.result),
+                return new ParseResult<>(new Vardec(new IntType(), (VariableExp) exp.result),
                     exp.position + 1);
             } else {
                 throw new ParserException("expected intg; received " + token);
@@ -304,7 +304,7 @@ public class Parser {
 
             if (getToken(exp.position - 1) instanceof VariableToken) {
                 assertTokenHereIs(exp.position, new SemiColonToken());
-                return new ParseResult<Stmt>(new Vardec(new BooleanType(), (VariableExp) exp.result),
+                return new ParseResult<>(new Vardec(new BooleanType(), (VariableExp) exp.result),
                     exp.position + 1);
             } else {
                 throw new ParserException("expected bool; received " + token);
@@ -316,7 +316,7 @@ public class Parser {
 
             if (getToken(exp.position - 1) instanceof VariableToken) {
                 assertTokenHereIs(exp.position, new SemiColonToken());
-                return new ParseResult<Stmt>(new Vardec(new StringType(), (VariableExp) exp.result),
+                return new ParseResult<>(new Vardec(new StringType(), (VariableExp) exp.result),
                     exp.position + 1);
             } else {
                 throw new ParserException("expected strg; received " + token);
@@ -328,7 +328,7 @@ public class Parser {
             final ParseResult<Exp> exp = parseExp(position + 2);
             assertTokenHereIs(exp.position, new RightParenToken());
             assertTokenHereIs(exp.position + 1, new SemiColonToken());
-            return new ParseResult<Stmt>(new PrintStmt(exp.result), exp.position + 1);
+            return new ParseResult<>(new PrintStmt(exp.result), exp.position + 1);
 
             // 0 or more statements
         } else if (token instanceof LeftCurlyToken) {
@@ -379,7 +379,7 @@ public class Parser {
             throw new ParserException("expected Int or Boolean or String; received " + token);
         }
     }
-    public ParseResult<List<Vardec>> parseMethodParameters(final int position) throws ParserException {
+    public ParseResult<List<Vardec>> parseMethodParameters(final int position) {
         List<Vardec> vardecs = new ArrayList<>();
         int counter = position;
         boolean shouldRun = true;
@@ -402,7 +402,6 @@ public class Parser {
                     throw new ParserException("expected variable; received " + getToken(type.position));
                 }
             }catch(final ParserException e){
-                shouldRun = false;
                 return new ParseResult<>(vardecs, counter);
             }
         }
@@ -416,7 +415,7 @@ public class Parser {
         List<ConstructorDef> constructorDefs = new ArrayList<>();
         List<InstanceDec> instanceDecs = new ArrayList<>();
         final Token token = getToken(position);
-        String extendsName = "", className = "";
+        String extendsName, className;
         int currentPosition = position;
         boolean shouldRun = true;
 
