@@ -188,6 +188,18 @@ public class Typechecker {
             } else {
                 throw new TypeErrorException("Operand type mismatch for !=");
             }
+        } else if(exp.op instanceof EqualsOp){
+            if (leftType.equals(rightType)) {
+                return new BooleanType(); //What to return?
+            } else {
+                throw new TypeErrorException("Operand type mismatch for =");
+            }
+        }  else if(exp.op instanceof PeriodOp){
+            if (leftType.equals(rightType)) {
+                return new BooleanType(); //What to return?
+            } else {
+                throw new TypeErrorException("Operand type mismatch for .");
+            }
         } else {
             throw new TypeErrorException("Unsupported operation: " + exp.op);
         }
