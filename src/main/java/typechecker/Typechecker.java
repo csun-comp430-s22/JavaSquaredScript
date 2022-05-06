@@ -190,13 +190,13 @@ public class Typechecker {
             }
         } else if(exp.op instanceof EqualsOp){
             if (leftType.equals(rightType)) {
-                return new BooleanType(); //What to return?
+                return leftType; //What to return?
             } else {
                 throw new TypeErrorException("Operand type mismatch for =");
             }
         }  else if(exp.op instanceof PeriodOp){
-            if (leftType.equals(rightType)) {
-                return new BooleanType(); //What to return?
+            if (leftType instanceof ClassNameType && exp.right instanceof FunctionCallExp && rightType.equals(methods.get(classWeAreIn).get(((FunctionCallExp) exp.right).fname).returnType)) {
+                return expectedReturnTypeForClassAndMethod(classWeAreIn, methods.get(classWeAreIn).get(((FunctionCallExp) exp.right).fname).methodName); //What to return?
             } else {
                 throw new TypeErrorException("Operand type mismatch for .");
             }
