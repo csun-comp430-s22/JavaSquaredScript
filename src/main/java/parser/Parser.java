@@ -13,7 +13,7 @@ public class Parser {
 
     public Token getToken(final int position) throws ParserException{
         if(position>= 0&& position<tokens.size()){
-            //System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
+            System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
             return tokens.get(position);
         }else{
             throw new ParserException("Invalid Token position: "+ position);
@@ -29,35 +29,37 @@ public class Parser {
     public ParseResult<Exp> parsePrimaryExp(final int position) throws ParserException{
         final Token token = getToken(position);
         List<Exp> exp = new ArrayList<>();
-        if(token instanceof VariableToken){
-            int counter =0;
-            try{
+        if(token instanceof VariableToken) {
+            int counter = 0;
+            try {
                 counter++;
-                assertTokenHereIs(position+1, new LeftParenToken());
+                assertTokenHereIs(position + 1, new LeftParenToken());
                 counter++;
-                final String name = ((VariableToken)token).name;
+                final String name = ((VariableToken) token).name;
                 boolean shouldRun = true;
-                while(shouldRun){
+                while (shouldRun) {
                     shouldRun = false;
-                    try{
-                        assertTokenHereIs(position+counter, new RightParenToken());
-                    }catch(final ParserException e){
-                        shouldRun=true;
-                        exp.add(parseExp(position+counter).result);
+                    try {
+                        assertTokenHereIs(position + counter, new RightParenToken());
+                    } catch (final ParserException e) {
+                        shouldRun = true;
+                        exp.add(parseExp(position + counter).result);
                         counter++;
-                        try{
-                            assertTokenHereIs(position+counter, new CommaToken());
+                        try {
+                            assertTokenHereIs(position + counter, new CommaToken());
                             counter++;
-                        }catch(final ParserException ignored){
+                        } catch (final ParserException ignored) {
                         }
                     }
                 }
                 counter++;
-                return new ParseResult<>(new FunctionCallExp(new MethodName(name),exp), position+counter);
-            }catch(final ParserException e){
-                final String name = ((VariableToken)token).name;
+                return new ParseResult<>(new FunctionCallExp(new MethodName(name), exp), position + counter);
+            } catch (final ParserException e) {
+                final String name = ((VariableToken) token).name;
                 return new ParseResult<>(new VariableExp(name), position + 1);
             }
+        } else if (token instanceof ThisToken) {
+            return new ParseResult<>(new ThisExp(), position + 1);
         } else if(token instanceof NumbersToken){
             final int value = ((NumbersToken)token).value;
             return new ParseResult<>(new IntegerExp(value), position+1);
