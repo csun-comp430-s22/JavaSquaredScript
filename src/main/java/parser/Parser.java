@@ -453,13 +453,15 @@ public class Parser {
                         } else if (getToken(currentPosition + 2) instanceof VariableToken || getToken(currentPosition + 2) instanceof MainToken) {
                             Token methodToken = getToken(currentPosition + 2);
 
-                            if (methodToken instanceof MainToken) {
-                                methodToken = new VariableToken(methodToken.toString());
+                            String methodName;
+                            if (methodToken instanceof VariableToken) {
+                                methodName = ((VariableToken) methodToken).name;
+                            } else {
+                                methodName = methodToken.toString();
                             }
 
                             ParseResult<AccessType> accessType = parseAccessType(currentPosition);
                             ParseResult<Type> returnType = parseReturnType(currentPosition + 1);
-                            String methodName = methodToken.toString();
                             // Handles methods
                             if (getToken(currentPosition + 3) instanceof LeftParenToken) {
                                 ParseResult<List<Vardec>> params = parseMethodParameters(
@@ -524,16 +526,13 @@ public class Parser {
     }
 
     public Stmt checkForEntrypoint(List<ClassDef> classes) throws ParserException{
-
-        // "MethodName(Variable(main))"
-        MethodName entryName = new MethodName(new VariableToken(new MainToken().toString()).toString());
+        MethodName entrypointName = new MethodName("main");
 
         int entryCounter = 0;
         Stmt entrypoint = null;
         for (ClassDef classDef : classes) {
             for (MethodDef methodDef : classDef.methods) {
-                System.out.println("METHODNAME: " + methodDef.methodName);
-                if (methodDef.methodName.equals(entryName)) {
+                if (methodDef.methodName.equals(entrypointName)) {
                     entryCounter++;
                     entrypoint = methodDef.body;
                     if (entryCounter > 1) {
