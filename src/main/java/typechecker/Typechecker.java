@@ -177,13 +177,15 @@ public class Typechecker {
                 throw new TypeErrorException("Operand type mismatch for >");
             }
         } else if (exp.op instanceof DoubleEqualsOp) {
-            if (leftType instanceof IntType && rightType instanceof IntType) {
+            if ((leftType instanceof IntType && rightType instanceof IntType)
+                    ||(leftType instanceof BooleanType && rightType instanceof BooleanType)) {
                 return new BooleanType();
             } else {
                 throw new TypeErrorException("Operand type mismatch for ==");
             }
         }  else if (exp.op instanceof NotEqualsOp) {
-            if (leftType instanceof IntType && rightType instanceof IntType) {
+            if ((leftType instanceof IntType && rightType instanceof IntType)
+                    ||(leftType instanceof BooleanType && rightType instanceof BooleanType)) {
                 return new BooleanType();
             } else {
                 throw new TypeErrorException("Operand type mismatch for !=");
@@ -359,6 +361,8 @@ public class Typechecker {
             return new BooleanType();
         } else if (exp instanceof ThisExp) {
             return typeofThis(classWeAreIn);
+        } else if(exp instanceof StringExp){
+            return new StringType();
         } else if (exp instanceof OpExp) {
             return typeofOp((OpExp)exp, typeEnvironment, classWeAreIn);
         } else if (exp instanceof FunctionCallExp) {
@@ -379,12 +383,12 @@ public class Typechecker {
         return result;
     }
 
-    public Map<VariableExp, Type> isWellTypedVar(final VardecStmt stmt,
+    public Map<VariableExp, Type> isWellTypedVar(final Vardec stmt,
                                               final Map<VariableExp, Type> typeEnvironment,
                                               final ClassName classWeAreIn) throws TypeErrorException {
-        final Type expType = typeof(stmt.exp, typeEnvironment, classWeAreIn);
-        assertEqualOrSubtypeOf(expType, stmt.vardec.type);
-        return addToMap(typeEnvironment, stmt.vardec.variable, stmt.vardec.type);
+        final Type expType = typeof(stmt.variable, typeEnvironment, classWeAreIn);
+        assertEqualOrSubtypeOf(expType, stmt.type);
+        return addToMap(typeEnvironment, stmt.variable, stmt.type);
     }
 
     public Map<VariableExp, Type> isWellTypedIf(final IfStmt stmt,
@@ -445,8 +449,8 @@ public class Typechecker {
                                                final Map<VariableExp, Type> typeEnvironment,
                                                final ClassName classWeAreIn,
                                                final Type functionReturnType) throws TypeErrorException {
-        if (stmt instanceof VardecStmt) {
-            return isWellTypedVar((VardecStmt) stmt, typeEnvironment, classWeAreIn);
+        if (stmt instanceof Vardec) {
+            return isWellTypedVar((Vardec) stmt, typeEnvironment, classWeAreIn);
         } else if (stmt instanceof IfStmt) {
             return isWellTypedIf((IfStmt)stmt, typeEnvironment, classWeAreIn, functionReturnType);
         } else if (stmt instanceof WhileStmt) {

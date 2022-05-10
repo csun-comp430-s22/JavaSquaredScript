@@ -33,7 +33,6 @@ public class ParserTest {
 
     public void assertParseProgram(final List<Token> input, final Program expected) throws ParserException {
         final Parser parser = new Parser(input);
-        System.out.print(parser.parseProgram());
         assertEquals(expected, parser.parseProgram());
     }
 
