@@ -4,7 +4,6 @@ import lexer.tokens.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Parser {
     private final List<Token> tokens;
@@ -480,7 +479,6 @@ public class Parser {
 
                                 // Handles instance declarations
                             } else if (getToken(currentPosition + 3) instanceof SemiColonToken) {
-                                instanceDecs = new ArrayList<>();
                                 instanceDecs.add(
                                     new InstanceDec(
                                         accessType.result,
@@ -515,8 +513,9 @@ public class Parser {
                 } else {
                     throw new ParserException("expected class name; received " + getToken(position + 1));
                 }
-
+                instanceDecs = new ArrayList<>();
                 methodDefs = new ArrayList<>();
+                constructorDefs = new ArrayList<>();
             } else {
                 throw new ParserException("expected class; received " + token);
             }
