@@ -36,6 +36,7 @@ public class ParserTest {
         System.out.print(parser.parseProgram());
         assertEquals(expected, parser.parseProgram());
     }
+
     @Test
     public void testEqualsOpExp() {
         // Test #1 {Checking 1 + 1}
@@ -733,4 +734,20 @@ public class ParserTest {
         assertParseProgram(tokenizes(input), expected);
     }
 
+    @Test
+    public void testThisFunction() throws ParserException {
+        // Test #48 {Checking this.methodA(23) }
+        assertParses(Arrays.asList(new ThisToken(),new PeriodToken(),new VariableToken("methodA"),
+                new LeftParenToken(),new NumbersToken(23), new RightParenToken()),
+            new ParseResult<Exp>(new OpExp(new ThisExp(),new PeriodOp(), new FunctionCallExp(new MethodName(
+                "methodA"),Arrays.asList(new IntegerExp(23)))),6));
+    }
+
+    @Test
+    public void testThisAssignment() throws ParserException {
+        // Test #49 {Checking x = this }
+        assertParses(Arrays.asList(new VariableToken("x"),new EqualsToken(),new ThisToken()),
+            new ParseResult<Exp>(new OpExp(new VariableExp("x"), new EqualsOp(),
+                new ThisExp()),3));
+    }
 }
