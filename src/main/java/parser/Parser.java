@@ -4,6 +4,7 @@ import lexer.tokens.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Parser {
     private final List<Token> tokens;
@@ -449,15 +450,21 @@ public class Parser {
                             ParseResult<Stmt> body = parseStmt(params.position + 1);
                             constructorDefs.add(new ConstructorDef(params.result, body.result));
                             currentPosition = body.position;
-                        } else if (getToken(currentPosition + 2) instanceof VariableToken) {
+                        } else if (getToken(currentPosition + 2) instanceof VariableToken || getToken(currentPosition + 2) instanceof MainToken) {
+                            Token methodToken = getToken(currentPosition + 2);
+
+                            if (methodToken instanceof MainToken) {
+                                methodToken = new VariableToken(methodToken.toString());
+                            }
+
                             ParseResult<AccessType> accessType = parseAccessType(currentPosition);
                             ParseResult<Type> returnType = parseReturnType(currentPosition + 1);
-                            String methodName = ((VariableToken) getToken(currentPosition + 2)).name;
-                                // Handles methods
+                            String methodName = methodToken.toString();
+                            // Handles methods
                             if (getToken(currentPosition + 3) instanceof LeftParenToken) {
-                                ParseResult<List<Vardec>> params = parseMethodParameters(currentPosition + 4);
+                                ParseResult<List<Vardec>> params = parseMethodParameters(
+                                    currentPosition + 4);
                                 assertTokenHereIs(params.position, new RightParenToken());
-                                methodDefs = new ArrayList<>();
 
                                 final ParseResult<Stmt> body = parseStmt(params.position + 1);
                                 methodDefs.add(new MethodDef(
@@ -472,19 +479,17 @@ public class Parser {
                                 // Handles instance declarations
                             } else if (getToken(currentPosition + 3) instanceof SemiColonToken) {
                                 instanceDecs = new ArrayList<>();
-                                //System.out.println("SemiColon: "+getToken(currentPosition+3).toString());
                                 instanceDecs.add(
                                     new InstanceDec(
                                         accessType.result,
                                         new Vardec(returnType.result, new VariableExp(methodName))
                                     )
                                 );
-                                //.out.println("Instance Dec "+ instanceDecs.get(0));
-                                currentPosition+=4;
+                                currentPosition += 4;
                             } else {
-                                throw new ParserException("expected `(` or `;`; received " + getToken(currentPosition + 3));
+                                throw new ParserException(
+                                    "expected `(` or `;`; received " + getToken(currentPosition + 3));
                             }
-
                         } else {
                             throw new ParserException("expected constructor or access modifier; received " + getToken(currentPosition));
                         }
@@ -508,6 +513,8 @@ public class Parser {
                 } else {
                     throw new ParserException("expected class name; received " + getToken(position + 1));
                 }
+
+                methodDefs = new ArrayList<>();
             } else {
                 throw new ParserException("expected class; received " + token);
             }
@@ -516,10 +523,41 @@ public class Parser {
         return new ParseResult<>(classDefs, currentPosition);
     }
 
-    public ParseResult<Program> parseProgram(final int position) throws ParserException {
-        final ParseResult<List<ClassDef>> classDef = parseClasses(position);
+    public Stmt checkForEntrypoint(List<ClassDef> classes) throws ParserException{
 
-        return new ParseResult<>(new Program(classDef.result), classDef.position);
+        // "MethodName(Variable(main))"
+        MethodName entryName = new MethodName(new VariableToken(new MainToken().toString()).toString());
+
+        int entryCounter = 0;
+        Stmt entrypoint = null;
+        for (ClassDef classDef : classes) {
+            for (MethodDef methodDef : classDef.methods) {
+                System.out.println("METHODNAME: " + methodDef.methodName);
+                if (methodDef.methodName.equals(entryName)) {
+                    entryCounter++;
+                    entrypoint = methodDef.body;
+                    if (entryCounter > 1) {
+                        throw new ParserException("expected single main method; received " + entrypoint);
+                    }
+                }
+            }
+        }
+
+        if (entrypoint == null) {
+            throw new ParserException("expected main method");
+        }
+
+        return entrypoint;
+    }
+
+    public ParseResult<Program> parseProgram(final int position) throws ParserException {
+        ParseResult<List<ClassDef>> classDef = parseClasses(position);
+
+        return new ParseResult<>(
+            new Program(
+                classDef.result,
+                checkForEntrypoint(classDef.result)
+            ), classDef.position);
     }
 
     public Program parseProgram() throws ParserException {
