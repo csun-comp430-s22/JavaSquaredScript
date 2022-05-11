@@ -429,7 +429,7 @@ public class ParserTest {
 
         ParseResult<Stmt> expected = new ParseResult<>(
             new BreakStmt(),
-            2
+            1
         );
 
         assertParsesStmt(tokenizes(input), expected);
@@ -449,7 +449,7 @@ public class ParserTest {
                     new GreaterThanOp(),
                     new IntegerExp(1))
             ),
-            5
+            4
         );
 
         assertParsesStmt(tokenizes(input), expected);
@@ -467,25 +467,7 @@ public class ParserTest {
                 new IntType(),
                 new VariableExp("x")
             ),
-            3
-        );
-
-        assertParsesStmt(tokenizes(input), expected);
-    }
-
-    @Test(expected = ParserException.class)
-    public void testVardecIntDecFail() throws ParserException, TokenizerException {
-        // Test #25 - Checking fail:
-        //      Int 1;
-
-        String input = "Int 1;";
-
-        ParseResult<Stmt> expected = new ParseResult<>(
-            new Vardec(
-                new IntType(),
-                new VariableExp("x")
-            ),
-            3
+            2
         );
 
         assertParsesStmt(tokenizes(input), expected);
@@ -504,7 +486,7 @@ public class ParserTest {
                 new BooleanType(),
                 new VariableExp("x")
             ),
-            3
+            2
         );
 
         assertParsesStmt(tokenizes(input), expected);
@@ -540,7 +522,7 @@ public class ParserTest {
                 new StringType(),
                 new VariableExp("x")
             ),
-            3
+            2
         );
 
         assertParsesStmt(tokenizes(input), expected);
@@ -1078,7 +1060,7 @@ public class ParserTest {
             "}" +
             "class myClass extends classA {" +
                 "public Int a;" +
-                "constructor(){}" +
+                "constructor(){Int x;}" +
             "}";
 
         Program expected = new Program(
@@ -1107,7 +1089,7 @@ public class ParserTest {
                         new ConstructorDef(
                             new ArrayList<>(),
                             new BlockStmt(
-                                new ArrayList<>()
+                                    Arrays.asList(new Vardec(new IntType(), new VariableExp("x")))
                             )
                         )
                     ),

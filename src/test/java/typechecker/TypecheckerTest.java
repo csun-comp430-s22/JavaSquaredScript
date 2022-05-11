@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 public class TypecheckerTest {
 
     public static Typechecker emptyTypechecker() throws TypeErrorException{
-        return new Typechecker(new Program(new ArrayList<ClassDef>()));
+        return new Typechecker(new Program(new ArrayList<ClassDef>(),new BlockStmt(new ArrayList<>())));
     }
     
     public static final Map<VariableExp, Type> emptyTypeEnvironment = new HashMap<VariableExp, Type>();
@@ -122,7 +122,6 @@ public class TypecheckerTest {
         final Parser parser = new Parser(tokenizes(input));
         assertEquals(new BooleanType(), emptyTypechecker().typeof(parser.parseExp(0).result,emptyTypeEnvironment,new ClassName("")));
     }
-
     @Test
     public void testTypeofDoubleEqualInt() throws TypeErrorException, ParserException, TokenizerException{
         final String input = "5==5";
@@ -222,13 +221,11 @@ public class TypecheckerTest {
         emptyTypechecker().typeofVariable(new VariableExp("x"),
                 typeEnvironment);
     }
-
-    /*
     @Test
     public void testTypeofReturn() throws TypeErrorException, ParserException, TokenizerException{
-        final String input = "return x;";
+        final String input = "{return x;}";
         final Parser parser = new Parser(tokenizes(input));
-        assertEquals(emptyTypeEnvironment, isWellTypedStmt(parser.parseStmt(0).result));
+        emptyTypeEnvironment.put(new VariableExp("x"), new IntType());
+        assertEquals(emptyTypeEnvironment, emptyTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
     }
-    */
 }
