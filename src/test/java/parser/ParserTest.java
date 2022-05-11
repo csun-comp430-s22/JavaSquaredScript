@@ -339,24 +339,7 @@ public class ParserTest {
 
         assertParses(tokenizes(input), expected);
     } 
-    @Test
-    public void checkAssignment() throws ParserException, TokenizerException {
-        // Test #19 - Checking:
-        //      x = 23
 
-        String input = "x = 23";
-
-        ParseResult<Exp> expected = new ParseResult<>(
-            new OpExp(
-                new VariableExp("x"),
-                new EqualsOp(),
-                new IntegerExp(23)
-            ),
-            3
-        );
-
-        assertParses(tokenizes(input), expected);
-    }
     @Test
     public void testIfStmt() throws ParserException, TokenizerException {
         // Test #20 - Checking:
@@ -622,61 +605,19 @@ public class ParserTest {
     }
 
     @Test
-    public void testMethodCall() throws ParserException, TokenizerException {
-        // Test #34 - Checking:
-        //      methodA(23)
-
-        String input = "methodA(23)";
-
-        ParseResult<Exp> expected = new ParseResult<>(
-            new FunctionCallExp(
-                new MethodName("methodA"),
-                Collections.singletonList(new IntegerExp(23))
-            ),
-            4
-        );
-
-        assertParses(tokenizes(input), expected);
-    }
-
-    @Test
-    public void testMethodMultipleInputsCall() throws ParserException, TokenizerException {
-        // Test #35 - Checking:
-        //      methodB(23, "hello")
-
-        String input = "methodB(23, \"hello\")";
-
-        ParseResult<Exp> expected = new ParseResult<>(
-            new FunctionCallExp(
-                new MethodName("methodB"),
-                Arrays.asList(
-                    new IntegerExp(23),
-                    new StringExp("\"hello\"")
-                )
-            ),
-            6
-        );
-
-        assertParses(tokenizes(input), expected);
-    }
-
-    @Test
     public void testMethodWithDot() throws ParserException, TokenizerException {
         // Test #36 - Checking:
         //      a.methodA(23)
 
-        String input = "a.methodA(23)";
+        String input = "(a).methodA(23)";
 
         ParseResult<Exp> expected = new ParseResult<>(
-            new OpExp(
+            new FunctionCallExp(
+                new MethodName("methodA"),
                 new VariableExp("a"),
-                new PeriodOp(),
-                new FunctionCallExp(
-                    new MethodName("methodA"),
-                    Collections.singletonList(new IntegerExp(23))
-                )
+                Collections.singletonList(new IntegerExp(23))
             ),
-            6
+            8
         );
 
         assertParses(tokenizes(input), expected);
@@ -1727,39 +1668,213 @@ public class ParserTest {
         // Test #52 - Checking:
         //      this.methodA(23)
 
-        String input = "this.methodA(23)";
+        String input = "(this).methodA(23)";
 
         ParseResult<Exp> expected = new ParseResult<>(
-            new OpExp(
+            new FunctionCallExp(
+                new MethodName("methodA"),
                 new ThisExp(),
-                new PeriodOp(),
-                new FunctionCallExp(
-                    new MethodName("methodA"),
-                    Collections.singletonList(new IntegerExp(23))
-                )
+                Collections.singletonList(new IntegerExp(23))
             ),
-            6
+            8
         );
 
         assertParses(tokenizes(input), expected);
     }
 
     @Test
-    public void testThisAssignment() throws ParserException, TokenizerException {
-        // Test #53 - Checking:
-        //      x = this;
+    public void testVardecIntInitializeInt() throws ParserException, TokenizerException {
+        // Test #54 - Checking:
+        //      Int x = 4;
 
-        String input = "x = this;";
+        String input = "Int x = 4;";
 
-        ParseResult<Exp> expected = new ParseResult<>(
-            new OpExp(
-                new VariableExp("x"),
-                new EqualsOp(),
-                new ThisExp()
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new IntType(),
+                    new VariableExp("x")
+                ),
+                new IntegerExp(4)
             ),
-            3
+            4
         );
 
-        assertParses(tokenizes(input), expected);
+        assertParsesStmt(tokenizes(input), expected);
     }
+
+    @Test
+    public void testVardecIntInitializeVariable() throws ParserException, TokenizerException {
+        // Test #55 - Checking:
+        //      Int x = y;
+
+        String input = "Int x = y;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new IntType(),
+                    new VariableExp("x")
+                ),
+                new VariableExp("y")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecBoolInitializeInt() throws ParserException, TokenizerException {
+        // Test #56 - Checking:
+        //      Boolean x = true;
+
+        String input = "Boolean x = true;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new BooleanType(),
+                    new VariableExp("x")
+                ),
+                new BooleanLiteralExp(true)
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecBoolInitializeVariable() throws ParserException, TokenizerException {
+        // Test #57 - Checking:
+        //      Boolean x = y;
+
+        String input = "Boolean x = y;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new BooleanType(),
+                    new VariableExp("x")
+                ),
+                new VariableExp("y")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecStringInitializeInt() throws ParserException, TokenizerException {
+        // Test #58 - Checking:
+        //      strg x = "hello";
+
+        String input = "strg x = \"hello\";";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new StringType(),
+                    new VariableExp("x")
+                ),
+                new StringExp("\"hello\"")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecStringInitializeVariable() throws ParserException, TokenizerException {
+        // Test #59 - Checking:
+        //      strg x = y;
+
+        String input = "strg x = y;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new StringType(),
+                    new VariableExp("x")
+                ),
+                new VariableExp("y")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecClassnameInitializeClassname() throws ParserException, TokenizerException {
+        // Test #60 - Checking:
+        //      classA x = new classA();
+
+        String input = "classA x = new classA();";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new ClassNameType(new ClassName("classA")),
+                    new VariableExp("x")
+                ),
+                new ClassCallExp(new ClassName("classA"), new ArrayList<>())
+            ),
+            7
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecClassnameInitializeClassnameParams() throws ParserException, TokenizerException {
+        // Test #61 - Checking:
+        //      classA x = new classA(y, z);
+
+        String input = "classA x = new classA(y, z);";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new ClassNameType(new ClassName("classA")),
+                    new VariableExp("x")
+                ),
+                new ClassCallExp(
+                    new ClassName("classA"),
+                    Arrays.asList(
+                        new VariableExp("y"),
+                        new VariableExp("z")
+                    ))
+            ),
+            10
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecClassnameInitializeVariable() throws ParserException, TokenizerException {
+        // Test #62 - Checking:
+        //      classA x = y;
+
+        String input = "classA x = y;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new ClassNameType(new ClassName("classA")),
+                    new VariableExp("x")
+                ),
+                new VariableExp("y")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+
 }

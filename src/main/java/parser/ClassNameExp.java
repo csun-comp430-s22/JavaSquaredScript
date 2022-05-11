@@ -17,6 +17,6 @@ public class ClassNameExp implements Exp {
 	}
 
 	public String toString() {
-		return "ClassName(" + name + ")";
+		return "ClassNameExp(" + name + ")";
 	}
 }
