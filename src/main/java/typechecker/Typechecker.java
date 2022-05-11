@@ -404,6 +404,10 @@ public class Typechecker {
         }
     }
 
+    public Map<VariableExp, Type> isWellTypedBreak(final Map<VariableExp, Type> typeEnvironment) throws TypeErrorException {
+        return typeEnvironment;
+    }
+
     public Map<VariableExp, Type> isWellTypedWhile(final WhileStmt stmt,
                                                 final Map<VariableExp, Type> typeEnvironment,
                                                 final ClassName classWeAreIn,
@@ -461,7 +465,9 @@ public class Typechecker {
             typeof(((PrintStmt)stmt).exp, typeEnvironment, classWeAreIn);
             return typeEnvironment;
         } else if (stmt instanceof BlockStmt) {
-            return isWellTypedBlock((BlockStmt)stmt, typeEnvironment, classWeAreIn, functionReturnType);
+            return isWellTypedBlock((BlockStmt) stmt, typeEnvironment, classWeAreIn, functionReturnType);
+        } else if (stmt instanceof BreakStmt) {
+            return isWellTypedBreak(typeEnvironment);
         } else {
             throw new TypeErrorException("Unsupported statement: " + stmt);
         }

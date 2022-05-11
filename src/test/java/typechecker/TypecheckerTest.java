@@ -228,4 +228,10 @@ public class TypecheckerTest {
         emptyTypeEnvironment.put(new VariableExp("x"), new IntType());
         assertEquals(emptyTypeEnvironment, emptyTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
     }
+    @Test
+    public void testTypeofBreak() throws TypeErrorException, ParserException, TokenizerException{
+        final String input = "{break;}";
+        final Parser parser = new Parser(tokenizes(input));
+        assertEquals(emptyTypeEnvironment, emptyTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
+    }
 }
