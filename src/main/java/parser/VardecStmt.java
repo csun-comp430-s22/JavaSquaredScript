@@ -1,7 +1,8 @@
 package parser;
 
 public class VardecStmt implements Stmt {
-
+	// int a = new A();
+	// NewExp(className())
 	public final Vardec vardec;
 	public final Exp exp;
 

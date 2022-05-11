@@ -18,12 +18,21 @@ public class TypecheckerTest {
     public static Typechecker emptyTypechecker() throws TypeErrorException{
         return new Typechecker(new Program(new ArrayList<ClassDef>(),new BlockStmt(new ArrayList<>())));
     }
+
+
     
     public static final Map<VariableExp, Type> emptyTypeEnvironment = new HashMap<VariableExp, Type>();
     public List<Token> tokenizes(final String input) throws TokenizerException {
         final Tokenizer tokenizer = new Tokenizer(input);
         final List<Token> received = tokenizer.tokenize();
         return received;
+    }
+    public static Typechecker methodCallTypechecker() throws TypeErrorException,TokenizerException, ParserException{
+        final String input = "class A extends Object{public Int main(){} constructor(){} }";
+        final Tokenizer tokenizer  = new Tokenizer(input);
+        final List<Token> received = tokenizer.tokenize();
+        final Parser parser = new Parser(received);
+        return new Typechecker(parser.parseProgram());
     }
 
     @Test
@@ -194,9 +203,6 @@ public class TypecheckerTest {
     }
     @Test
     public void testTypeofClass() throws TypeErrorException, ParserException, TokenizerException{
-//        final String input = "this";
-//        final Parser parser = new Parser(tokenizes(input));
-        //emptyTypeEnvironment.put(new VariableExp("x"), new IntType());
         assertEquals(new ClassNameType(new ClassName("foo")), emptyTypechecker().typeofThis(new ClassName("foo")));
     }
     @Test(expected = TypeErrorException.class)
@@ -233,5 +239,26 @@ public class TypecheckerTest {
         final String input = "{break;}";
         final Parser parser = new Parser(tokenizes(input));
         assertEquals(emptyTypeEnvironment, emptyTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
+    }
+    @Test
+    public void testTypeofInitInt() throws TypeErrorException, ParserException, TokenizerException{
+        final String input = "{Int x = 5;}";
+        final Parser parser = new Parser(tokenizes(input));
+        emptyTypeEnvironment.put(new VariableExp("x"), new IntType());
+        assertEquals(emptyTypeEnvironment, methodCallTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
+    }
+    @Test
+    public void testTypeofInitializedBoolean() throws TypeErrorException, ParserException, TokenizerException{
+        final String input = "{Boolean x = true;}";
+        final Parser parser = new Parser(tokenizes(input));
+        emptyTypeEnvironment.put(new VariableExp("x"), new BooleanType());
+        assertEquals(emptyTypeEnvironment, methodCallTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
+    }
+    @Test
+    public void testTypeofInitString() throws TypeErrorException, ParserException, TokenizerException{
+        final String input = "{strg x = \"hello\";}";
+        final Parser parser = new Parser(tokenizes(input));
+        emptyTypeEnvironment.put(new VariableExp("x"), new StringType());
+        assertEquals(emptyTypeEnvironment, methodCallTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
     }
 }

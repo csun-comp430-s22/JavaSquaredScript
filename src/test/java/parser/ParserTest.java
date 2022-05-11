@@ -631,7 +631,7 @@ public class ParserTest {
         String input = "new classA(23)";
 
         ParseResult<Exp> expected = new ParseResult<>(
-            new ClassCallExp(
+            new NewExp(
                 new ClassName("classA"),
                 Collections.singletonList(new IntegerExp(23))
             ),
@@ -667,7 +667,7 @@ public class ParserTest {
         String input = "new classB(23, \"hello\")";
 
         ParseResult<Exp> expected = new ParseResult<>(
-            new ClassCallExp(
+            new NewExp(
                 new ClassName("classB"),
                 Arrays.asList(
                     new IntegerExp(23),
@@ -1821,7 +1821,7 @@ public class ParserTest {
                     new ClassNameType(new ClassName("classA")),
                     new VariableExp("x")
                 ),
-                new ClassCallExp(new ClassName("classA"), new ArrayList<>())
+                new NewExp(new ClassName("classA"), new ArrayList<>())
             ),
             7
         );
@@ -1842,7 +1842,7 @@ public class ParserTest {
                     new ClassNameType(new ClassName("classA")),
                     new VariableExp("x")
                 ),
-                new ClassCallExp(
+                new NewExp(
                     new ClassName("classA"),
                     Arrays.asList(
                         new VariableExp("y"),

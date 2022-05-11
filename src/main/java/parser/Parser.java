@@ -111,7 +111,7 @@ public class Parser {
                     }
                 }
                 counter++;
-                return new ParseResult<>(new ClassCallExp(new ClassName(name), exp), position + counter);
+                return new ParseResult<>(new NewExp(new ClassName(name), exp), position + counter);
             } else {
                 throw new ParserException("expected new token; received: " + token);
             }

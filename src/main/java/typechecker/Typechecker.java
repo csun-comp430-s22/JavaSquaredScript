@@ -468,9 +468,21 @@ public class Typechecker {
             return isWellTypedBlock((BlockStmt) stmt, typeEnvironment, classWeAreIn, functionReturnType);
         } else if (stmt instanceof BreakStmt) {
             return isWellTypedBreak(typeEnvironment);
-        } else {
+        }else if(stmt instanceof VardecStmt){
+            return isWellTypedVardecStmt((VardecStmt) stmt,typeEnvironment,classWeAreIn,functionReturnType);
+        }else {
             throw new TypeErrorException("Unsupported statement: " + stmt);
         }
+    }
+    //Dog a = new Dog();
+    public Map<VariableExp, Type> isWellTypedVardecStmt(final VardecStmt stmt,
+                                                        final Map<VariableExp, Type> typeEnvironment,
+                                                        final ClassName classWeAreIn,
+                                                        final Type functionReturnType) throws TypeErrorException {
+        final Type expType = typeof(stmt.exp, typeEnvironment, classWeAreIn);
+        final Type classtype = stmt.vardec.type;
+        assertEqualOrSubtypeOf(expType,classtype);
+        return addToMap(typeEnvironment,stmt.vardec.variable,classtype);
     }
 
     // methoddef ::= type methodname(vardec*) stmt
