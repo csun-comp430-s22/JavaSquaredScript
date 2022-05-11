@@ -139,7 +139,7 @@ public class Tokenizer {
             offset += 1;
             retval = new CommaToken();
         } else if (input.startsWith(".",offset)){
-            offset += 2;
+            offset += 1;
             retval = new PeriodToken();
         }
         return retval;
