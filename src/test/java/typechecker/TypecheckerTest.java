@@ -17,7 +17,7 @@ public class TypecheckerTest {
     }
 
 
-    
+
     public static final Map<VariableExp, Type> emptyTypeEnvironment = new HashMap<VariableExp, Type>();
     public List<Token> tokenizes(final String input) throws TokenizerException {
         final Tokenizer tokenizer = new Tokenizer(input);
@@ -276,14 +276,41 @@ public class TypecheckerTest {
         final Parser parser = new Parser(tokenizes(input));
         assertEquals(stmt,methodCallTypechecker().isWellTypedStmt(parser.parseStmt(0).result,emptyTypeEnvironment, new ClassName(""), new ClassNameType(new ClassName(""))));
     }
+    public static Typechecker typeCheckerClass() throws TokenizerException, ParserException, TypeErrorException{
+        final String input = "class mainClass{public Int x; constructor(Boolean y){} private Int test(){print(5);}public Int main(){}}";
+        Tokenizer tokenizer = new Tokenizer(input);
+        final List<Token> received = tokenizer.tokenize();
+        Parser parser = new Parser(received);
+        return new Typechecker(parser.parseProgram());
+    }
+    @Test(expected = TypeErrorException.class)
+    public void testingMethodCalls() throws TokenizerException, ParserException, TypeErrorException{
+        final Map<VariableExp, Type> typeEnv = new HashMap<>();
+        typeEnv.put(new VariableExp("dog"), new ClassNameType(new ClassName("mainClass")));
+        Exp target = new VariableExp("dog");
+        MethodName methodName = new MethodName("testing");
+        List<Exp> params = new ArrayList<>();
+        params.add(new IntegerExp(23));
+        final Type receivedType = typeCheckerClass().typeof(new FunctionCallExp(methodName,target,params),typeEnv,new ClassName(""));
+    }
 
+    @Test
+    public void testFunctionCallExp()throws TokenizerException, ParserException, TypeErrorException{
+        final Type type = new IntType();
+        final Map<VariableExp, Type> typeEnv = new HashMap<>();
+        typeEnv.put(new VariableExp("dog"), new ClassNameType(new ClassName("mainClass")));
+        Exp target = new VariableExp("dog");
+        MethodName methodName = new MethodName("test");
+        List<Exp> params = new ArrayList<>();
+        final Type receivedType = typeCheckerClass().typeof(new FunctionCallExp(methodName, target, params), typeEnv,new ClassName(""));
+        System.out.println(receivedType);
+    }
     @Test(expected = TypeErrorException.class)
     public void testDuplicateClasses() throws TokenizerException, ParserException, TypeErrorException {
         final String input = "class mainClass{public Int main(){}} class A{} class A{}";
         final Parser parser = new Parser(tokenizes(input));
 
         Typechecker typechecker = emptyTypechecker();
-
         typechecker.classes.put(
             new ClassName("mainClass"),
             new ClassDef(
@@ -315,7 +342,6 @@ public class TypecheckerTest {
                 new ArrayList<>()
             )
         );
-
         assertEquals(typechecker.classes, new Typechecker(parser.parseProgram()).classes);
     }
 

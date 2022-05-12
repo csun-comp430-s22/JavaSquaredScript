@@ -217,6 +217,7 @@ public class Typechecker {
     public MethodDef getMethodDef(final ClassName className,
                                   final MethodName methodName) throws TypeErrorException {
         final Map<MethodName, MethodDef> methodMap = methods.get(className);
+        //System.out.println(className.name);
         if (methodMap == null) {
             throw new TypeErrorException("Unknown class name: " + className);
         } else {
@@ -314,7 +315,8 @@ public class Typechecker {
     public Type typeofMethodCall(final FunctionCallExp exp,
                                  final Map<VariableExp, Type> typeEnvironment,
                                  final ClassName classWeAreIn) throws TypeErrorException {
-        final Type targetType = typeof(exp, typeEnvironment, classWeAreIn);
+        //System.out.println(exp.target);
+        final Type targetType = typeof(exp.target, typeEnvironment, classWeAreIn);
         if (targetType instanceof ClassNameType) {
             final ClassName className = ((ClassNameType)targetType).className;
             final List<Type> expectedTypes =
