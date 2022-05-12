@@ -314,7 +314,7 @@ public class Typechecker {
     public Type typeofMethodCall(final FunctionCallExp exp,
                                  final Map<VariableExp, Type> typeEnvironment,
                                  final ClassName classWeAreIn) throws TypeErrorException {
-        final Type targetType = typeof(exp, typeEnvironment, classWeAreIn);
+        final Type targetType = typeof(exp.target, typeEnvironment, classWeAreIn);
         if (targetType instanceof ClassNameType) {
             final ClassName className = ((ClassNameType)targetType).className;
             final List<Type> expectedTypes =
