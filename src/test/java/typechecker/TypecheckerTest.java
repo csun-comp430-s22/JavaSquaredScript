@@ -247,6 +247,12 @@ public class TypecheckerTest {
         assertEquals(emptyTypeEnvironment, emptyTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
     }
     @Test
+    public void testTypeofWhile() throws TypeErrorException, ParserException, TokenizerException{
+        final String input = "while(true){}";
+        final Parser parser = new Parser(tokenizes(input));
+        assertEquals(emptyTypeEnvironment, emptyTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
+    }
+    @Test
     public void test() throws TypeErrorException, ParserException, TokenizerException{
        final String input = "new A();";
        final Type expectedType = new ClassNameType(new ClassName("A"));
