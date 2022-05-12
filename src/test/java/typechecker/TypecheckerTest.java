@@ -6,10 +6,7 @@ import lexer.tokens.Token;
 import org.junit.Test;
 import parser.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,7 +25,7 @@ public class TypecheckerTest {
         return received;
     }
     public static Typechecker methodCallTypechecker() throws TypeErrorException,TokenizerException, ParserException{
-        final String input = "class A extends Object{public Int main(){} constructor(){} }";
+        final String input = "class A {public Int main(){} constructor(){} }";
         final Tokenizer tokenizer  = new Tokenizer(input);
         final List<Token> received = tokenizer.tokenize();
         final Parser parser = new Parser(received);
@@ -260,5 +257,282 @@ public class TypecheckerTest {
         final Parser parser = new Parser(tokenizes(input));
         emptyTypeEnvironment.put(new VariableExp("x"), new StringType());
         assertEquals(emptyTypeEnvironment, methodCallTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
+    }
+
+    @Test(expected = TypeErrorException.class)
+    public void testDuplicateClasses() throws TokenizerException, ParserException, TypeErrorException {
+        final String input = "class mainClass{public Int main(){}} class A{} class A{}";
+        final Parser parser = new Parser(tokenizes(input));
+
+        Typechecker typechecker = emptyTypechecker();
+
+        typechecker.classes.put(
+            new ClassName("mainClass"),
+            new ClassDef(
+                new ClassName("mainClass"),
+                new ClassName(""),
+                new ArrayList<>(),
+                Arrays.asList(
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("main"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    )
+                ),
+                new ArrayList<>()
+            )
+        );
+
+        typechecker.classes.put(
+            new ClassName("A"),
+            new ClassDef(
+                new ClassName("A"),
+                new ClassName(""),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+            )
+        );
+
+        assertEquals(typechecker.classes, new Typechecker(parser.parseProgram()).classes);
+    }
+
+    @Test
+    public void testMultipleClasses() throws TokenizerException, ParserException, TypeErrorException {
+        final String input = "class mainClass{public Int main(){}} class A{}";
+        final Parser parser = new Parser(tokenizes(input));
+
+        Typechecker typechecker = emptyTypechecker();
+
+        typechecker.classes.put(
+            new ClassName("mainClass"),
+            new ClassDef(
+                new ClassName("mainClass"),
+                new ClassName(""),
+                new ArrayList<>(),
+                Arrays.asList(
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("main"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    )
+                ),
+                new ArrayList<>()
+            )
+        );
+
+        typechecker.classes.put(
+            new ClassName("A"),
+            new ClassDef(
+                new ClassName("A"),
+                new ClassName(""),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+            )
+        );
+
+        assertEquals(typechecker.classes, new Typechecker(parser.parseProgram()).classes);
+    }
+
+    @Test
+    public void testSingleMethod() throws TokenizerException, TypeErrorException, ParserException {
+        final String input = "class mainClass {public Int main(){}}"  +
+            "class A{public Int method(Int x, Boolean y){print(20);}}";
+        final Parser parser = new Parser(tokenizes(input));
+
+        Typechecker typechecker = emptyTypechecker();
+
+        typechecker.classes.put(
+            new ClassName("mainClass"),
+            new ClassDef(
+                new ClassName("mainClass"),
+                new ClassName(""),
+                new ArrayList<>(),
+                Arrays.asList(
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("main"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    )
+                ),
+                new ArrayList<>()
+            )
+        );
+
+        typechecker.classes.put(
+            new ClassName("A"),
+            new ClassDef(
+                new ClassName("A"),
+                new ClassName(""),
+                new ArrayList<>(),
+                Arrays.asList(
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("method"),
+                        Arrays.asList(
+                            new Vardec(new IntType(), new VariableExp("x")),
+                            new Vardec(new BooleanType(), new VariableExp("y"))
+                        ),
+                        new BlockStmt(
+                            Arrays.asList(
+                                new PrintStmt(new IntegerExp(20))
+                            )
+                        )
+                    )
+                ),
+                new ArrayList<>()
+            )
+        );
+
+        assertEquals(typechecker.classes, new Typechecker(parser.parseProgram()).classes);
+    }
+
+    @Test(expected = TypeErrorException.class)
+    public void testDuplicateMethods() throws TypeErrorException, TokenizerException, ParserException {
+        final String input = "class mainClass{public Int main(){}} class A{public Int method(){} public Int" +
+            " method(){}}";
+        final Parser parser = new Parser(tokenizes(input));
+
+        Typechecker typechecker = emptyTypechecker();
+
+        typechecker.classes.put(
+            new ClassName("mainClass"),
+            new ClassDef(
+                new ClassName("mainClass"),
+                new ClassName(""),
+                new ArrayList<>(),
+                Arrays.asList(
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("main"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    )
+                ),
+                new ArrayList<>()
+            )
+        );
+
+        typechecker.classes.put(
+            new ClassName("A"),
+            new ClassDef(
+                new ClassName("A"),
+                new ClassName(""),
+                new ArrayList<>(),
+                Arrays.asList(
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("method"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    ),
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("method"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    )
+                ),
+                new ArrayList<>()
+            )
+        );
+
+        assertEquals(typechecker.classes, new Typechecker(parser.parseProgram()).classes);
+    }
+
+    @Test
+    public void testMultipleMethods() throws TypeErrorException, TokenizerException, ParserException {
+        final String input = "class mainClass{public Int main(){}} class A{public Int method1(){} public " +
+            "Int method2(){}}";
+        final Parser parser = new Parser(tokenizes(input));
+
+        Typechecker typechecker = emptyTypechecker();
+
+        typechecker.classes.put(
+            new ClassName("mainClass"),
+            new ClassDef(
+                new ClassName("mainClass"),
+                new ClassName(""),
+                new ArrayList<>(),
+                Arrays.asList(
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("main"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    )
+                ),
+                new ArrayList<>()
+            )
+        );
+
+        typechecker.classes.put(
+            new ClassName("A"),
+            new ClassDef(
+                new ClassName("A"),
+                new ClassName(""),
+                new ArrayList<>(),
+                Arrays.asList(
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("method1"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    ),
+                    new MethodDef(
+                        new PublicType(),
+                        new IntType(),
+                        new MethodName("method2"),
+                        new ArrayList<>(),
+                        new BlockStmt(
+                            new ArrayList<>()
+                        )
+                    )
+                ),
+                new ArrayList<>()
+            )
+        );
+
+        assertEquals(typechecker.classes, new Typechecker(parser.parseProgram()).classes);
+    }
+
+    @Test
+    public void testMethodCall() throws TokenizerException, TypeErrorException, ParserException {
+        final String input = "(this).method()";
+        final Parser parser = new Parser(tokenizes(input));
+
+
+        //assertEquals(emptyTypeEnvironment, emptyTypechecker()(parser.parseStmt(0).result,
+        //emptyTypeEnvironment, new ClassName(""), new ClassNameType(new ClassName(""))));
+
     }
 }
