@@ -319,7 +319,13 @@ public class TypecheckerTest {
 
     @Test
     public void testMultipleClasses() throws TokenizerException, ParserException, TypeErrorException {
-        final String input = "class mainClass{public Int main(){}} class A{}";
+        final String input =
+            "class mainClass { " +
+                "public Int main(){}" +
+            "} " +
+            "class A{}" +
+            "class B extends A{}";
+
         final Parser parser = new Parser(tokenizes(input));
 
         Typechecker typechecker = emptyTypechecker();
@@ -350,6 +356,17 @@ public class TypecheckerTest {
             new ClassDef(
                 new ClassName("A"),
                 new ClassName(""),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+            )
+        );
+
+        typechecker.classes.put(
+            new ClassName("B"),
+            new ClassDef(
+                new ClassName("B"),
+                new ClassName("A"),
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -571,4 +588,49 @@ public class TypecheckerTest {
 
     }
 
+    @Test
+    public void testTypeofIf() throws TypeErrorException, ParserException, TokenizerException{
+        final String input = "if(true){}else{}";
+        final Parser parser = new Parser(tokenizes(input));
+        assertEquals(emptyTypeEnvironment, emptyTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
+    }
+
+    @Test
+    public void testTypeofPrint() throws TypeErrorException, ParserException, TokenizerException{
+        final String input = "{print(0);}";
+        final Parser parser = new Parser(tokenizes(input));
+        assertEquals(emptyTypeEnvironment, emptyTypechecker().isWellTypedStmt(parser.parseStmt(0).result, emptyTypeEnvironment, new ClassName(""), new IntType()));
+    }
+
+    @Test
+    public void testInstanceVariables() throws TypeErrorException, TokenizerException, ParserException {
+
+        final String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass {" +
+                "public Int a;" +
+                "public Int b;" +
+                "public Int c;" +
+            "}";
+
+        Typechecker typechecker = new Typechecker(new Parser(tokenizes(input)).parseProgram());
+
+        HashMap<VariableExp, Type> expected = new HashMap<>();
+        expected.put(
+            new VariableExp("a"),
+            new IntType()
+        );
+        expected.put(
+            new VariableExp("b"),
+            new IntType()
+        );
+        expected.put(
+            new VariableExp("c"),
+            new IntType()
+        );
+
+        assertEquals(expected, typechecker.baseTypeEnvironmentForClass(new ClassName("myClass")));
+    }
 }
