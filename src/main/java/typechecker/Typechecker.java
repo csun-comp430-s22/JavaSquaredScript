@@ -9,7 +9,7 @@ import java.util.HashSet;
 
 
 public class Typechecker {
-    public static final String BASE_CLASS_NAME = "Object";
+    public static final String BASE_CLASS_NAME = "";
     public final Map<ClassName, ClassDef> classes;
     public final Map<ClassName, Map<MethodName, MethodDef>> methods;
 
@@ -102,10 +102,14 @@ public class Typechecker {
             final ClassName className = classDef.className;
             if (retval.containsKey(classDef.className)) {
                 throw new TypeErrorException("Duplicate class name: " + className);
+            } else {
+                retval.put(className, classDef);
             }
         }
 
         assertInheritanceNonCyclical(retval);
+
+
 
         return retval;
     }
