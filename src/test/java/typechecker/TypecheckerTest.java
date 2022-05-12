@@ -16,8 +16,6 @@ public class TypecheckerTest {
         return new Typechecker(new Program(new ArrayList<ClassDef>(),new BlockStmt(new ArrayList<>())));
     }
 
-
-    
     public static final Map<VariableExp, Type> emptyTypeEnvironment = new HashMap<VariableExp, Type>();
     public List<Token> tokenizes(final String input) throws TokenizerException {
         final Tokenizer tokenizer = new Tokenizer(input);
@@ -544,13 +542,33 @@ public class TypecheckerTest {
     }
 
     @Test
-    public void testMethodCall() throws TokenizerException, TypeErrorException, ParserException {
-        final String input = "(this).method()";
-        final Parser parser = new Parser(tokenizes(input));
+    public void testMethodCall() throws TypeErrorException {
+        HashMap<MethodName, MethodDef> hashMap = new HashMap<>();
+        hashMap.put(
+            new MethodName("method"),
+            new MethodDef(
+                new PublicType(),
+                new IntType(),
+                new MethodName("method"),
+                new ArrayList<>(),
+                new BlockStmt(
+                    new ArrayList<>()
+                )
+            )
+        );
 
+        Typechecker typechecker = emptyTypechecker();
+        typechecker.methods.put(
+            new ClassName("myClass"),
+            hashMap
+        );
 
-        //assertEquals(emptyTypeEnvironment, emptyTypechecker()(parser.parseStmt(0).result,
-        //emptyTypeEnvironment, new ClassName(""), new ClassNameType(new ClassName(""))));
+        assertEquals(
+            new IntType(),
+            typechecker.typeof(new FunctionCallExp(new MethodName("method"), new ThisExp(),
+                new ArrayList<>()), emptyTypeEnvironment, new ClassName("myClass"))
+        );
 
     }
+
 }
