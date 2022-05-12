@@ -82,8 +82,11 @@ public class Typechecker {
                 if (methodsOnThisClass.contains(methodName)) {
                     throw new TypeErrorException("duplicate method: " + methodName);
                 }
-                methodsOnThisClass.add(methodName);
-                retval.put(methodName, methodDef);
+                if(methodDef.accessType instanceof PublicType || methodDef.accessType instanceof ProtectedType)
+                {
+                    methodsOnThisClass.add(methodName);
+                    retval.put(methodName, methodDef);
+                }
             }
             return retval;
         }
