@@ -14,7 +14,7 @@ public class Parser {
 
     public Token getToken(final int position) throws ParserException {
         if (position >= 0 && position < tokens.size()) {
-            System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
+            //System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
             return tokens.get(position);
         } else {
             throw new ParserException("Invalid Token position: " + position);
@@ -287,7 +287,7 @@ public class Parser {
             // var intg declaration::= int var;
         } else if (token instanceof IntegerToken) {
             final ParseResult<Exp> exp = parseExp(position + 1);
-            System.out.println(getToken(exp.position-1));
+            //System.out.println(getToken(exp.position-1));
             if (getToken(exp.position - 1) instanceof VariableToken) {
                 try {
                     assertTokenHereIs(exp.position, new SemiColonToken());

@@ -478,7 +478,6 @@ public class Typechecker {
             throw new TypeErrorException("Unsupported statement: " + stmt);
         }
     }
-    //Dog a = new Dog();
     public Map<VariableExp, Type> isWellTypedVardecStmt(final VardecStmt stmt,
                                                         final Map<VariableExp, Type> typeEnvironment,
                                                         final ClassName classWeAreIn,
@@ -564,15 +563,10 @@ public class Typechecker {
         }
     }
 
-    // program ::= classdef* stmt
+    // program ::= classdef*
     public void isWellTypedProgram() throws TypeErrorException {
         for (final ClassDef classDef : program.classes) {
             isWellTypedClassDef(classDef);
         }
-
-       /* isWellTypedStmt(program.entryPoint,
-                new HashMap<VariableExp, Type>(),
-                null,
-                null);*/
     }
 }
