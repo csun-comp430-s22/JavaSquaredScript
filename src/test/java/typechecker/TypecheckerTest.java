@@ -304,7 +304,8 @@ public class TypecheckerTest {
         assertEquals(stmt,methodCallTypechecker().isWellTypedStmt(parser.parseStmt(0).result,emptyTypeEnvironment, new ClassName(""), new ClassNameType(new ClassName(""))));
     }
     public static Typechecker typeCheckerClass() throws TokenizerException, ParserException, TypeErrorException{
-        final String input = "class mainClass{public Int x; constructor(Boolean y){} private Int test(){print(5);}public Int main(){} public Boolean test(Int a){}}";
+        final String input = "class mainClass{public Int x; constructor(Boolean y){} private Int test(){print(5);}public Int main(){} public Boolean test(Int a){}} " +
+                "class A extends mainClass{} class C extends mainClass{}";
         Tokenizer tokenizer = new Tokenizer(input);
         final List<Token> received = tokenizer.tokenize();
         Parser parser = new Parser(received);
@@ -334,7 +335,8 @@ public class TypecheckerTest {
     public void testingNoExtends()throws TokenizerException, ParserException, TypeErrorException{
         final String input = "class A extends B{public Int main(){}}";
         Parser parser = new Parser(tokenizes(input));
-        System.out.println(new Typechecker(parser.parseProgram()));
+        new Typechecker(parser.parseProgram());
+        //System.out.println();
     }
 
     @Test(expected = TypeErrorException.class)
@@ -644,10 +646,11 @@ public class TypecheckerTest {
     }
     public static Typechecker typechecker() throws ParserException,TypeErrorException, TokenizerException{
         final String input = "class mainClass{ public Int main(){} constructor(strg y){print(true);}" +
-                "public Int testMethod(){} public Boolean testMethod(Int y){}}";
+                "public Int testMethod(){} public Boolean testMethod(Int y){}} class A extends mainClass{}";
         Tokenizer tokenizer = new Tokenizer(input);
         final List<Token> received = tokenizer.tokenize();
         Parser parser = new Parser(received);
+        //System.out.println(parser.parseProgram());
         return new Typechecker(parser.parseProgram());
     }
     @Test(expected = TypeErrorException.class)
@@ -670,14 +673,32 @@ public class TypecheckerTest {
         MethodName methodName = new MethodName("test");
         List<Exp> params = new ArrayList<>();
         params.add(new IntegerExp(1));
-        final Type receivedType = typeCheckerClass().typeof(new FunctionCallExp(methodName,target,params),typeEnv,new ClassName("mainClass"));
+        final Type receivedType = typeCheckerClass().typeof(new FunctionCallExp(methodName,target,params),typeEnv,new ClassName("A"));
         assertEquals(expectedType,receivedType);
+    }
+
+    @Test
+    public void testSubtyping() throws TypeErrorException,ParserException,TokenizerException{
+        typeCheckerClass().assertEqualOrSubtypeOf(new ClassNameType(new ClassName("C")),new ClassNameType(new ClassName("mainClass")));
+    }
+    @Test (expected = TypeErrorException.class)
+    public void testWrongExpression() throws TypeErrorException{
+        final Type type = emptyTypechecker().typeof(new ClassNameExp("A"),emptyTypeEnvironment,new ClassName(""));
     }
     @Test
     public void testClass()throws TypeErrorException,ParserException,TokenizerException{
-        final String input = "class A{private Int a; public Int b;constructor(Int x, Int x){} public Int main(){} public Boolean test(Int x){print(5);}}";
+        final String input = "class A{" +
+                                "private Int a; " +
+                                "public Int b;" +
+                                "constructor(Int x){} constructor(Boolean y){} " +
+                                "public Int main(){} public Boolean test(Int x){print(5);}}";
         Parser parser = new Parser(tokenizes(input));
         new Typechecker(parser.parseProgram()).isWellTypedProgram();
+    }
+
+    @Test (expected = TypeErrorException.class)
+    public void testOpError() throws TypeErrorException,ParserException,TokenizerException{
+        final Type type = emptyTypechecker().typeof(new OpExp(new IntegerExp(1), new EqualsOp(), new IntegerExp(5)),emptyTypeEnvironment,new ClassName(""));
     }
     public void testMethodCall() throws TypeErrorException {
         HashMap<MethodName, MethodDef> hashMap = new HashMap<>();

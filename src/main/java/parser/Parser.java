@@ -119,33 +119,6 @@ public class Parser {
             throw new ParserException("expected a variable, string, boolean, expression, integer but received " + token);
         }
     }// parsePrimaryExp
-
-    /*
-    public ParseResult<Op> parsePeriodOp(final int position) throws ParserException {
-        final Token token = getToken(position);
-        if (token instanceof PeriodToken) {
-            return new ParseResult<>(new PeriodOp(), position + 1);
-        } else {
-            throw new ParserException("expected .; received " + token);
-        }
-    }
-
-    public ParseResult<Exp> parsePeriodExp(final int position) throws ParserException {
-        ParseResult<Exp> current = parsePrimaryExp(position);
-        boolean shouldRun = true;
-        while (shouldRun) {
-            try {
-                final ParseResult<Op> periodOp = parsePeriodOp(current.position);
-                final ParseResult<Exp> periodExp = parsePrimaryExp(periodOp.position);
-                current = new ParseResult<>(new OpExp(current.result, periodOp.result, periodExp.result), periodExp.position);
-            } catch (final ParserException e) {
-                shouldRun = false;
-            }
-        }
-        return current;
-    }
-     */
-
     public ParseResult<Op> parseMultiplicativeOp(final int position) throws ParserException {
         final Token token = getToken(position);
         if (token instanceof TimesToken) {
@@ -303,7 +276,6 @@ public class Parser {
                     } catch (ParserException f) {
                         throw new ParserException("expected ; or =; received " + getToken(exp.position));
                     }
-
                 }
             } else if(getToken(exp.position-1) instanceof NumbersToken){
                 return new ParseResult<>(new VardecStmt(
@@ -500,7 +472,6 @@ public class Parser {
         String extendsName, className;
         int currentPosition = position;
         boolean shouldRun = true;
-
         while (shouldRun) {
             extendsName = "";
             if (token instanceof ClassToken) {

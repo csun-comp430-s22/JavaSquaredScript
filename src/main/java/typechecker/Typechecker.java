@@ -221,6 +221,7 @@ public class Typechecker {
                                   final MethodName methodName) throws TypeErrorException {
         final Map<MethodName, MethodDef> methodMap = methods.get(className);
         if (methodMap == null) {
+            //System.out.println(className.name);
             throw new TypeErrorException("Unknown class name: " + className);
         } else {
             final MethodDef methodDef = methodMap.get(methodName);
@@ -442,13 +443,9 @@ public class Typechecker {
                                                         final Map<VariableExp, Type> typeEnvironment,
                                                         final ClassName classWeAreIn,
                                                         final Type functionReturnType) throws TypeErrorException {
-        if (functionReturnType == null) {
-            throw new TypeErrorException("return in program entry point");
-        } else {
             final Type receivedType = typeof(stmt.exp, typeEnvironment, classWeAreIn);
             assertEqualOrSubtypeOf(receivedType, functionReturnType);
             return typeEnvironment;
-        }
     }
 
     // bool x = true;

@@ -1723,6 +1723,12 @@ public class ParserTest {
 
         assertParsesStmt(tokenizes(input), expected);
     }
+    @Test(expected = ParserException.class)
+    public void testVarDecError() throws TokenizerException, ParserException{
+        String input = "Int x . 5";
+        ParseResult<Stmt> expected = new ParseResult<>(new VardecStmt(new Vardec(new IntType(), new VariableExp("x")),new IntegerExp(5)),4);
+        assertParsesStmt(tokenizes(input), expected);
+    }
 
     @Test
     public void testVardecBoolInitializeInt() throws ParserException, TokenizerException {
