@@ -1,28 +1,30 @@
 package parser;
 
-import lexer.tokens.IntegerToken;
+import lexer.Tokenizer;
+import lexer.TokenizerException;
 import lexer.tokens.*;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.management.StringValueExp;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ParserTest {
-    public void assertParses(final List<Token> input, final ParseResult<Exp> expected) throws ParserException{
+
+    public List<Token> tokenizes(final String input) throws TokenizerException{
+        final Tokenizer tokenizer = new Tokenizer(input);
+        return tokenizer.tokenize();
+    }
+    public void assertParses(final List<Token> input, final ParseResult<Exp> expected) throws ParserException {
         //List<Token> tokensList =  Arrays.asList(input);
         final Parser parser = new Parser(input);
         assertEquals(expected,parser.parseExp(0));
     }
 
-    public void assertParsesStmt(final List<Token> input, final ParseResult<Stmt> expected) throws ParserException{
+    public void assertParsesStmt(final List<Token> input, final ParseResult<Stmt> expected) throws ParserException {
         //List<Token> tokensList =  Arrays.asList(input);
         final Parser parser = new Parser(input);
         assertEquals(expected,parser.parseStmt(0));
@@ -35,605 +37,1850 @@ public class ParserTest {
 
     @Test
     public void testEqualsOpExp() {
-        // Test #1 {Checking 1 + 1}
+        // Test #1 - Checking:
+        //      1 + 1
+
         final OpExp first = new OpExp(new IntegerExp(1),
                                       new PlusOp(),
                                       new IntegerExp(1));
         final OpExp second = new OpExp(new IntegerExp(1),
                                       new PlusOp(),
                                       new IntegerExp(1));
+
         assertEquals(first, second);
     }
 
     @Test
     public void testMinusOpExp() {
-        // Test #2 {Checking 1 - 1}
+        // Test #2 - Checking:
+        //      1 - 1
+
         final OpExp first = new OpExp(new IntegerExp(1),
                 new MinusOp(),
                 new IntegerExp(1));
         final OpExp second = new OpExp(new IntegerExp(1),
                 new MinusOp(),
                 new IntegerExp(1));
+
         assertEquals(first, second);
     }
 
     @Test
-    public void testNumbersExp() throws ParserException{
-        // Test #3 {Checking 10}
-        assertParses(Arrays.asList(new NumbersToken(10)), new ParseResult<Exp>(new IntegerExp(10), 1));
+    public void testNumbersExp() throws ParserException, TokenizerException {
+        // Test #3 - Checking:
+        //      10
+
+        String input = "10";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new IntegerExp(10),
+            1
+        );
+
+        assertParses(tokenizes(input), expected);
     }
 
     @Test
-    public void testAdditionExp() throws ParserException{
-        // Test #4 {Checking 2 + 10} using Tokens
-        assertParses(Arrays.asList(new NumbersToken(2), new PlusToken(), new NumbersToken(10)), 
-        new ParseResult<Exp>(new OpExp(new IntegerExp(2), new PlusOp(), new IntegerExp(10)), 3));
+    public void testAdditionExp() throws ParserException, TokenizerException {
+        // Test #4 - Checking:
+        //      2 + 10
+
+        String input = "2 + 10";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new OpExp(
+                new IntegerExp(2),
+                new PlusOp(),
+                new IntegerExp(10)
+            ),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     }
 
     @Test
-    public void testThreeAdditions() throws ParserException{
-        // Test #5 {Checking (1 + 2) + 3}
-        assertParses(Arrays.asList(new NumbersToken(1),new PlusToken(), new NumbersToken(2), new PlusToken(),new NumbersToken(3)), 
-        new ParseResult<Exp>(new OpExp(new OpExp(new IntegerExp(1), new PlusOp(), new IntegerExp(2)), new PlusOp(), new IntegerExp(3)), 5));
+    public void testThreeAdditions() throws ParserException, TokenizerException {
+        // Test #5 - Checking:
+        //      1 + 2 + 3
+
+        String input = "1 + 2 + 3";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new OpExp(
+                new OpExp(
+                    new IntegerExp(1),
+                    new PlusOp(),
+                    new IntegerExp(2)
+                ),
+                new PlusOp(),
+                new IntegerExp(3)
+            ),
+            5
+        );
+
+        assertParses(tokenizes(input), expected);
     }
 
     @Test
-    public void testThreeSubtractions() throws ParserException{
-        // Test #6 {Checking 6 - 2 - 1}
-        assertParses(Arrays.asList(new NumbersToken(6), new MinusToken(), new NumbersToken(2), new MinusToken(), new NumbersToken(1)),
-         new ParseResult<Exp>(new OpExp(new OpExp(new IntegerExp(6), new MinusOp(), new IntegerExp(2)), new MinusOp(), new IntegerExp(1)), 5));
+    public void testThreeSubtractions() throws ParserException, TokenizerException {
+        // Test #6 - Checking:
+        //      6 - 2 - 1
+
+        String input = "6 - 2 - 1";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new OpExp(
+                new OpExp(
+                    new IntegerExp(6),
+                    new MinusOp(),
+                    new IntegerExp(2)
+                ),
+                new MinusOp(),
+                new IntegerExp(1)
+            ),
+            5
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test
-    public void testThreeMultiplications() throws ParserException{
-        // Test #7 {Checking 6 * 2 / 1}
-        assertParses(Arrays.asList(new NumbersToken(6), new TimesToken(), new NumbersToken(2), new DivisionToken(), new NumbersToken(1)),
-         new ParseResult<Exp>(new OpExp(new OpExp(new IntegerExp(6), new MultiplicationOp(), new IntegerExp(2)), new DivisionOp(), new IntegerExp(1)), 5));
+    public void testThreeMultiplications() throws ParserException, TokenizerException {
+        // Test #7 - Checking:
+        //      6 * 2 / 1
+
+        String input = "6 * 2 / 1";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new OpExp(
+                new OpExp(
+                    new IntegerExp(6),
+                    new MultiplicationOp(),
+                    new IntegerExp(2)
+                ),
+                new DivisionOp(),
+                new IntegerExp(1)
+            ),
+            5
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test
-    public void testLessThan() throws ParserException{
-        // Test #8 {Checking 6 < 2}
-        assertParses(Arrays.asList(new NumbersToken(6), new LessThanToken(), new NumbersToken(2)),
-         new ParseResult<Exp>(new OpExp(new IntegerExp(6), new LessThanOp(), new IntegerExp(2)), 3));
+    public void testLessThan() throws ParserException, TokenizerException {
+        // Test #8 - Checking:
+        //      6 < 2
+
+        String input = "6 < 2";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new OpExp(
+                new IntegerExp(6),
+                new LessThanOp(),
+                new IntegerExp(2)
+            ),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test
-    public void testGreaterThan() throws ParserException{
-        // Test #9 {Checking 6 > 2}
-        assertParses(Arrays.asList(new NumbersToken(6), new GreaterThanToken(), new NumbersToken(2)),
-         new ParseResult<Exp>(new OpExp(new IntegerExp(6), new GreaterThanOp(), new IntegerExp(2)), 3));
+    public void testGreaterThan() throws ParserException, TokenizerException {
+        // Test #9 - Checking:
+        //      6 > 2
+
+        String input = "6 > 2";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new OpExp(
+                new IntegerExp(6),
+                new GreaterThanOp(),
+                new IntegerExp(2)
+            ),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test
-    public void testDoubleEquals() throws ParserException{
-        // Test #10 {Checking 6 == 2}
-        assertParses(Arrays.asList(new NumbersToken(6), new DoubleEqualsToken(), new NumbersToken(2)),
-         new ParseResult<Exp>(new OpExp(new IntegerExp(6), new DoubleEqualsOp(), new IntegerExp(2)), 3));
+    public void testDoubleEquals() throws ParserException, TokenizerException {
+        // Test #10 - Checking:
+        //      6 == 2
+
+        String input = "6 == 2";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new OpExp(
+                new IntegerExp(6),
+                new DoubleEqualsOp(),
+                new IntegerExp(2)
+            ),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test
-    public void testNotEquals() throws ParserException{
-        // Test #11 {Checking 6 != 2}
-        assertParses(Arrays.asList(new NumbersToken(6), new NotEqualsToken(), new NumbersToken(2)),
-         new ParseResult<Exp>(new OpExp(new IntegerExp(6), new NotEqualsOp(), new IntegerExp(2)), 3));
+    public void testNotEquals() throws ParserException, TokenizerException {
+        // Test #11 - Checking:
+        //      6 != 2
+
+        String input = "6 != 2";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new OpExp(
+                new IntegerExp(6),
+                new NotEqualsOp(),
+                new IntegerExp(2)
+            ),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test 
-    public void checkTrueBool() throws ParserException{
-        // Test #12 {Checking true}
-        assertParses(Arrays.asList(new TrueToken()), new ParseResult<Exp>(new BooleanLiteralExp(true),1));
+    public void checkTrueBool() throws ParserException, TokenizerException {
+        // Test #12 - Checking:
+        //      true
+
+        String input = "true";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new BooleanLiteralExp(true),
+            1
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test 
-    public void checkFalseBool() throws ParserException{
-        // Test #13 {Checking false}
-        assertParses(Arrays.asList(new FalseToken()), new ParseResult<Exp>(new BooleanLiteralExp(false),1));
+    public void checkFalseBool() throws ParserException, TokenizerException {
+        // Test #13 - Checking:
+        //      false
+
+        String input = "false";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new BooleanLiteralExp(false),
+            1
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test 
-    public void checkParenExp() throws ParserException{
-        // Test #14 {Checking (10)}
-        assertParses(Arrays.asList(new LeftParenToken(), new NumbersToken(10), new RightParenToken()), new ParseResult<Exp>(new IntegerExp(10),3));
+    public void checkParenExp() throws ParserException, TokenizerException {
+        // Test #14 - Checking:
+        //      (10)
+
+        String input = "(10)";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new IntegerExp(10),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     }
+
     @Test 
-    public void checkStringExp() throws ParserException{
-        //Test #15 {Checking ("hello")}
-        assertParses(Arrays.asList(new LeftParenToken(), new StringValueToken("\"hello\""), new RightParenToken()), new ParseResult<Exp>(new StringExp("\"hello\""),3));
+    public void checkStringExp() throws ParserException, TokenizerException {
+        // Test #15 - Checking:
+        //      ("hello")
+
+        String input = "(\"hello\")";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new StringExp("\"hello\""),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     }
+
+
     @Test 
-    public void checkVariableExp() throws ParserException{
-        // Test #16 {Checking (i))}
-        assertParses(Arrays.asList(new LeftParenToken(), new VariableToken("i"), new RightParenToken()), new ParseResult<Exp>(new VariableExp("i"),3));
+    public void checkVariableExp() throws ParserException, TokenizerException {
+        // Test #16 - Checking:
+        //      (i)
+
+        String input = "(i)";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new VariableExp("i"),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test (expected= ParserException.class)
-    public void checkErrorsExp() throws ParserException{
-        // Test #17 {Checking ;i} which should error
-        assertParses(Arrays.asList(new SemiColonToken()), new ParseResult<Exp>(new VariableExp("i"),1));
+    public void checkErrorsExp() throws ParserException, TokenizerException {
+        // Test #17 - Checking fail:
+        //      ;i
+
+        String input = ";i";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new VariableExp("i"),
+            1
+        );
+
+        assertParses(tokenizes(input), expected);
     }
     @Test (expected= ParserException.class)
-    public void checkErrorExp() throws ParserException{
-        // Test #18 {Checking (i.} which should error
-        assertParses(Arrays.asList(new LeftParenToken(), new VariableToken("i"), new PeriodToken()), new ParseResult<Exp>(new VariableExp("i"),3));
+    public void checkErrorExp() throws ParserException, TokenizerException {
+        // Test #18 - Checking fail:
+        //      (i.
+
+        String input = "(i.";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new VariableExp("i"),
+            3
+        );
+
+        assertParses(tokenizes(input), expected);
     } 
+
     @Test
-    public void checkAssignment() throws ParserException{
-        // Test #19 {Checking x = 23}
-        assertParses(Arrays.asList(new VariableToken("x"),new EqualsToken(),new NumbersToken(23)), new ParseResult<Exp>(new OpExp(new VariableExp("x"), new EqualsOp(), new IntegerExp(23)),3));
-    }
-    @Test
-    public void testIfStmt() throws ParserException {
-        // Test #20 {Checking if(6 < 2) {print(0);} else{print(0);} }
-        assertParsesStmt(
-            Arrays.asList(
-                new IfToken(), new LeftParenToken(), new NumbersToken(6), new LessThanToken(),
-                new NumbersToken(2), new RightParenToken(), new LeftCurlyToken(),
-                new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(),
-                new SemiColonToken(), new RightCurlyToken(), new ElseToken(), new LeftCurlyToken(), new PrintToken(),
-                new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-                new RightCurlyToken()
-            ),
-            new ParseResult<>(
-                new IfStmt(
-                    new OpExp(new IntegerExp(6), new LessThanOp(), new IntegerExp(2)),
-                    new BlockStmt(Collections.singletonList(
-                        new PrintStmt(new IntegerExp(0)))),
-                    new BlockStmt(Collections.singletonList(
-                        new PrintStmt(new IntegerExp(0)))
-                    )
-                ), 21
-            )
+    public void testIfStmt() throws ParserException, TokenizerException {
+        // Test #20 - Checking:
+        //      if (6 < 2) {
+        //          print(0);
+        //      } else {
+        //          print(0);
+        //      }
+
+        String input =
+            "if (6 < 2) {" +
+                "print(0);" +
+            "} else {" +
+                "print(0);" +
+            "}";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new IfStmt(
+                new OpExp(
+                    new IntegerExp(6),
+                    new LessThanOp(),
+                    new IntegerExp(2)
+                ),
+                new BlockStmt(
+                    Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                ),
+                new BlockStmt(
+                    Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                )
+            ), 21
         );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test
-    public void testWhileStmt() throws ParserException {
-        // Test #21 {Checking while(6 < 2){ print(0);} }
-        assertParsesStmt(
-            Arrays.asList(
-                new WhileToken(), new LeftParenToken(), new NumbersToken(6), new LessThanToken(),
-                new NumbersToken(2), new RightParenToken(), new LeftCurlyToken(), new PrintToken(),
-                new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-                new RightCurlyToken()
-            ),
-            new ParseResult<>(
-                new WhileStmt(
-                    new OpExp(new IntegerExp(6), new LessThanOp(), new IntegerExp(2)),
-                    new BlockStmt(Collections.singletonList(
-                        new PrintStmt(new IntegerExp(0))))
-                ), 13
-            )
+    public void testWhileStmt() throws ParserException, TokenizerException {
+        // Test #21 - Checking:
+        //      while (6 < 2) {
+        //          print(0);
+        //      }
+
+        String input =
+            "while (6 < 2) {" +
+                "print(0);" +
+            "}";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new WhileStmt(
+                new OpExp(
+                    new IntegerExp(6),
+                    new LessThanOp(),
+                    new IntegerExp(2)
+                ),
+                new BlockStmt(
+                    Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                )
+            ), 13
         );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test
-    public void testBreakStmt() throws ParserException {
-        // Test #22 {Checking break; }
-        assertParsesStmt(
-            Arrays.asList(
-                new BreakToken(), new SemiColonToken()
-            ),
-            new ParseResult<>(
-                new BreakStmt(), 2
-            )
+    public void testBreakStmt() throws ParserException, TokenizerException {
+        // Test #22 - Checking:
+        //      break;
+
+        String input = "break;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new BreakStmt(),
+            1
         );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test
-    public void testReturnStmt() throws ParserException {
-        // Test #23 {Checking return 2 > 1; }
-        assertParsesStmt(
-            Arrays.asList(
-                new ReturnToken(), new NumbersToken(2), new GreaterThanToken(), new NumbersToken(1),
-                new SemiColonToken()
+    public void testReturnStmt() throws ParserException, TokenizerException {
+        // Test #23 - Checking:
+        //      return 2 > 1;
+
+        String input = "return 2 > 1;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new ReturnStmt(
+                new OpExp(
+                    new IntegerExp(2),
+                    new GreaterThanOp(),
+                    new IntegerExp(1))
             ),
-            new ParseResult<>(
-                new ReturnStmt(new OpExp(new IntegerExp(2), new GreaterThanOp(), new IntegerExp(1))), 5
-            )
+            4
         );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test
-    public void testVardecIntDec() throws ParserException {
-        // Test #24 {Checking int x; }
-        assertParsesStmt(Arrays.asList(new IntegerToken(), new VariableToken("x"), new SemiColonToken()),
-            new ParseResult<Stmt>(new Vardec(new IntType(), new VariableExp("x")), 3));
-    }
+    public void testVardecIntDec() throws ParserException, TokenizerException {
+        // Test #24 - Checking:
+        //      Int x;
 
-    @Test(expected = ParserException.class)
-    public void testVardecIntDecFail() throws ParserException {
-        // Test #25 {Checking int 1; } which should fail
-        assertParsesStmt(Arrays.asList(new IntegerToken(), new NumbersToken(1), new SemiColonToken()),
-            new ParseResult<Stmt>(new Vardec(new IntType(), new VariableExp("x")), 3));
+        String input = "Int x;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new Vardec(
+                new IntType(),
+                new VariableExp("x")
+            ),
+            2
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test
-    public void testVardecBoolDec() throws ParserException {
+    public void testVardecBoolDec() throws ParserException, TokenizerException {
         // Test #26 {Checking bool x; }
-        assertParsesStmt(Arrays.asList(new BooleanToken(), new VariableToken("x"), new SemiColonToken()),
-            new ParseResult<Stmt>(new Vardec(new BooleanType(), new VariableExp("x")), 3));
+        // Test #26 - Checking:
+        //      Boolean x;
+
+        String input = "Boolean x;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new Vardec(
+                new BooleanType(),
+                new VariableExp("x")
+            ),
+            2
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test(expected = ParserException.class)
-    // Test #27 {Checking bool 1; } which should fail
-    public void testVardecBoolDecFail() throws ParserException {
-        assertParsesStmt(Arrays.asList(new BooleanToken(), new NumbersToken(1), new SemiColonToken()),
-            new ParseResult<Stmt>(new Vardec(new BooleanType(), new VariableExp("x")), 3));
+    public void testVardecBoolDecFail() throws ParserException, TokenizerException {
+        // Test #27 - Checking fail:
+        //      Boolean 1;
+
+        String input = "Boolean 1;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new Vardec(
+                new BooleanType(),
+                new VariableExp("x")
+            ),
+            3
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test
-    public void testVardecStringDec() throws ParserException {
-        // Test #28 {Checking String x; }
-        assertParsesStmt(Arrays.asList(new StringToken(), new VariableToken("x"), new SemiColonToken()),
-            new ParseResult<Stmt>(new Vardec(new StringType(), new VariableExp("x")), 3));
+    public void testVardecStringDec() throws ParserException, TokenizerException {
+        // Test #28 - Checking:
+        //      strg x;
+
+        String input = "strg x;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new Vardec(
+                new StringType(),
+                new VariableExp("x")
+            ),
+            2
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test(expected = ParserException.class)
-    public void testVardecStringDecFail() throws ParserException {
-        // Test #29 {Checking String 1; } which should fail
-        assertParsesStmt(Arrays.asList(new StringToken(), new NumbersToken(1), new SemiColonToken()),
-            new ParseResult<Stmt>(new Vardec(new StringType(), new VariableExp("x")), 3));
-    }
+    public void testVardecStringDecFail() throws ParserException, TokenizerException {
+        // Test #29 - Checking fail:
+        //      strg 1;
 
-    @Test
-    public void testPrintStmt() throws ParserException {
-        // Test #30 {Checking print(2+10); }
-        assertParsesStmt(Arrays.asList(new PrintToken(), new LeftParenToken(), new NumbersToken(2),
-                new PlusToken(), new NumbersToken(10), new RightParenToken(), new SemiColonToken()),
-            new ParseResult<>(new PrintStmt(new OpExp(new IntegerExp(2),
-            new PlusOp(), new IntegerExp(10))), 6));
+        String input = "strg 1;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new Vardec(
+                new StringType(),
+                new VariableExp("x")
+            ),
+            3
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test (expected= ParserException.class)
-    public void testVariableDecInt() throws ParserException{
-        // Test #31 {Checking int "a"; } which should fail
-        assertParsesStmt(Arrays.asList(new IntegerToken(), new StringValueToken("a"), new SemiColonToken()),
-         new ParseResult<Stmt>(new Vardec(new IntType(),new VariableExp("x")),3));
+    public void testVariableDecInt() throws ParserException, TokenizerException {
+        // Test #30 - Checking fail:
+        //      Int "a";
+
+        String input = "Int \"a\"";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new Vardec(
+                new IntType(),
+                new VariableExp("x")
+            ),
+            3
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test (expected= ParserException.class)
-    public void testVariableDecBool() throws ParserException{
-        // Test #32 {Checking bool "a"; } which should fail
-        assertParsesStmt(Arrays.asList(new BooleanToken(), new StringValueToken("a"), new SemiColonToken()),
-         new ParseResult<Stmt>(new Vardec(new BooleanType(),new VariableExp("x")),3));
+    public void testVariableDecBool() throws ParserException, TokenizerException {
+        // Test #31 - Checking fail:
+        //      Boolean "a";
+
+        String input = "Boolean \"a\"";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new Vardec(
+                new BooleanType(),
+                new VariableExp("x")
+            ),
+            3
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test (expected= ParserException.class)
-    public void testVariableDec() throws ParserException{
-        // Test #33 {Checking String "a"; } which should fail
-        assertParsesStmt(Arrays.asList(new StringToken(), new StringValueToken("a"), new SemiColonToken()),
-         new ParseResult<Stmt>(new Vardec(new StringType(),new VariableExp("x")),3));
+    public void testVariableDec() throws ParserException, TokenizerException {
+        // Test #32 - Checking fail:
+        //      strg "a";
+
+        String input = "strg \"a\"";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new Vardec(
+                new StringType(),
+                new VariableExp("x")
+            ),
+            3
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test
-    public void testMethodCall() throws ParserException{
-        // Test #34 {Checking methodA(23) }
-        assertParses(Arrays.asList(new VariableToken("methodA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()), 
-        new ParseResult<Exp>(new FunctionCallExp(new FunctionName("methodA"),Arrays.asList(new IntegerExp(23))),4));
+    public void testPrintStmt() throws ParserException, TokenizerException {
+        // Test #33 - Checking:
+        //      print(2 + 10);
+
+        String input = "print(2 + 10);";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new PrintStmt(
+                new OpExp(
+                    new IntegerExp(2),
+                    new PlusOp(),
+                    new IntegerExp(10)
+                )
+            ),
+            6
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
     }
 
     @Test
-    public void testMethodMultipleInputsCall() throws ParserException{
-        // Test #35 {Checking methodB(23,"hello") }
-        assertParses(Arrays.asList(new VariableToken("methodB"),new LeftParenToken(),new NumbersToken(23),new CommaToken(),
-        new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new FunctionCallExp(new FunctionName("methodB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),6));
+    public void testMethodWithDot() throws ParserException, TokenizerException {
+        // Test #36 - Checking:
+        //      a.methodA(23)
+
+        String input = "(a).methodA(23)";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new FunctionCallExp(
+                new MethodName("methodA"),
+                new VariableExp("a"),
+                Collections.singletonList(new IntegerExp(23))
+            ),
+            8
+        );
+
+        assertParses(tokenizes(input), expected);
     }
 
     @Test
-    public void testMethodWithDot() throws ParserException{
-        // Test #36 {Checking a.methodA(23) }
-        assertParses(Arrays.asList(new VariableToken("a"),new PeriodToken(),new VariableToken("methodA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()), 
-        new ParseResult<Exp>(new OpExp(new VariableExp("a"),new PeriodOp(), new FunctionCallExp(new FunctionName("methodA"),Arrays.asList(new IntegerExp(23)))),6));
-    }
+    public void testClassCall() throws ParserException, TokenizerException {
+        // Test #37 - Checking:
+        //      new classA(23)
 
-    @Test
-    public void testClassCall() throws ParserException{
-        // Test #37 {Checking new classA(23) }
-        assertParses(Arrays.asList(new NewToken(),new VariableToken("classA"),new LeftParenToken(),new NumbersToken(23), new RightParenToken()),
-        new ParseResult<Exp>(new ClassCallExp(new ClassName("classA"),Arrays.asList(new IntegerExp(23))),5));
+        String input = "new classA(23)";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new NewExp(
+                new ClassName("classA"),
+                Collections.singletonList(new IntegerExp(23))
+            ),
+            5
+        );
+
+        assertParses(tokenizes(input), expected);
     }
 
     @Test (expected= ParserException.class)
-    public void testClassCallError() throws ParserException{
-        // Test #38 {Checking new classA(23) }
-        assertParses(Arrays.asList(new NewToken(),new VariableToken("classA"),new SemiColonToken(),new NumbersToken(23), new RightParenToken()),
-        new ParseResult<Exp>(new ClassCallExp(new ClassName("classA"),Arrays.asList(new IntegerExp(23))),5));
+    public void testClassCallError() throws ParserException, TokenizerException {
+        // Test #38 - Checking fail:
+        //      new classA;23)
+
+        String input = "new classA;23)";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new ClassCallExp(
+                new ClassName("classA"),
+                Collections.singletonList(new IntegerExp(23))
+            ),
+            5
+        );
+
+        assertParses(tokenizes(input), expected);
     }
 
     @Test
-    public void testClassMultipleInputsCall() throws ParserException{
-        // Test #39 {Checking new classB(23, "hello") }
-        assertParses(Arrays.asList(new NewToken(),new VariableToken("classB"),new LeftParenToken(),new NumbersToken(23),new CommaToken(),
-        new StringValueToken("\"hello\""),new RightParenToken()), new ParseResult<Exp>(new ClassCallExp(new ClassName("classB"),Arrays.asList(new IntegerExp(23),new StringExp("\"hello\""))),7));
+    public void testClassMultipleInputsCall() throws ParserException, TokenizerException {
+        // Test #39 - Checking:
+        //      new classB(23, "hello")
+
+        String input = "new classB(23, \"hello\")";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new NewExp(
+                new ClassName("classB"),
+                Arrays.asList(
+                    new IntegerExp(23),
+                    new StringExp("\"hello\"")
+                )
+            ),
+            7
+        );
+
+        assertParses(tokenizes(input), expected);
     }
 
     @Test (expected= ParserException.class)
-    public void testExtendsError() throws ParserException{
-        // Test #40 {Checking class A extends(){} } which should fail
-        assertParseProgram(Arrays.asList(new ClassToken(),new VariableToken("A"),
-        new ExtendsToken(), new LeftParenToken(), new RightParenToken(), new LeftCurlyToken(), new RightCurlyToken()),
-        new Program(Arrays.asList(new ClassDef(new ClassName("A"), 
-        new ClassName("B"), 
-        new ArrayList<>(), 
-        new ArrayList<>(), 
-        new ArrayList<>()))));
-    }
+    public void testExtendsError() throws ParserException, TokenizerException {
+        // Test #40 - Checking fail:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class A extends(){}
 
-    @Test(expected = ParserException.class)
-    public void testClassError() throws ParserException{
-        // Test #41 {Checking class myClass extends class {public int a; constructor(){}} } which should fail
-        List<Token> tokens = Arrays.asList(new PublicToken(),
-            new ClassToken(), new VariableToken("myClass"), new ExtendsToken(), new VariableToken("class"),new LeftCurlyToken(),
-            new PublicToken(), new IntegerToken(), new VariableToken("a"), new SemiColonToken(),
-            new ConstructorToken(), new LeftParenToken(), new RightParenToken(), new LeftCurlyToken(), new RightCurlyToken(),
-            new RightCurlyToken());
+        String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class A extends (){}";
+
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
-                    new ClassName("myClass"),
-                    new ClassName("class"),
-                    Arrays.asList(new ConstructorDef(new ArrayList<>(), new BlockStmt(new ArrayList<>()))),
+                    new ClassName("mainClass"),
+                    new ClassName(""),
                     new ArrayList<>(),
-                    Arrays.asList(new InstanceDec(new PublicType(), new Vardec(new IntType(), new VariableExp("a"))))
-                )));
-        assertParseProgram(tokens, expected);
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("A"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    new ArrayList<>()
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
     }
 
     @Test(expected = ParserException.class)
-    public void testClassErrortwo() throws ParserException{
-        // Test #42 {Checking class int extends class {public int a; constructor(){}} } which should fail
-        List<Token> tokens = Arrays.asList(
-            new ClassToken(), new IntegerToken(), new ExtendsToken(), new VariableToken("class"),new LeftCurlyToken(),
-            new PublicToken(), new IntegerToken(), new VariableToken("a"), new SemiColonToken(),
-            new ConstructorToken(), new LeftParenToken(), new RightParenToken(), new LeftCurlyToken(), new RightCurlyToken(),
-            new RightCurlyToken());
+    public void testClassError() throws ParserException, TokenizerException {
+        // Test #41 - Checking fail:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass extends class {
+        //          public Int a;
+        //          constructor(){}}
+        //      }
+
+        String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends class {" +
+                "public Int a;" +
+                "constructor(){}}" +
+            "}";
+
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
-                    new ClassName("myClass"),
-                    new ClassName("class"),
-                    Arrays.asList(new ConstructorDef(new ArrayList<>(), new BlockStmt(new ArrayList<>()))),
+                    new ClassName("mainClass"),
+                    new ClassName(""),
                     new ArrayList<>(),
-                    Arrays.asList(new InstanceDec(new PublicType(), new Vardec(new IntType(), new VariableExp("a"))))
-                )));
-        assertParseProgram(tokens, expected);
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("Int"),
+                    new ClassName("class"),
+                    Collections.singletonList(
+                        new ConstructorDef(
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("a")
+                            )
+                        )
+                    )
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
     }
 
     @Test(expected = ParserException.class)
-    public void testClassErrorChecking() throws ParserException{
-        // Test #43 {Checking class myClass extends class {public int a){(){}} } which should fail
-        List<Token> tokens = Arrays.asList(
-            new ClassToken(), new VariableToken("myClass"), new ExtendsToken(), new VariableToken("class"),new LeftCurlyToken(),
-            new PublicToken(), new IntegerToken(), new VariableToken("a"), new RightParenToken(),
-            new LeftCurlyToken(), new LeftParenToken(), new RightParenToken(), new LeftCurlyToken(), new RightCurlyToken(),
-            new RightCurlyToken());
+    public void testClassErrortwo() throws ParserException, TokenizerException {
+        // Test #42 - Checking fail:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class Int extends class {
+        //          public int a;
+        //          constructor(){}}
+        //      }
+
+        String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class Int extends class {" +
+                "public int a;" +
+                "constructor(){}}" +
+            "}";
+
+
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
-                    new ClassName("myClass"),
-                    new ClassName("class"),
-                    Arrays.asList(new ConstructorDef(new ArrayList<>(), new BlockStmt(new ArrayList<>()))),
+                    new ClassName("mainClass"),
+                    new ClassName(""),
                     new ArrayList<>(),
-                    Arrays.asList(new InstanceDec(new PublicType(), new Vardec(new IntType(), new VariableExp("a"))))
-                )));
-        assertParseProgram(tokens, expected);
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("Int"),
+                    new ClassName("class"),
+                    Collections.singletonList(
+                        new ConstructorDef(
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("a")
+                            )
+                        )
+                    )
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
     }
 
     @Test(expected = ParserException.class)
-    public void testClassErrorCheckingConstructor() throws ParserException{
-        // Test #44 {Checking class myClass extends class{int a){(){}} } which should fail
-        List<Token> tokens = Arrays.asList(
-            new ClassToken(), new VariableToken("myClass"), new ExtendsToken(), new VariableToken("class"),new LeftCurlyToken(),
-            new IntegerToken(), new VariableToken("a"), new RightParenToken(),
-            new LeftCurlyToken(), new LeftParenToken(), new RightParenToken(), new LeftCurlyToken(), new RightCurlyToken(),
-            new RightCurlyToken());
+    public void testClassErrorChecking() throws ParserException, TokenizerException {
+        // Test #43 - Checking fail:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass extends class {
+        //          public Int a){(){}}
+        //      }
+
+        String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends class {" +
+                "public Int a){(){}}" +
+            "}";
+
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
+                    new ClassName("mainClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
                     new ClassName("myClass"),
                     new ClassName("class"),
-                    Arrays.asList(new ConstructorDef(new ArrayList<>(), new BlockStmt(new ArrayList<>()))),
                     new ArrayList<>(),
-                    Arrays.asList(new InstanceDec(new PublicType(), new Vardec(new IntType(), new VariableExp("a"))))
-                )));
-        assertParseProgram(tokens, expected);
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("a")
+                            )
+                        )
+                    )
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
+    }
+
+    @Test(expected = ParserException.class)
+    public void testClassErrorCheckingConstructor() throws ParserException, TokenizerException {
+        // Test #44 - Checking fail:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass extends class {
+        //          Int a){(){}}
+        //      }
+
+        String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends class {" +
+                "Int a){(){}}" +
+            "}";
+
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("mainClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName("class"),
+                    Collections.singletonList(
+                        new ConstructorDef(
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("a")
+                            )
+                        )
+                    )
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
     }
 
     @Test
-    public void testExtends() throws ParserException{
-        // Test #45 {Checking class myClass extends class {public int a; constructor(){}} }
-        List<Token> tokens = Arrays.asList(
-            new ClassToken(), new VariableToken("myClass"), new ExtendsToken(), new VariableToken("class"),new LeftCurlyToken(),
-            new PublicToken(), new IntegerToken(), new VariableToken("a"), new SemiColonToken(),
-            new ConstructorToken(), new LeftParenToken(), new RightParenToken(), new LeftCurlyToken(), new RightCurlyToken(),
-            new RightCurlyToken());
+    public void testExtends() throws ParserException, TokenizerException {
+        // Test #45 - Checking:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass extends classA {
+        //          public Int a;
+        //          constructor(){}
+        //      }
+
+        String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends classA {" +
+                "public Int a;" +
+                "constructor(){Int x;}" +
+            "}";
+
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
-                    new ClassName("myClass"),
-                    new ClassName("class"),
-                    Arrays.asList(new ConstructorDef(new ArrayList<>(), new BlockStmt(new ArrayList<>()))),
+                    new ClassName("mainClass"),
+                    new ClassName(""),
                     new ArrayList<>(),
-                    Arrays.asList(new InstanceDec(new PublicType(), new Vardec(new IntType(), new VariableExp("a"))))
-                )));
-        assertParseProgram(tokens, expected);
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName("classA"),
+                    Collections.singletonList(
+                        new ConstructorDef(
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                    Arrays.asList(new Vardec(new IntType(), new VariableExp("x")))
+                            )
+                        )
+                    ),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("a")
+                            )
+                        )
+                    )
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+        assertParseProgram(tokenizes(input), expected);
     }
 
     @Test(expected = ParserException.class)
-    public void testExtendsErrorChecking() throws ParserException{
-        // Test #46 {Checking class myClass extends class {int int a; constructor(){}} } which should fail
-        List<Token> tokens = Arrays.asList(
-            new ClassToken(), new VariableToken("myClass"), new ExtendsToken(), new VariableToken("class"),new LeftCurlyToken(),
-            new IntegerToken(), new IntegerToken(), new VariableToken("a"), new SemiColonToken(),
-            new ConstructorToken(), new LeftParenToken(), new RightParenToken(), new LeftCurlyToken(), new RightCurlyToken(),
-            new RightCurlyToken());
+    public void testExtendsErrorChecking() throws ParserException, TokenizerException {
+        // Test #46 - Checking fail:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass extends class {
+        //          int int a;
+        //          constructor(){}
+        //      }
+
+        final String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends class {" +
+                "int int a;" +
+                "constructor(){}" +
+            "}";
+
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
+                    new ClassName("mainClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
                     new ClassName("myClass"),
                     new ClassName("class"),
-                    Arrays.asList(new ConstructorDef(new ArrayList<>(), new BlockStmt(new ArrayList<>()))),
+                    Collections.singletonList(
+                        new ConstructorDef(
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
                     new ArrayList<>(),
-                    Arrays.asList(new InstanceDec(new PublicType(), new Vardec(new IntType(), new VariableExp("a"))))
-                )));
-        assertParseProgram(tokens, expected);
+                    Collections.singletonList(
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("a")
+                            )
+                        )
+                    )
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testMultipleInstanceDeclarations() throws TokenizerException, ParserException {
+        // Test #47 - Checking:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass extends classA {
+        //          public Int a;
+        //          public Int b;
+        //          public Int c;
+        //      }
+
+        final String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends classA {" +
+                "public Int a;" +
+                "public Int b;" +
+                "public Int c;" +
+            "}";
+
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("mainClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName("classA"),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    Arrays.asList(
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("a")
+                            )
+                        ),
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("b")
+                            )
+                        ),
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("c")
+                            )
+                        )
+                    )
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
     }
     
     @Test
-    public void testProgram() throws ParserException {
-        // Test #47 {Checking class myClass {public int myMethod(int x){print(0);}
-        //                      public int myMethod(int x, bool x, String y){print(0);}}
-        //                      class myClass{private String myMethod(int x){print(0);}}
-        //                      class myClass {protected bool myMethod(int x){print(0);}} }
-        //This tests the Program as well as all Access Modifiers and Type Declarations
-        List<Token> tokens = Arrays.asList(
-            new ClassToken(), new VariableToken("myClass"), new LeftCurlyToken(),
-            new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-            new RightCurlyToken(),
-                new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), 
-                new IntegerToken(), new VariableToken("x"),new CommaToken(), 
-                new BooleanToken(), new VariableToken("x"), new CommaToken(),
-                new StringToken(), new VariableToken("y"), new RightParenToken(),
-                new LeftCurlyToken(),new PrintToken(), new LeftParenToken(), 
-                new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-                new RightCurlyToken(),
-            new RightCurlyToken(),
-            new ClassToken(), new VariableToken("myClass"), new LeftCurlyToken(),
-            new PrivateToken(), new StringToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-            new RightCurlyToken(),
-            new RightCurlyToken(),
-            new ClassToken(), new VariableToken("myClass"), new LeftCurlyToken(),
-            new ProtectedToken(), new BooleanToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-            new RightCurlyToken(),
-            new RightCurlyToken()
-        );
+    public void testProgram() throws ParserException, TokenizerException {
+        // Test #48 - Checking:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass extends classA {
+        //          public Int myMethod(Int x) {}
+        //          public Int myMethod(Int x, Boolean x, strg y) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          private strg myMethod(Int x) {}
+        //          public Int myMethod(Int x, Boolean x, strg y) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          protected Boolean myMethod(Int x) {
+        //              print(0);
+        //          }
+        //      }
+
+        final String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends classA {" +
+                "public Int myMethod(Int x){}" +
+                "public Int myMethod(Int x, Boolean x, strg y) {" +
+                    "print(0);" +
+                "}" +
+            "}" +
+            "class myClass {" +
+                "private strg myMethod(Int x){}" +
+                "public Int myMethod(Int x, Boolean x, strg y) {" +
+                    "print(0);" +
+                "}" +
+            "}" +
+            "class myClass {" +
+                "protected Boolean myMethod(Int x){" +
+                    "print(0);" +
+                "}" +
+            "}";
 
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
-                    new ClassName("myClass"),
+                    new ClassName("mainClass"),
                     new ClassName(""),
                     new ArrayList<>(),
-                    Arrays.asList(new MethodDef(
-                        new PublicType(),
-                        new IntType(),
-                        new MethodName("myMethod"),
-                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x")),
-                                      new Vardec(new BooleanType(), new VariableExp("x")),
-                                      new Vardec(new StringType(), new VariableExp("y"))),
-                        new BlockStmt(
-                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
                         )
-                    )),
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName("classA"),
+                    new ArrayList<>(),
+                    Arrays.asList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("myMethod"),
+                            Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        ),
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("myMethod"),
+                            Arrays.asList(
+                                new Vardec(new IntType(), new VariableExp("x")),
+                                new Vardec(new BooleanType(), new VariableExp("x")),
+                                new Vardec(new StringType(), new VariableExp("y"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        )
+                    ),
                     new ArrayList<>()
                 ),
                 new ClassDef(
                     new ClassName("myClass"),
                     new ClassName(""),
                     new ArrayList<>(),
-                    Arrays.asList(new MethodDef(
-                        new PrivateType(),
-                        new StringType(),
-                        new MethodName("myMethod"),
-                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
-                        new BlockStmt(
-                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                    Arrays.asList(
+                        new MethodDef(
+                            new PrivateType(),
+                            new StringType(),
+                            new MethodName("myMethod"),
+                            Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        ),
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("myMethod"),
+                            Arrays.asList(
+                                new Vardec(new IntType(), new VariableExp("x")),
+                                new Vardec(new BooleanType(), new VariableExp("x")),
+                                new Vardec(new StringType(), new VariableExp("y"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
                         )
-                    )),
+                    ),
                     new ArrayList<>()
                 ),
-                    new ClassDef(
-                            new ClassName("myClass"),
-                            new ClassName(""),
-                            new ArrayList<>(),
-                            Arrays.asList(new MethodDef(
-                                    new ProtectedType(),
-                                    new BooleanType(),
-                                    new MethodName("myMethod"),
-                                    Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
-                                    new BlockStmt(
-                                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
-                                    )
-                            )),
-                            new ArrayList<>()
-                    )
-            )
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new ProtectedType(),
+                            new BooleanType(),
+                            new MethodName("myMethod"),
+                            Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                )
+            ), new BlockStmt(new ArrayList<>())
         );
-        assertParseProgram(tokens, expected);
+
+        assertParseProgram(tokenizes(input), expected);
     }
     @Test(expected=ParserException.class)
-    public void testProgramError() throws ParserException {
-        // Test #48 {Checking class myClass {public int myMethod(int){print(0);}
-        //                                      public int myMethod(int x, int x){print(0);}}
-        //                      class myClass{private String myMethod(int x){print(0);}}
-        //                      class myClass {protected boolean myMethod(int x){print(0);}} } which should fail
-        List<Token> tokens = Arrays.asList(
-            new ClassToken(), new VariableToken("myClass"), new LeftCurlyToken(),
-            new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(),new IntegerToken(), new RightParenToken(), new LeftCurlyToken(),
-            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-            new RightCurlyToken(),
-                new PublicToken(), new IntegerToken(), new VariableToken("myMethod"), new LeftParenToken(), 
-                new IntegerToken(), new VariableToken("x"),new CommaToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-                new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-                new RightCurlyToken(),
-            new RightCurlyToken(),
-            new ClassToken(), new VariableToken("myClass"), new LeftCurlyToken(),
-            new PrivateToken(), new StringToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-            new RightCurlyToken(),
-            new RightCurlyToken(),
-            new ClassToken(), new VariableToken("myClass"), new LeftCurlyToken(),
-            new ProtectedToken(), new BooleanToken(), new VariableToken("myMethod"), new LeftParenToken(), new IntegerToken(), new VariableToken("x"), new RightParenToken(), new LeftCurlyToken(),
-            new PrintToken(), new LeftParenToken(), new NumbersToken(0), new RightParenToken(), new SemiColonToken(),
-            new RightCurlyToken(),
-            new RightCurlyToken()
-        );
+    public void testProgramError() throws ParserException, TokenizerException {
+        // Test #49 - Checking fail:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass {
+        //          public Int myMethod(Int) {
+        //              print(0);
+        //          }
+        //          public Int myMethod(Int x, Int x) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          private strg myMethod(Int x) {}
+        //      }
+        //      class myClass {
+        //          protected Boolean myMethod(Int x) {
+        //              print(0);
+        //          }
+        //      }
+
+        final String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass {" +
+                "public Int myMethod(Int) {" +
+                    "print(0);" +
+                "}" +
+                "public Int myMethod(Int x, Int x) {" +
+                    "print(0);" +
+                "}" +
+            "}" +
+            "class myClass {" +
+                "public strg myMethod(Int x) {}" +
+            "}" +
+            "class myClass {" +
+                "protected Boolean myMethod(Int x) {" +
+                    "print(0);" +
+                "}" +
+            "}";
 
         Program expected = new Program(
             Arrays.asList(
                 new ClassDef(
-                    new ClassName("myClass"),
+                    new ClassName("mainClass"),
                     new ClassName(""),
                     new ArrayList<>(),
-                    Arrays.asList(new MethodDef(
-                        new PublicType(),
-                        new IntType(),
-                        new MethodName("myMethod"),
-                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x")),
-                                      new Vardec(new IntType(), new VariableExp("x"))),
-                        new BlockStmt(
-                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
                         )
-                    )),
+                    ),
                     new ArrayList<>()
                 ),
                 new ClassDef(
                     new ClassName("myClass"),
                     new ClassName(""),
                     new ArrayList<>(),
-                    Arrays.asList(new MethodDef(
-                        new PrivateType(),
-                        new StringType(),
-                        new MethodName("myMethod"),
-                        Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
-                        new BlockStmt(
-                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("myMethod"),
+                            Arrays.asList(
+                                new Vardec(new IntType(), new VariableExp("x")),
+                                new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
                         )
-                    )),
+                    ),
                     new ArrayList<>()
                 ),
-                    new ClassDef(
-                            new ClassName("myClass"),
-                            new ClassName(""),
-                            new ArrayList<>(),
-                            Arrays.asList(new MethodDef(
-                                    new ProtectedType(),
-                                    new BooleanType(),
-                                    new MethodName("myMethod"),
-                                    Arrays.asList(new Vardec(new IntType(), new VariableExp("x"))),
-                                    new BlockStmt(
-                                            Arrays.asList(new PrintStmt(new IntegerExp(0)))
-                                    )
-                            )),
-                            new ArrayList<>()
-                    )
-            )
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PrivateType(),
+                            new StringType(),
+                            new MethodName("myMethod"),
+                            Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new ProtectedType(),
+                            new BooleanType(),
+                            new MethodName("myMethod"),
+                            Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                )
+            ), new BlockStmt(new ArrayList<>())
         );
-        assertParseProgram(tokens, expected);
+
+        assertParseProgram(tokenizes(input), expected);
     }
+
+    @Test
+    public void testStringToken()  throws ParserException, TokenizerException{
+        // Test #50 - Checking:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass {
+        //          public Int a;
+        //          constructor(){}
+        //      }
+
+        final String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends classA {" +
+                "public Int a;" +
+                "constructor(){}" +
+            "}";
+
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("mainClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName("classA"),
+                    Collections.singletonList(
+                        new ConstructorDef(
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new InstanceDec(
+                            new PublicType(),
+                            new Vardec(
+                                new IntType(),
+                                new VariableExp("a")
+                            )
+                        )
+                    )
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testMultipleTokensWithStringToken() throws ParserException, TokenizerException{
+        // Test #51 - Checking:
+        //      class mainClass {
+        //          public Int main(){}
+        //      }
+        //      class myClass extends classA {
+        //          public Int myMethod(Int x) {
+        //              print(0);
+        //          }
+        //          public Int myMethod(Int x, Boolean x, strg y) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          private strg myMethod(Int x) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          protected Boolean myMethod(Int x) {
+        //              print(0);
+        //          }
+        //      }
+
+        final String input =
+            "class mainClass {" +
+                "public Int main(){}" +
+            "}" +
+            "class myClass extends classA {" +
+                "public Int myMethod(Int x){" +
+                    "print(0);" +
+                "}" +
+                "public Int myMethod(Int x, Boolean x, strg y) {" +
+                    "print(0);" +
+                "}" +
+            "}" +
+            "class myClass {" +
+                "private strg myMethod(Int x) {" +
+                    "print(0);" +
+                "}" +
+            "}" +
+            "class myClass {" +
+                "protected Boolean myMethod(Int x) {" +
+                    "print(0);" +
+                "}" +
+            "}";
+
+        Program expected = new Program(
+            Arrays.asList(
+                new ClassDef(
+                    new ClassName("mainClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("main"),
+                            new ArrayList<>(),
+                            new BlockStmt(
+                                new ArrayList<>()
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName("classA"),
+                    new ArrayList<>(),
+                    Arrays.asList(
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("myMethod"),
+                            Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        ),
+                        new MethodDef(
+                            new PublicType(),
+                            new IntType(),
+                            new MethodName("myMethod"),
+                            Arrays.asList(
+                                new Vardec(new IntType(), new VariableExp("x")),
+                                new Vardec(new BooleanType(), new VariableExp("x")),
+                                new Vardec(new StringType(), new VariableExp("y"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new PrivateType(),
+                            new StringType(),
+                            new MethodName("myMethod"),
+                            Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                ),
+                new ClassDef(
+                    new ClassName("myClass"),
+                    new ClassName(""),
+                    new ArrayList<>(),
+                    Collections.singletonList(
+                        new MethodDef(
+                            new ProtectedType(),
+                            new BooleanType(),
+                            new MethodName("myMethod"),
+                            Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                            new BlockStmt(
+                                Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                            )
+                        )
+                    ),
+                    new ArrayList<>()
+                )
+            ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testThisFunction() throws ParserException, TokenizerException {
+        // Test #52 - Checking:
+        //      this.methodA(23)
+
+        String input = "(this).methodA(23)";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+            new FunctionCallExp(
+                new MethodName("methodA"),
+                new ThisExp(),
+                Collections.singletonList(new IntegerExp(23))
+            ),
+            8
+        );
+
+        assertParses(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecIntInitializeInt() throws ParserException, TokenizerException {
+        // Test #54 - Checking:
+        //      Int x = 4;
+
+        String input = "Int x = 4;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new IntType(),
+                    new VariableExp("x")
+                ),
+                new IntegerExp(4)
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecIntInitializeVariable() throws ParserException, TokenizerException {
+        // Test #55 - Checking:
+        //      Int x = y;
+
+        String input = "Int x = y;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new IntType(),
+                    new VariableExp("x")
+                ),
+                new VariableExp("y")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+    @Test(expected = ParserException.class)
+    public void testVarDecError() throws TokenizerException, ParserException{
+        String input = "Int x . 5";
+        ParseResult<Stmt> expected = new ParseResult<>(new VardecStmt(new Vardec(new IntType(), new VariableExp("x")),new IntegerExp(5)),4);
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecBoolInitializeInt() throws ParserException, TokenizerException {
+        // Test #56 - Checking:
+        //      Boolean x = true;
+
+        String input = "Boolean x = true;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new BooleanType(),
+                    new VariableExp("x")
+                ),
+                new BooleanLiteralExp(true)
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecBoolInitializeVariable() throws ParserException, TokenizerException {
+        // Test #57 - Checking:
+        //      Boolean x = y;
+
+        String input = "Boolean x = y;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new BooleanType(),
+                    new VariableExp("x")
+                ),
+                new VariableExp("y")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecStringInitializeInt() throws ParserException, TokenizerException {
+        // Test #58 - Checking:
+        //      strg x = "hello";
+
+        String input = "strg x = \"hello\";";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new StringType(),
+                    new VariableExp("x")
+                ),
+                new StringExp("\"hello\"")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecStringInitializeVariable() throws ParserException, TokenizerException {
+        // Test #59 - Checking:
+        //      strg x = y;
+
+        String input = "strg x = y;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new StringType(),
+                    new VariableExp("x")
+                ),
+                new VariableExp("y")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecClassnameInitializeClassname() throws ParserException, TokenizerException {
+        // Test #60 - Checking:
+        //      classA x = new classA();
+
+        String input = "classA x = new classA();";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new ClassNameType(new ClassName("classA")),
+                    new VariableExp("x")
+                ),
+                new NewExp(new ClassName("classA"), new ArrayList<>())
+            ),
+            7
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecClassnameInitializeClassnameParams() throws ParserException, TokenizerException {
+        // Test #61 - Checking:
+        //      classA x = new classA(y, z);
+
+        String input = "classA x = new classA(y, z);";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new ClassNameType(new ClassName("classA")),
+                    new VariableExp("x")
+                ),
+                new NewExp(
+                    new ClassName("classA"),
+                    Arrays.asList(
+                        new VariableExp("y"),
+                        new VariableExp("z")
+                    ))
+            ),
+            10
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test
+    public void testVardecClassnameInitializeVariable() throws ParserException, TokenizerException {
+        // Test #62 - Checking:
+        //      classA x = y;
+
+        String input = "classA x = y;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+            new VardecStmt(
+                new Vardec(
+                    new ClassNameType(new ClassName("classA")),
+                    new VariableExp("x")
+                ),
+                new VariableExp("y")
+            ),
+            4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+
 }

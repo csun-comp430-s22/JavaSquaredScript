@@ -27,4 +27,5 @@ target/
 
 #ignore DS_Store
 *.DS_Store
-*.idea
+/.idea/
+/trees.iml

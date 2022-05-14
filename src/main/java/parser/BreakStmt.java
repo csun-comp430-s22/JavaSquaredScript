@@ -1,7 +1,6 @@
 package parser;
 
 public class BreakStmt implements Stmt {
-
 	public int hashCode() {
 		return 2;
 	}
