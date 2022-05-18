@@ -5,6 +5,8 @@ import java.util.List;
 
 public class FunctionCallExp implements Exp {
     public final MethodName fname;
+
+    public ClassNameType targetType; // filled in by the typechecker
     public final Exp target;
     public final List<Exp> params;
 

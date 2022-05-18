@@ -269,7 +269,8 @@ public class Parser {
                 } catch (ParserException e) {
                     try {
                         assertTokenHereIs(exp.position, new EqualsToken());
-
+                        // Int x;
+                        // Int x =5;
                         ParseResult<Exp> primaryExp = parseExp(exp.position + 1);
                         return new ParseResult<>(new VardecStmt(new Vardec(new IntType(),
                             (VariableExp) exp.result), primaryExp.result), primaryExp.position);
