@@ -1883,4 +1883,337 @@ public class ParserTest {
     }
 
 
+    @Test(expected = ParserException.class)
+    public void testVardecStringInitDecFail() throws ParserException, TokenizerException {
+        //      strg x = 2;
+
+        String input = "strg x 2;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+                new VardecStmt(
+                        new Vardec(
+                                new StringType(),
+                                new VariableExp("x")
+                        ),
+                        new IntegerExp(2)
+                ),
+                4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test(expected = ParserException.class)
+    public void testVardecBooleanInitDecFail() throws ParserException, TokenizerException {
+        //      Boolean x = 2;
+
+        String input = "Boolean x 2;";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+                new VardecStmt(
+                        new Vardec(
+                                new BooleanType(),
+                                new VariableExp("x")
+                        ),
+                        new IntegerExp(2)
+                ),
+                4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
+    @Test(expected = ParserException.class)
+    public void testMultipleMainMethods() throws ParserException, TokenizerException{
+        // Test #51 - Checking:
+        //      class mainClass {
+        //          public Int main(){}
+        //          public Int main(){}
+        //      }
+        //      class myClass extends classA {
+        //          public Int myMethod(Int x) {
+        //              print(0);
+        //          }
+        //          public Int myMethod(Int x, Boolean x, strg y) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          private strg myMethod(Int x) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          protected Boolean myMethod(Int x) {
+        //              print(0);
+        //          }
+        //      }
+
+        final String input =
+                "class mainClass {" +
+                        "public Int main(){} public Int main(){}" +
+                        "}" +
+                        "class myClass extends classA {" +
+                        "public Int myMethod(Int x){" +
+                        "print(0);" +
+                        "}" +
+                        "public Int myMethod(Int x, Boolean x, strg y) {" +
+                        "print(0);" +
+                        "}" +
+                        "}" +
+                        "class myClass {" +
+                        "private strg myMethod(Int x) {" +
+                        "print(0);" +
+                        "}" +
+                        "}" +
+                        "class myClass {" +
+                        "protected Boolean myMethod(Int x) {" +
+                        "print(0);" +
+                        "}" +
+                        "}";
+
+        Program expected = new Program(
+                Arrays.asList(
+                        new ClassDef(
+                                new ClassName("mainClass"),
+                                new ClassName(""),
+                                new ArrayList<>(),
+                                Collections.singletonList(
+                                        new MethodDef(
+                                                new PublicType(),
+                                                new IntType(),
+                                                new MethodName("main"),
+                                                new ArrayList<>(),
+                                                new BlockStmt(
+                                                        new ArrayList<>()
+                                                )
+                                        )
+                                ),
+                                new ArrayList<>()
+                        ),
+                        new ClassDef(
+                                new ClassName("myClass"),
+                                new ClassName("classA"),
+                                new ArrayList<>(),
+                                Arrays.asList(
+                                        new MethodDef(
+                                                new PublicType(),
+                                                new IntType(),
+                                                new MethodName("myMethod"),
+                                                Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                                                new BlockStmt(
+                                                        Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                                                )
+                                        ),
+                                        new MethodDef(
+                                                new PublicType(),
+                                                new IntType(),
+                                                new MethodName("myMethod"),
+                                                Arrays.asList(
+                                                        new Vardec(new IntType(), new VariableExp("x")),
+                                                        new Vardec(new BooleanType(), new VariableExp("x")),
+                                                        new Vardec(new StringType(), new VariableExp("y"))),
+                                                new BlockStmt(
+                                                        Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                                                )
+                                        )
+                                ),
+                                new ArrayList<>()
+                        ),
+                        new ClassDef(
+                                new ClassName("myClass"),
+                                new ClassName(""),
+                                new ArrayList<>(),
+                                Collections.singletonList(
+                                        new MethodDef(
+                                                new PrivateType(),
+                                                new StringType(),
+                                                new MethodName("myMethod"),
+                                                Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                                                new BlockStmt(
+                                                        Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                                                )
+                                        )
+                                ),
+                                new ArrayList<>()
+                        ),
+                        new ClassDef(
+                                new ClassName("myClass"),
+                                new ClassName(""),
+                                new ArrayList<>(),
+                                Collections.singletonList(
+                                        new MethodDef(
+                                                new ProtectedType(),
+                                                new BooleanType(),
+                                                new MethodName("myMethod"),
+                                                Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                                                new BlockStmt(
+                                                        Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                                                )
+                                        )
+                                ),
+                                new ArrayList<>()
+                        )
+                ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
+    }
+
+    @Test(expected = ParserException.class)
+    public void testNoMainMethod() throws ParserException, TokenizerException{
+        // Test #51 - Checking:
+        //      class mainClass {
+        //          public Int ourMethod(){}
+        //      }
+        //      class myClass extends classA {
+        //          public Int myMethod(Int x) {
+        //              print(0);
+        //          }
+        //          public Int myMethod(Int x, Boolean x, strg y) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          private strg myMethod(Int x) {
+        //              print(0);
+        //          }
+        //      }
+        //      class myClass {
+        //          protected Boolean myMethod(Int x) {
+        //              print(0);
+        //          }
+        //      }
+
+        final String input =
+                "class mainClass {" +
+                        "public Int ourMethod(){}" +
+                        "}" +
+                        "class myClass extends classA {" +
+                        "public Int myMethod(Int x){" +
+                        "print(0);" +
+                        "}" +
+                        "public Int myMethod(Int x, Boolean x, strg y) {" +
+                        "print(0);" +
+                        "}" +
+                        "}" +
+                        "class myClass {" +
+                        "private strg myMethod(Int x) {" +
+                        "print(0);" +
+                        "}" +
+                        "}" +
+                        "class myClass {" +
+                        "protected Boolean myMethod(Int x) {" +
+                        "print(0);" +
+                        "}" +
+                        "}";
+
+        Program expected = new Program(
+                Arrays.asList(
+                        new ClassDef(
+                                new ClassName("mainClass"),
+                                new ClassName(""),
+                                new ArrayList<>(),
+                                Collections.singletonList(
+                                        new MethodDef(
+                                                new PublicType(),
+                                                new IntType(),
+                                                new MethodName("main"),
+                                                new ArrayList<>(),
+                                                new BlockStmt(
+                                                        new ArrayList<>()
+                                                )
+                                        )
+                                ),
+                                new ArrayList<>()
+                        ),
+                        new ClassDef(
+                                new ClassName("myClass"),
+                                new ClassName("classA"),
+                                new ArrayList<>(),
+                                Arrays.asList(
+                                        new MethodDef(
+                                                new PublicType(),
+                                                new IntType(),
+                                                new MethodName("myMethod"),
+                                                Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                                                new BlockStmt(
+                                                        Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                                                )
+                                        ),
+                                        new MethodDef(
+                                                new PublicType(),
+                                                new IntType(),
+                                                new MethodName("myMethod"),
+                                                Arrays.asList(
+                                                        new Vardec(new IntType(), new VariableExp("x")),
+                                                        new Vardec(new BooleanType(), new VariableExp("x")),
+                                                        new Vardec(new StringType(), new VariableExp("y"))),
+                                                new BlockStmt(
+                                                        Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                                                )
+                                        )
+                                ),
+                                new ArrayList<>()
+                        ),
+                        new ClassDef(
+                                new ClassName("myClass"),
+                                new ClassName(""),
+                                new ArrayList<>(),
+                                Collections.singletonList(
+                                        new MethodDef(
+                                                new PrivateType(),
+                                                new StringType(),
+                                                new MethodName("myMethod"),
+                                                Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                                                new BlockStmt(
+                                                        Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                                                )
+                                        )
+                                ),
+                                new ArrayList<>()
+                        ),
+                        new ClassDef(
+                                new ClassName("myClass"),
+                                new ClassName(""),
+                                new ArrayList<>(),
+                                Collections.singletonList(
+                                        new MethodDef(
+                                                new ProtectedType(),
+                                                new BooleanType(),
+                                                new MethodName("myMethod"),
+                                                Collections.singletonList(new Vardec(new IntType(), new VariableExp("x"))),
+                                                new BlockStmt(
+                                                        Collections.singletonList(new PrintStmt(new IntegerExp(0)))
+                                                )
+                                        )
+                                ),
+                                new ArrayList<>()
+                        )
+                ), new BlockStmt(new ArrayList<>())
+        );
+
+        assertParseProgram(tokenizes(input), expected);
+    }
+
+    @Test(expected = ParserException.class)
+    public void testCommaFail() throws ParserException, TokenizerException {
+        //      Boolean x = 2;
+
+        String input = "a b.";
+
+        ParseResult<Stmt> expected = new ParseResult<>(
+                new VardecStmt(
+                        new Vardec(
+                                new BooleanType(),
+                                new VariableExp("x")
+                        ),
+                        new IntegerExp(2)
+                ),
+                4
+        );
+
+        assertParsesStmt(tokenizes(input), expected);
+    }
+
 }
