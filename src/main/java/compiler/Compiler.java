@@ -1,3 +1,4 @@
+package compiler;
 import codegenerator.CodeGenerator;
 import codegenerator.CodeGeneratorException;
 import lexer.Tokenizer;
