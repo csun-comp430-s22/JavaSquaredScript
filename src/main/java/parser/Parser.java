@@ -245,7 +245,7 @@ public class Parser {
             final ParseResult<Exp> exp = parseExp(position + 2);
             assertTokenHereIs(exp.position, new RightParenToken());
             final ParseResult<Stmt> whileBranch = parseStmt(exp.position + 1);
-            return new ParseResult<>(new WhileStmt(exp.result, whileBranch.result), whileBranch.position);
+            return new ParseResult<>(new WhileStmt(exp.result, whileBranch.result), whileBranch.position - 1);
 
             // break statement::= break;
         } else if (token instanceof BreakToken) {
