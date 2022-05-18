@@ -1,0 +1,6 @@
+class BaseClass{
+    public Int main(){print(6);}
+    private Boolean test(){
+       print(5);
+    }
+}

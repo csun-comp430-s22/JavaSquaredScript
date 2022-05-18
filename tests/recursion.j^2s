@@ -1,0 +1,26 @@
+class IntList{
+  constructor() {}
+  public Int length() { return 42; }
+  public Int sum() { return 42; }
+  public Int main(){}
+}
+
+class IntNil extends IntList {
+  constructor() {  }
+  public Int length() { return 0; }
+  public Int sum() { return 0; }
+}
+
+class IntCons extends IntList {
+  public Int head;
+
+  constructor(Int headParam) {}
+
+  public Int length() {
+    return 1;
+  }
+
+  public Int sum() {
+    return head;
+  }
+}
