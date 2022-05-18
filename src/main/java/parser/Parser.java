@@ -14,7 +14,7 @@ public class Parser {
 
     public Token getToken(final int position) throws ParserException {
         if (position >= 0 && position < tokens.size()) {
-            //System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
+            System.out.println("Position: " + position + " | " + "Token: " + tokens.get(position));
             return tokens.get(position);
         } else {
             throw new ParserException("Invalid Token position: " + position);
@@ -387,7 +387,7 @@ public class Parser {
                 catch(final ParserException e){
                     final ParseResult<Stmt> stmt = parseStmt(currentPosition);
                     stmts.add(stmt.result);
-                    //System.out.println(stmt.result+""+stmt.position);
+                    System.out.println(stmt.result+""+stmt.position);
                     currentPosition = stmt.position+1;
                 }
             }

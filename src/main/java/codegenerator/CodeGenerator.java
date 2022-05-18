@@ -8,22 +8,6 @@ import java.util.*;
 
 public class CodeGenerator {
     public static final String SELF_NAME = "self";
-    public static final String MAKE_OBJECT_HELPER =
-            "function makeObject(vtable, constructor, ...params) {\n" +
-                    "  let self = {};\n" +
-                    "  self.vtable = vtable;\n" +
-                    "  params.unshift(self);\n" +
-                    "  constructor.apply(this, params);\n" +
-                    "  return self;\n" +
-                    "}\n";
-    public static final String DO_CALL_HELPER =
-            "function doCall(self, index, ...params) {\n" +
-                    "  params.unshift(self);\n" +
-                    "  return self.vtable[index].apply(this, params);\n" +
-                    "}\n";
-
-    public static final String OBJECT_CONSTRUCTOR =
-            "function Object_constructor(self) {}\n";
 
     public final Program program;
     public final PrintWriter output;
@@ -231,11 +215,12 @@ public class CodeGenerator {
     // JavaScript does not allow for two variables to be introduced in the same scope
     // with the same name.  However, this language allows it.  In order to resolve this,
     // each statement is executed in an ever deeper scope.
-    public void writeStmtsInNestedScopes(final Iterator<Stmt> stmts)
+    public void writeStmtsInNestedScopes(final Iterator<Stmt> stmts,Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
         if (stmts.hasNext()) {
+            localVariables = writeStmt(stmts.next(), localVariables);
             output.print("{");
-            writeStmtsInNestedScopes(stmts);
+            writeStmtsInNestedScopes(stmts,localVariables);
             output.print("}");
         }
     }
@@ -287,7 +272,7 @@ public class CodeGenerator {
                                         final Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
         output.print("{");
-        writeStmtsInNestedScopes(stmt.stmts.iterator());
+        writeStmtsInNestedScopes(stmt.stmts.iterator(),localVariables);
         output.print("}");
         return localVariables;
     }
@@ -359,12 +344,16 @@ public class CodeGenerator {
         output.print(nameMangleConstructorName(classDef.className).name);
         output.print("(");
         output.print(SELF_NAME);
+        List<Vardec> vardecs = new ArrayList<>();
         for(ConstructorDef constructorDef:classDef.constructors) {
             if (!constructorDef.parameters.isEmpty()) {
+                constructorDef.parameters.addAll(vardecs);
                 output.print(", ");
                 writeFormalParams(constructorDef.parameters);
             }
         }
+        final Set<VariableExp> localVariables =
+                initialLocalVariables(vardecs);
         output.println(") {");
         output.print(nameMangleConstructorName(classDef.extendedName).name);
         output.print("(");
@@ -376,7 +365,7 @@ public class CodeGenerator {
         for(ConstructorDef constructorDef : classDef.constructors) {
             body.add(constructorDef.body);
         }
-        writeStmtsInNestedScopes(body.iterator());
+        writeStmtsInNestedScopes(body.iterator(),localVariables);
         output.println("}");
     }
 
@@ -388,15 +377,9 @@ public class CodeGenerator {
         }
     }
 
-    public void writeRuntimeCode() throws IOException {
-        output.println(MAKE_OBJECT_HELPER);
-        output.println(DO_CALL_HELPER);
-        output.println(OBJECT_CONSTRUCTOR);
-    }
 
     public void generateCode()
             throws CodeGeneratorException, IOException {
-        writeRuntimeCode();
 
         // write out vtables
         for (final VTable vtable : vtables.values()) {

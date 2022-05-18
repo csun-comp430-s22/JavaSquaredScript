@@ -15,7 +15,7 @@ import java.util.List;
 public class Compiler {
     public static void printUsage() {
         System.out.println("Takes the following params:");
-        System.out.println("-Input filename (.oop)");
+        System.out.println("-Input filename (.j2s)");
         System.out.println("-Output filename (.js)");
     }
 

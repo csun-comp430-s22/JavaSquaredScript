@@ -383,12 +383,12 @@ public class ParserTest {
         //      }
 
         String input =
-            "while (6 < 2) {" +
+            "{while (6 < 2) {" +
                 "print(0);" +
-            "}";
+            "}}";
 
         ParseResult<Stmt> expected = new ParseResult<>(
-            new WhileStmt(
+            new BlockStmt(Collections.singletonList(new WhileStmt(
                 new OpExp(
                     new IntegerExp(6),
                     new LessThanOp(),
@@ -397,7 +397,7 @@ public class ParserTest {
                 new BlockStmt(
                     Collections.singletonList(new PrintStmt(new IntegerExp(0)))
                 )
-            ), 13
+            ))), 13
         );
 
         assertParsesStmt(tokenizes(input), expected);
