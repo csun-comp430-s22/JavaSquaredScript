@@ -278,9 +278,6 @@ public class Parser {
                         throw new ParserException("expected ; or =; received " + getToken(exp.position));
                     }
                 }
-            } else if(getToken(exp.position-1) instanceof NumbersToken){
-                return new ParseResult<>(new VardecStmt(
-                        new Vardec(new IntType(),((VariableExp)((OpExp)exp.result).left)),((OpExp)exp.result).right),exp.position);
             }else {
                 throw new ParserException("expected intg; received " + token);
             }
@@ -304,12 +301,7 @@ public class Parser {
                     } catch (ParserException f) {
                         throw new ParserException("expected ; or =; received " + getToken(exp.position));
                     }
-
                 }
-            } else if(getToken(exp.position-1) instanceof BooleanToken) {
-                return new ParseResult<>(new VardecStmt(
-                    new Vardec(new BooleanType(), ((VariableExp) ((OpExp) exp.result).left)),
-                    ((OpExp) exp.result).right), exp.position);
             }else {
                 throw new ParserException("expected bool; received " + token);
             }
