@@ -1,5 +1,7 @@
 package codegenerator;
 
+import lexer.Tokenizer;
+import lexer.TokenizerException;
 import org.junit.Test;
 import parser.*;
 import parser.AccesModTypes.PublicType;
@@ -105,7 +107,7 @@ public class CodeGeneratorTest {
 		throws CodeGeneratorException, IOException, TypeErrorException {
 
 		// Prints output
-		assertHelper(constructExpected(expectedOutput), runTest(statements));
+		//assertHelper(constructExpected(expectedOutput), runTest(statements));
 
 		assertEquals(constructExpected(expectedOutput), runTest(statements));
 	}
@@ -168,7 +170,11 @@ public class CodeGeneratorTest {
 	}
 
 	@Test
-	public void testIfStmt() throws TypeErrorException, CodeGeneratorException, IOException {
+	public void testIfStmt() throws TokenizerException, ParserException, TypeErrorException, CodeGeneratorException, IOException {
+		final String input = "if(3>2){print(0);}else{print(1);}";
+		Parser parser = new Parser(new Tokenizer(input).tokenize());
+		ArrayList<Stmt> stmt = new ArrayList<>(Arrays.asList(parser.parseStmt(0).result));
+		//System.out.println(parser.parseStmt(0).result);
 		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
 			new IfStmt(
 				new OpExp(
@@ -180,15 +186,17 @@ public class CodeGeneratorTest {
 				new PrintStmt(new IntegerExp(1))
 			)
 		));
-
 		assertGeneratorOutput(
-			stmts,
+			stmt,
 			"\tif ((3 > 2)) {\n\t\tconsole.log(0);\n\t} else {\n\t\tconsole.log(1);\n\t}"
 		);
 	}
 
 	@Test
-	public void testVardecStmt() throws TypeErrorException, CodeGeneratorException, IOException {
+	public void testVardecStmt() throws ParserException, TokenizerException, TypeErrorException, CodeGeneratorException, IOException {
+		final String input = "Int x=3;";
+		Parser parser = new Parser(new Tokenizer(input).tokenize());
+		ArrayList<Stmt> stmt = new ArrayList<>(Arrays.asList(parser.parseStmt(0).result));
 		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
 			new VardecStmt(
 				new Vardec(
@@ -198,9 +206,8 @@ public class CodeGeneratorTest {
 				new IntegerExp(3)
 			)
 		));
-
 		assertGeneratorOutput(
-			stmts,
+			stmt,
 			"\tlet x = 3;"
 		);
 	}
