@@ -1,12 +1,15 @@
 package parser;
 
+import parser.Def.ClassDef;
+import parser.StmtCalls.MainStmt;
+
 import java.util.List;
 
 public class Program {
     public final List<ClassDef> classes;
-    public final Stmt entrypoint;
+    public final MainStmt entrypoint;
 
-    public Program(List<ClassDef> classes, Stmt entryPoint) {
+    public Program(List<ClassDef> classes, MainStmt entryPoint) {
         this.classes = classes;
         this.entrypoint = entryPoint;
     }

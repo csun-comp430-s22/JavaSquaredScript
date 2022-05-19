@@ -1,6 +1,14 @@
 class BaseClass{
-    public Int main(){print(6);}
+    public Int y;
+    public Int main(Int x){while(true){print(5);}}
     private Boolean test(){
-       print(5);
+       print(5+6);
+       BaseClass base = new BaseClass();
+       if(true){
+        print("hello");
+       }else{
+        Int p=7;
+       }
+       return false;
     }
 }

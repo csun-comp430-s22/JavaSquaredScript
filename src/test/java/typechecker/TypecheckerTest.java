@@ -4,6 +4,23 @@ import lexer.TokenizerException;
 import lexer.tokens.Token;
 import org.junit.Test;
 import parser.*;
+import parser.AccesModTypes.PublicType;
+import parser.Declarations.Vardec;
+import parser.Def.ClassDef;
+import parser.Def.MethodDef;
+import parser.ExpCalls.*;
+import parser.Names.ClassName;
+import parser.Names.MethodName;
+import parser.OpCalls.EqualsOp;
+import parser.ReturnTypes.BooleanType;
+import parser.ReturnTypes.ClassNameType;
+import parser.ReturnTypes.IntType;
+import parser.ReturnTypes.StringType;
+import parser.StmtCalls.BlockStmt;
+import parser.StmtCalls.MainStmt;
+import parser.StmtCalls.PrintStmt;
+import parser.interfaces.Exp;
+import parser.interfaces.Type;
 
 import java.util.*;
 
@@ -12,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 public class TypecheckerTest {
 
     public static Typechecker emptyTypechecker() throws TypeErrorException{
-        return new Typechecker(new Program(new ArrayList<ClassDef>(),new BlockStmt(new ArrayList<>())));
+        return new Typechecker(new Program(new ArrayList<ClassDef>(),new MainStmt(new ClassName(""))));
     }
 
 

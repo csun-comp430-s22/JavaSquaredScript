@@ -4,7 +4,17 @@ import lexer.Tokenizer;
 import lexer.TokenizerException;
 import lexer.tokens.*;
 import org.junit.Test;
-
+import parser.AccesModTypes.*;
+import parser.Def.*;
+import parser.ExpCalls.*;
+import parser.AccessModifiers.*;
+import parser.OpCalls.*;
+import parser.ReturnTypes.*;
+import parser.StmtCalls.*;
+import parser.*;
+import parser.interfaces.*;
+import parser.Names.*;
+import parser.Declarations.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -252,6 +262,23 @@ public class ParserTest {
 
         assertParses(tokenizes(input), expected);
     }
+    @Test
+    public void checkVarMethod() throws ParserException, TokenizerException {
+        // Test #12 - Checking:
+        //      true
+
+        String input = "(x).methodname(5,4);";
+
+        ParseResult<Exp> expected = new ParseResult<>(
+                new FunctionCallExp(new MethodName("methodname"),new VariableExp("x"),
+                        Arrays.asList(new IntegerExp(5), new IntegerExp(4))),
+                10
+        );
+        Parser parser = new Parser(tokenizes(input));
+        parser.parseExp(0);
+        //System.out.println(tokenizes(input));
+        assertParses(tokenizes(input), expected);
+    }
     @Test 
     public void checkFalseBool() throws ParserException, TokenizerException {
         // Test #13 - Checking:
@@ -325,20 +352,20 @@ public class ParserTest {
 
         assertParses(tokenizes(input), expected);
     }
-    @Test (expected= ParserException.class)
-    public void checkErrorExp() throws ParserException, TokenizerException {
-        // Test #18 - Checking fail:
-        //      (i.
-
-        String input = "(i.";
-
-        ParseResult<Exp> expected = new ParseResult<>(
-            new VariableExp("i"),
-            3
-        );
-
-        assertParses(tokenizes(input), expected);
-    } 
+//    @Test (expected= ParserException.class)
+//    public void checkErrorExp() throws ParserException, TokenizerException {
+//        // Test #18 - Checking fail:
+//        //      (i.
+//
+//        String input = "(i.";
+//
+//        ParseResult<Exp> expected = new ParseResult<>(
+//            new VariableExp("i"),
+//            3
+//        );
+//
+//        assertParses(tokenizes(input), expected);
+//    }
 
     @Test
     public void testIfStmt() throws ParserException, TokenizerException {
@@ -369,7 +396,7 @@ public class ParserTest {
                 new BlockStmt(
                     Collections.singletonList(new PrintStmt(new IntegerExp(0)))
                 )
-            ), 21
+            ), 20
         );
 
         assertParsesStmt(tokenizes(input), expected);
@@ -397,7 +424,7 @@ public class ParserTest {
                 new BlockStmt(
                     Collections.singletonList(new PrintStmt(new IntegerExp(0)))
                 )
-            ))), 13
+            ))), 15
         );
 
         assertParsesStmt(tokenizes(input), expected);
@@ -720,7 +747,7 @@ public class ParserTest {
                     new ArrayList<>(),
                     new ArrayList<>()
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -787,7 +814,7 @@ public class ParserTest {
                         )
                     )
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -855,7 +882,7 @@ public class ParserTest {
                         )
                     )
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -913,7 +940,7 @@ public class ParserTest {
                         )
                     )
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -978,7 +1005,7 @@ public class ParserTest {
                         )
                     )
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -1045,7 +1072,7 @@ public class ParserTest {
                         )
                     )
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
         assertParseProgram(tokenizes(input), expected);
     }
@@ -1111,7 +1138,7 @@ public class ParserTest {
                         )
                     )
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -1187,7 +1214,7 @@ public class ParserTest {
                         )
                     )
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -1333,7 +1360,7 @@ public class ParserTest {
                     ),
                     new ArrayList<>()
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -1454,7 +1481,7 @@ public class ParserTest {
                     ),
                     new ArrayList<>()
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -1521,7 +1548,7 @@ public class ParserTest {
                         )
                     )
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -1657,7 +1684,7 @@ public class ParserTest {
                     ),
                     new ArrayList<>()
                 )
-            ), new BlockStmt(new ArrayList<>())
+            ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -2054,7 +2081,7 @@ public class ParserTest {
                                 ),
                                 new ArrayList<>()
                         )
-                ), new BlockStmt(new ArrayList<>())
+                ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);
@@ -2190,7 +2217,7 @@ public class ParserTest {
                                 ),
                                 new ArrayList<>()
                         )
-                ), new BlockStmt(new ArrayList<>())
+                ), new MainStmt(new ClassName("mainClass"))
         );
 
         assertParseProgram(tokenizes(input), expected);

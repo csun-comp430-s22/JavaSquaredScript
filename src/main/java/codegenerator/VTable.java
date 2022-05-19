@@ -1,7 +1,7 @@
 package codegenerator;
-import parser.ClassName;
-import parser.FunctionName;
-import parser.MethodName;
+import parser.Names.ClassName;
+import parser.Names.FunctionName;
+import parser.Names.MethodName;
 
 import java.io.PrintWriter;
 import java.io.IOException;

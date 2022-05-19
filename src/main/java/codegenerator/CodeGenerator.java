@@ -1,4 +1,17 @@
 package codegenerator;
+import parser.Declarations.Vardec;
+import parser.Def.ClassDef;
+import parser.Def.ConstructorDef;
+import parser.Def.MethodDef;
+import parser.ExpCalls.*;
+import parser.Names.ClassName;
+import parser.Names.FunctionName;
+import parser.Names.MethodName;
+import parser.OpCalls.*;
+import parser.StmtCalls.*;
+import parser.interfaces.Exp;
+import parser.interfaces.Op;
+import parser.interfaces.Stmt;
 import typechecker.*;
 import parser.*;
 
@@ -8,7 +21,22 @@ import java.util.*;
 
 public class CodeGenerator {
     public static final String SELF_NAME = "self";
+    public static final String MAKE_OBJECT_HELPER =
+            "function makeObject(vtable, constructor, ...params) {\n" +
+                    "let self = {};\n" +
+                    "  self.vtable = vtable;\n" +
+                    "  params.unshift(self);\n" +
+                    "  constructor.apply(this, params);\n" +
+                    "  return self;\n" +
+                    "}\n";
+    public static final String DO_CALL_HELPER =
+            "function doCall(self, index, ...params) {\n" +
+                    "  params.unshift(self);\n" +
+                    "  return self.vtable[index].apply(this, params);\n" +
+                    "}\n";
 
+    public static final String OBJECT_CONSTRUCTOR =
+            "function Object_constructor(self) {}\n";
     public final Program program;
     public final PrintWriter output;
 
@@ -67,6 +95,9 @@ public class CodeGenerator {
     public void writeIntLiteralExp(final IntegerExp exp) throws IOException {
         output.print(exp.value);
     }
+    public void writeStringExp(final StringExp exp) throws IOException {
+        output.print(exp.value);
+    }
 
     public void writeVariable(final VariableExp variable,
                               final Set<VariableExp> localVariables) throws IOException {
@@ -94,9 +125,19 @@ public class CodeGenerator {
             output.print("+");
         } else if (op instanceof LessThanOp) {
             output.print("<");
-        } else if (op instanceof EqualsOp) {
+        }else if (op instanceof GreaterThanOp) {
+            output.print(">");
+        } else if (op instanceof DoubleEqualsOp) {
             output.print("==");
-        } else {
+        } else if (op instanceof NotEqualsOp) {
+            output.print("!=");
+        }else if (op instanceof MinusOp) {
+            output.print("-");
+        }else if (op instanceof MultiplicationOp) {
+            output.print("*");
+        }else if (op instanceof DivisionOp) {
+            output.print("/");
+        }else {
             throw new CodeGeneratorException("Unhandled op: " + op.toString());
         }
     }
@@ -134,7 +175,6 @@ public class CodeGenerator {
                                    final Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
         assert(exp.target != null);
-        // v.methodName()
         final VTable vtable = getVTable(exp.targetType.className);
         output.print("doCall(");
         writeExp(exp.target, localVariables);
@@ -169,6 +209,8 @@ public class CodeGenerator {
             writeIntLiteralExp((IntegerExp) exp);
         } else if (exp instanceof VariableExp) {
             writeVariableExp((VariableExp)exp, localVariables);
+        }else if (exp instanceof StringExp) {
+            writeStringExp((StringExp)exp);
         } else if (exp instanceof BooleanLiteralExp) {
             writeBoolLiteralExp((BooleanLiteralExp) exp);
         } else if (exp instanceof ThisExp) {
@@ -204,7 +246,7 @@ public class CodeGenerator {
                                                          final Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
         final VariableExp variable = stmt.vardec.variable;
-        output.print("let ");
+        output.print("\tlet ");
         output.print(variable.name);
         output.print(" = ");
         writeExp(stmt.exp, localVariables);
@@ -215,26 +257,26 @@ public class CodeGenerator {
     // JavaScript does not allow for two variables to be introduced in the same scope
     // with the same name.  However, this language allows it.  In order to resolve this,
     // each statement is executed in an ever deeper scope.
-    public void writeStmtsInNestedScopes(final Iterator<Stmt> stmts,Set<VariableExp> localVariables)
+    public void writeStmtsInNestedScopes(final Iterator<Stmt> stmts, Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
         if (stmts.hasNext()) {
             localVariables = writeStmt(stmts.next(), localVariables);
-            output.print("{");
+            //output.print("{");
             writeStmtsInNestedScopes(stmts,localVariables);
-            output.print("}");
+            //output.print("}");
         }
     }
 
     public Set<VariableExp> writeIfStmt(final IfStmt stmt,
                                      final Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
-        output.print("if (");
+        output.print("\tif (");
         writeExp(stmt.guard, localVariables);
-        output.print(") {");
+        output.print(") {\n\t");
         writeStmt(stmt.trueBranch, localVariables);
-        output.println("} else {");
+        output.print("\t} else {\n\t");
         writeStmt(stmt.falseBranch, localVariables);
-        output.println("}");
+        output.println("\t}");
         return localVariables;
     }
 
@@ -242,11 +284,11 @@ public class CodeGenerator {
     public Set<VariableExp> writeWhileStmt(final WhileStmt stmt,
                                         final Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
-        output.print("while (");
+        output.print("\twhile (");
         writeExp(stmt.guard, localVariables);
-        output.print(") {");
+        output.print(") {\n\t");
         writeStmt(stmt.body, localVariables);
-        output.println("}");
+        output.println("\t}");
         return localVariables;
     }
 
@@ -262,7 +304,7 @@ public class CodeGenerator {
     public Set<VariableExp> writePrintlnStmt(final PrintStmt stmt,
                                           final Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
-        output.print("console.log(");
+        output.print("\tconsole.log(");
         writeExp(stmt.exp, localVariables);
         output.println(");");
         return localVariables;
@@ -271,9 +313,15 @@ public class CodeGenerator {
     public Set<VariableExp> writeBlockStmt(final BlockStmt stmt,
                                         final Set<VariableExp> localVariables)
             throws CodeGeneratorException, IOException {
-        output.print("{");
+        //output.print("{");
         writeStmtsInNestedScopes(stmt.stmts.iterator(),localVariables);
-        output.print("}");
+        //output.print("}");
+        return localVariables;
+    }
+    public Set<VariableExp> writeMainStmt(final MainStmt stmt,
+                                           final Set<VariableExp> localVariables)
+            throws CodeGeneratorException, IOException {
+        output.print(stmt.className.name+"_main()");
         return localVariables;
     }
 
@@ -295,7 +343,10 @@ public class CodeGenerator {
             return writePrintlnStmt((PrintStmt)stmt, localVariables);
         } else if (stmt instanceof BlockStmt) {
             return writeBlockStmt((BlockStmt)stmt, localVariables);
-        } else {
+        } else if(stmt instanceof MainStmt){
+            return writeMainStmt((MainStmt)stmt, localVariables);
+        }
+        else {
             throw new CodeGeneratorException("Unhandled statement: " + stmt.toString());
         }
     }
@@ -377,10 +428,16 @@ public class CodeGenerator {
         }
     }
 
+    public void writeRuntimeCode() throws IOException {
+        output.println(MAKE_OBJECT_HELPER);
+        output.println(DO_CALL_HELPER);
+        output.println(OBJECT_CONSTRUCTOR);
+    }
+
 
     public void generateCode()
             throws CodeGeneratorException, IOException {
-
+        writeRuntimeCode();
         // write out vtables
         for (final VTable vtable : vtables.values()) {
             vtable.writeTable(output);

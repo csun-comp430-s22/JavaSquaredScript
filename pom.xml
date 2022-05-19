@@ -43,10 +43,6 @@
         <configuration>
           <mainClass>compiler.Compiler</mainClass>
           <arguments>
-            <argument>tests/recursion.j^2s</argument>
-            <argument>output.js</argument>
-          </arguments>
-          <arguments>
             <argument>tests/inheritance.j^2s</argument>
             <argument>output1.js</argument>
           </arguments>

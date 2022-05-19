@@ -1,5 +1,25 @@
 package typechecker;
 import parser.*;
+import parser.AccesModTypes.ProtectedType;
+import parser.AccesModTypes.PublicType;
+import parser.Declarations.InstanceDec;
+import parser.Declarations.Vardec;
+import parser.Def.ClassDef;
+import parser.Def.ConstructorDef;
+import parser.Def.MethodDef;
+import parser.ExpCalls.*;
+import parser.Names.ClassName;
+import parser.Names.MethodName;
+import parser.OpCalls.*;
+import parser.ReturnTypes.BooleanType;
+import parser.ReturnTypes.ClassNameType;
+import parser.ReturnTypes.IntType;
+import parser.ReturnTypes.StringType;
+import parser.StmtCalls.*;
+import parser.interfaces.Exp;
+import parser.interfaces.Stmt;
+import parser.interfaces.Type;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
