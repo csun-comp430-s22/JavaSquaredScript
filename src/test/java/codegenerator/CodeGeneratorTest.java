@@ -8,14 +8,13 @@ import parser.AccesModTypes.PublicType;
 import parser.Declarations.Vardec;
 import parser.Def.ClassDef;
 import parser.Def.MethodDef;
-import parser.ExpCalls.ExpStmt;
-import parser.ExpCalls.IntegerExp;
-import parser.ExpCalls.OpExp;
-import parser.ExpCalls.VariableExp;
+import parser.ExpCalls.*;
 import parser.Names.ClassName;
 import parser.Names.MethodName;
-import parser.OpCalls.GreaterThanOp;
+import parser.OpCalls.*;
+import parser.ReturnTypes.BooleanType;
 import parser.ReturnTypes.IntType;
+import parser.ReturnTypes.StringType;
 import parser.StmtCalls.*;
 import parser.interfaces.Stmt;
 import typechecker.TypeErrorException;
@@ -223,6 +222,190 @@ public class CodeGeneratorTest {
 		assertGeneratorOutput(
 			stmts,
 			"self.x;"
+		);
+	}
+
+	@Test
+	public void testPlusOp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new VardecStmt(
+				new Vardec(
+					new IntType(),
+					new VariableExp("x")
+				),
+				new OpExp(
+					new IntegerExp(3),
+					new PlusOp(),
+					new IntegerExp(4)
+				)
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\tlet x = (3 + 4);"
+		);
+	}
+
+	@Test
+	public void testMinusOp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new VardecStmt(
+				new Vardec(
+					new IntType(),
+					new VariableExp("x")
+				),
+				new OpExp(
+					new IntegerExp(3),
+					new MinusOp(),
+					new IntegerExp(4)
+				)
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\tlet x = (3 - 4);"
+		);
+	}
+
+	@Test
+	public void testMultiplicationOp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new VardecStmt(
+				new Vardec(
+					new IntType(),
+					new VariableExp("x")
+				),
+				new OpExp(
+					new IntegerExp(3),
+					new MultiplicationOp(),
+					new IntegerExp(4)
+				)
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\tlet x = (3 * 4);"
+		);
+	}
+
+	@Test
+	public void testDivisionOp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new VardecStmt(
+				new Vardec(
+					new IntType(),
+					new VariableExp("x")
+				),
+				new OpExp(
+					new IntegerExp(3),
+					new DivisionOp(),
+					new IntegerExp(4)
+				)
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\tlet x = (3 / 4);"
+		);
+	}
+
+	@Test
+	public void testLessThanOp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new VardecStmt(
+				new Vardec(
+					new BooleanType(),
+					new VariableExp("x")
+				),
+				new OpExp(
+					new IntegerExp(3),
+					new LessThanOp(),
+					new IntegerExp(4)
+				)
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\tlet x = (3 < 4);"
+		);
+	}
+
+	@Test
+	public void testDoubleEqualsOp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new WhileStmt(
+				new OpExp(
+					new BooleanLiteralExp(true),
+					new DoubleEqualsOp(),
+					new BooleanLiteralExp(false)
+				),
+				new PrintStmt(new IntegerExp(0))
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\twhile ((true == false)) {\n\t\tconsole.log(0);\n\t}"
+		);
+	}
+
+	@Test
+	public void testNotEqualsOp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new WhileStmt(
+				new OpExp(
+					new BooleanLiteralExp(true),
+					new NotEqualsOp(),
+					new BooleanLiteralExp(false)
+				),
+				new PrintStmt(new IntegerExp(0))
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\twhile ((true != false)) {\n\t\tconsole.log(0);\n\t}"
+		);
+	}
+
+	@Test
+	public void testStringExp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new VardecStmt(
+				new Vardec(
+					new StringType(),
+					new VariableExp("x")
+				),
+				new StringExp("hello")
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\tlet x = hello;"
+		);
+	}
+
+	@Test
+	public void testThisExp() throws TypeErrorException, CodeGeneratorException, IOException {
+		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
+			new VardecStmt(
+				new Vardec(
+					new StringType(),
+					new VariableExp("x")
+				),
+				new ThisExp()
+			)
+		));
+
+		assertGeneratorOutput(
+			stmts,
+			"\tlet x = self;"
 		);
 	}
 }
