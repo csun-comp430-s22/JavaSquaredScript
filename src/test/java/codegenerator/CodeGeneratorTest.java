@@ -68,31 +68,6 @@ public class CodeGeneratorTest {
 			), new MainStmt(new ClassName("mainClass"))
 		);
 	}
-	public static Program constructProgram2(final ArrayList<Stmt> stmts) {
-		return new Program(
-				Collections.singletonList(
-						new ClassDef(
-								new ClassName("mainClass"),
-								new ClassName(""),
-								new ArrayList<>(),
-								Arrays.asList(
-										new MethodDef(
-												new PublicType(),
-												new IntType(), new MethodName("main"),
-												new ArrayList<>(),
-												new BlockStmt(
-														stmts
-												)
-										),
-										new MethodDef(new PublicType(), new IntType(),
-												new MethodName("test"),new ArrayList<>(),
-												new BlockStmt(new ArrayList<>()))
-								),
-								new ArrayList<>()
-						)
-				), new MainStmt(new ClassName("mainClass"))
-		);
-	}
 
 	public static ArrayList<String> constructExpected(final String expected) {
 		return new ArrayList<>(Arrays.asList((DEFAULT_OUTPUT +
@@ -106,45 +81,12 @@ public class CodeGeneratorTest {
 			"}\n" +
 			"mainClass_main()").split("\\r?\\n")));
 	}
-	public static ArrayList<String> constructExpected2(final String expected) {
-		return new ArrayList<>(Arrays.asList((DEFAULT_OUTPUT +
-				"let vtable_ = [];\n" +
-				"let vtable_mainClass = [mainClass_main, mainClass_test];\n" +
-				"function mainClass_constructor(self) {\n" +
-				"_constructor(self);\n" +
-				"}\n" +
-				"function mainClass_main(self) {\n" +
-				expected + "\n" +
-				"}\n" +"function mainClass_test(self) {\n" +
-				"}\n" +
-				"mainClass_main()").split("\\r?\\n")));
-	}
 
 	public static ArrayList<String> runTest(final ArrayList<Stmt> statements)
 		throws CodeGeneratorException, IOException, TypeErrorException {
 
 		try (PrintWriter output = new PrintWriter(new BufferedWriter(new FileWriter(FILE_NAME)))) {
 			CodeGenerator.generateCode(constructProgram(statements), output);
-		}
-
-		final BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME));
-		ArrayList<String> fileContent = new ArrayList<>();
-		for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-			fileContent.add(line);
-		}
-		reader.close();
-
-		if (new File(FILE_NAME).delete()) {
-			return fileContent;
-		} else {
-			return new ArrayList<>();
-		}
-	}
-	public static ArrayList<String> runTest2(final ArrayList<Stmt> statements)
-			throws CodeGeneratorException, IOException, TypeErrorException {
-
-		try (PrintWriter output = new PrintWriter(new BufferedWriter(new FileWriter(FILE_NAME)))) {
-			CodeGenerator.generateCode(constructProgram2(statements), output);
 		}
 
 		final BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME));
@@ -170,15 +112,6 @@ public class CodeGeneratorTest {
 
 		assertEquals(constructExpected(expectedOutput), runTest(statements));
 	}
-	public static void assertGeneratorOutput2(final ArrayList<Stmt> statements,
-											 final String expectedOutput)
-			throws CodeGeneratorException, IOException, TypeErrorException {
-
-		// Prints output
-		assertHelper(constructExpected2(expectedOutput), runTest2(statements));
-
-		assertEquals(constructExpected2(expectedOutput), runTest2(statements));
-	}
 
 	public static void assertHelper(ArrayList<String> expected, ArrayList<String> actual) {
 		System.out.println("-- EXPECTED --");
@@ -196,6 +129,7 @@ public class CodeGeneratorTest {
 
 	@Test
 	public void testPrintStmt() throws TypeErrorException, CodeGeneratorException, IOException {
+
 		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
 			new PrintStmt(new IntegerExp(3))
 		));
@@ -532,20 +466,18 @@ public class CodeGeneratorTest {
 		);
 	}
 	@Test
-	public void testFunctionCallExp() throws TypeErrorException, CodeGeneratorException, IOException {
-		ArrayList<Stmt> stmts = new ArrayList<>(Arrays.asList(
-				new VardecStmt(
-						new Vardec(
-								new ClassNameType(new ClassName("mainClass")),
-								new VariableExp("x")
-						),new FunctionCallExp(new MethodName("test"),new ThisExp(), new ArrayList<>())
-
-				)
-		));
-
-		assertGeneratorOutput2(
-				stmts,
-				"\tlet x = makeObject(vtable_mainClass, mainClass_constructor, 5, false);"
-		);
+	public void testFunctionCallExp() throws TypeErrorException, CodeGeneratorException, IOException, TokenizerException, ParserException {
+		String input = "class A{constructor(Int x, Boolean y){} public Int main(){} public Int test(strg p){" +
+				"A a = new A(5,true); Int x = (a).test(\"hello\"); break;}}";
+		Parser parser = new Parser(new Tokenizer(input).tokenize());
+		final Program program = parser.parseProgram();
+		new Typechecker(program).isWellTypedProgram();
+		final PrintWriter output =
+				new PrintWriter(new BufferedWriter(new FileWriter("output.js")));
+		try {
+			CodeGenerator.generateCode(program, output);
+		} finally {
+			output.close();
+		}
 	}
 }
