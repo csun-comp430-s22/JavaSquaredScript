@@ -340,6 +340,8 @@ public class Typechecker {
                                  final ClassName classWeAreIn) throws TypeErrorException {
         final Type targetType = typeof(exp.target, typeEnvironment, classWeAreIn);
         if (targetType instanceof ClassNameType) {
+            final ClassNameType asClassNameType = (ClassNameType)targetType;
+            exp.targetType = asClassNameType;
             final ClassName className = ((ClassNameType)targetType).className;
             final List<Type> expectedTypes =
                     expectedParameterTypesForClassAndMethod(className, exp.fname);
