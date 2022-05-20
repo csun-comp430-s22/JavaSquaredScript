@@ -345,10 +345,18 @@ public class CodeGenerator {
             return writeBlockStmt((BlockStmt)stmt, localVariables);
         } else if(stmt instanceof MainStmt){
             return writeMainStmt((MainStmt)stmt, localVariables);
+        }else if(stmt instanceof BreakStmt){
+            return writeBreakStmt((BreakStmt)stmt, localVariables);
         }
         else {
             throw new CodeGeneratorException("Unhandled statement: " + stmt.toString());
         }
+    }
+
+    public Set<VariableExp> writeBreakStmt(BreakStmt stmt, Set<VariableExp> localVariables) throws CodeGeneratorException, IOException{
+        output.print("\tbreak(");
+        output.println(");");
+        return localVariables;
     }
 
     // writes a comma-separated list
