@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Tokenizer {
-    // valid program : truefalsetruefalsefalse
-    // invalid: true true
     private final String input;
     private int offset;
 
