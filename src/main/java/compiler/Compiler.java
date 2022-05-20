@@ -54,11 +54,6 @@ public class Compiler {
         }
     }
 
-    public List<Token> tokenizes(final String input) throws TokenizerException{
-        final Tokenizer tokenizer = new Tokenizer(input);
-        return tokenizer.tokenize();
-    }
-
     public static void main(final String[] args)
             throws IOException,
             TokenizerException,
