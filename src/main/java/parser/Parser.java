@@ -415,7 +415,6 @@ public class Parser {
 
     public ParseResult<AccessType> parseAccessType(final int position) throws ParserException {
         Token token = getToken(position);
-
         if (token instanceof PrivateToken) {
             return new ParseResult<>(new PrivateType(), position + 1);
         } else if (token instanceof PublicToken) {
