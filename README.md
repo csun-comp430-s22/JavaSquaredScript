@@ -64,6 +64,8 @@ methodDef*
 programName ::= classDef* stmt //stmt is entry point
 A  method named main is the entry point
 ```
+# Compile
+
 
 
 
