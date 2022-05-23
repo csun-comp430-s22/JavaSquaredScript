@@ -3,14 +3,12 @@ import codegenerator.CodeGenerator;
 import codegenerator.CodeGeneratorException;
 import lexer.Tokenizer;
 import lexer.TokenizerException;
-import lexer.tokens.Token;
 import parser.ParserException;
 import parser.*;
 import typechecker.TypeErrorException;
 import typechecker.Typechecker;
 
 import java.io.*;
-import java.util.List;
 
 public class Compiler {
     public static void printUsage() {
@@ -60,10 +58,19 @@ public class Compiler {
             ParserException,
             TypeErrorException,
             CodeGeneratorException {
-        if (args.length != 2) {
+
+        String[] strings = new String[0];
+
+        if (args.length == 1) {
+            strings = args[0].split(" ");
+        } else if (args.length == 2) {
+            strings = args;
+        }
+
+        if (strings.length != 2) {
             printUsage();
         } else {
-            compile(args[0], args[1]);
+            compile(strings[0], strings[1]);
         }
     }
 }
