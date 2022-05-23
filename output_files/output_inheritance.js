@@ -14,7 +14,7 @@ function doCall(self, index, ...params) {
 function Object_constructor(self) {}
 
 let vtable_ = [];
-let vtable_GoldenRetriever = [Animal_main, GoldenRetriever_bark];
+let vtable_GoldenRetriever = [Animal_main, GoldenRetriever_bark, GoldenRetriever_circles];
 let vtable_Animal = [Animal_main];
 let vtable_Cat = [Animal_main, Cat_meows];
 let vtable_Dog = [Animal_main, Dog_bark];
@@ -23,6 +23,12 @@ _constructor(self);
 }
 function Animal_main(self) {
 }
+function Cat_constructor(self) {
+Animal_constructor(self);
+}
+function Cat_meows(self) {
+	console.log("meow");
+}
 function Dog_constructor(self) {
 Animal_constructor(self);
 	let dog = makeObject(vtable_Dog, Dog_constructor);
@@ -30,17 +36,23 @@ Animal_constructor(self);
 function Dog_bark(self) {
 	console.log("roof");
 }
-function Cat_constructor(self) {
-Animal_constructor(self);
-}
-function Cat_meows(self) {
-	console.log("meow");
-}
 function GoldenRetriever_constructor(self) {
 Dog_constructor(self);
 }
 function GoldenRetriever_bark(self, y) {
 	let dog = makeObject(vtable_GoldenRetriever, GoldenRetriever_constructor);
 	let sound = doCall(dog, 1);
+return sound;
+}
+function GoldenRetriever_circles(self) {
+	let count = 5;
+	while (true) {
+		console.log("run in circles");
+	if ((count == 5)) {
+		break();
+	} else {
+	return false;
+	}
+	}
 }
 Animal_main()

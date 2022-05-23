@@ -1,5 +1,11 @@
 class Animal{
+    private strg strange;
     public Int main(){}
+}
+class Cat extends Animal{
+    public Int meows(){
+        print("meow");
+    }
 }
 class Dog extends Animal{
     constructor(){
@@ -9,14 +15,21 @@ class Dog extends Animal{
         print("roof");
     }
 }
-class Cat extends Animal{
-    public Int meows(){
-        print("meow");
-    }
-}
 class GoldenRetriever extends Dog{
     public Int bark(Int y){
         Dog dog = new GoldenRetriever();
         Int sound = (dog).bark();
+        return sound;
+    }
+    public Boolean circles(){
+        Int count = 5;
+        while(true){
+            print("run in circles");
+            if(count ==5){
+                break;
+            }else{
+                return false;
+            }
+        }
     }
 }
