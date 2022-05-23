@@ -1,88 +1,72 @@
 # Java²script
+## Language Description: 
+Object-oriented Java-like programming language 
+now with operator overloading, classes and subclasses. 
+The reasoning behind Javascript being our target language 
+was due to it being a high-level language, making the project 
+not impossible considering our group’s familiarity with both languages, 
+while still ensuring the project would be non-trivial due to the 
+differences between Object-oriented and scripting languages.
+
 Members
 ---
-|Name|Email|
-|----|-----|
-|Jesus Banuelos|jesus.banuelos.951@my.csun.edu|
-|Justin Kingston|justin.kingston.414@my.csun.edu|
-Jim Inong|jim.inong.415@my.csun.edu|
+| Name            |Email|
+|-----------------|-----|
+| Jesus Banuelos  |jesus.banuelos.951@my.csun.edu|
+| Justin Kingston |justin.kingston.414@my.csun.edu|
+| Jim Inong       |jim.inong.415@my.csun.edu|
 
-# Features:
+## Features:
 * Class-Based Inheritance Without Using JavaScript's Classes
 * Subtyping
 * Access Modifiers
 
+## Abstract Syntax:
+```
+var is a variable
+classname is the name of a class
+methodname is the name of a method
+object is a var, classname, String, this
+strg is a string
+intg is an integer
+bool is a boolean
+type ::= Int | Boolean | classname | String
+primary_exp ::= var | strg | intg | `(` exp `)` | bool | exp`.`methodname(exp*)  |
+new classname(exp*) | this
+period_op ::= `.`
+period_exp ::= primary_exp(period_op primary_exp)*
+multiplicative_op ::= `*` | `/`
+multiplicative_exp ::= period_exp( multiplicative_op period_exp)*
+additive_op ::=  `+` | `-`
+additive_exp ::= multiplicative_exp( additive_op multiplicative_exp)*
+rel_op ::= `<` | `>`
+rel_exp ::= additive_exp (rel_op additive_exp) //has to be 0 or 1 call
+boolean_op ::=  `==` | `!=`
+boolean_exp ::= rel_exp (boolean_op rel_exp) // has to be 0 or 1 call
+exp ::= boolean_exp
+varDec ::= type var
+stmnt ::= varDec `;` |
+while  (exp) stmnt |
+break`;` |
+{ stmnt* } |
+if (exp) stmnt else stmnt |
+return exp `;` |
+print(exp) `;` | varDec `=`exp`;`
 
-# Possible Tokens
-|Token|Hash Code|
-|-----|---------|
-|true|0|
-|false|1|
-|if|2| 
-|(|3|
-|)|4|
-|{|5|
-|}|6|
-|while|7|
-|String|8|
-|Boolean|9|
-|Integer|10|
-|this|11|
-|print|12|
-|break|13| 
-|;|14|
-|return|15|
-|new|16|
-|public|17|
-|protected|18|
-|private|19|
-|Numbers|hashCode is the value of the number|
-|"string"|20|
-|+|21|
-|-|22|
-|*|23|
-|/|24|
-|>|25|
-|< |26|
-|=|27|
-|==|28|
-|!= |29|
-|class|30|
-|extends|31|
-|main|32|
-|,|33|
-|else|34|
-|.|35|
-|Constructor|36|
+accessMod :: = public | private | protected
+methodDef ::= accessMod type methodname(varDec*) stmnt
+instanceDec ::= accessMod varDec`;`
+classDef ::= class classname extends classname {
+instanceDec*
+constructor(varDec*) stmnt
+methodDef*
+}
+programName ::= classDef* stmt //stmt is entry point
+A  method named main is the entry point
+```
 
 
-# Possible Exp 
-|Exp |Hash Code|
-|----|---------|
-|Boolean Literal| value of boolean|
-|Integer| value of Integer|
-|String|0|
 
-# Possible Stmt
-|Stmt|Hash Code|
-|----|---------|
-|Block Stmt|1|
-|Break Stmt|2|
-|If Stmt| value|
-|Print Stmt| value of the exp|
-|Return Stmt| values of the exp|
 
-# Possible Op
-|Op|Hash Code|
-|--|---------|
-|Division|1|
-|Double Equals|2|
-|Equals|3|
-|GreaterThan|4|
-|LessThan|5|
-|Minus|6|
-|Multiplication|7|
-|NotEqualss|8|
-|Plus|0|
 
 
