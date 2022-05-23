@@ -473,7 +473,7 @@ public class CodeGeneratorTest {
 		final Program program = parser.parseProgram();
 		new Typechecker(program).isWellTypedProgram();
 		final PrintWriter output =
-				new PrintWriter(new BufferedWriter(new FileWriter("output_testing.js")));
+				new PrintWriter(new BufferedWriter(new FileWriter("output_files/output_testing.js")));
 		try {
 			CodeGenerator.generateCode(program, output);
 		} finally {

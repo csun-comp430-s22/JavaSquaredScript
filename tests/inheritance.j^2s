@@ -1,14 +1,24 @@
 class BaseClass{
     public Int y;
     public Int main(Int x){while(true){print(5);}}
+    constructor(Int y){}
     private Boolean test(){
        print(5+6);
-       BaseClass base = new BaseClass();
        if(true){
         print("hello");
        }else{
         Int p=7;
        }
        return false;
+    }
+    public Int test2(){
+        print(5);
+    }
+}
+class ExtendedClass extends BaseClass{
+    public Int testing(){
+        BaseClass base = new ExtendedClass();
+        BaseClass base2 = new BaseClass(2);
+        Int testVar = (base).test2();
     }
 }
