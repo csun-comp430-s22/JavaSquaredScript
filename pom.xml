@@ -44,7 +44,7 @@
           <mainClass>compiler.Compiler</mainClass>
           <arguments>
             <argument>tests/inheritance.j^2s</argument>
-            <argument>output1.js</argument>
+            <argument>output_inheritance.js</argument>
           </arguments>
         </configuration>
       </plugin>
