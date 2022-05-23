@@ -1,24 +1,22 @@
-class BaseClass{
-    public Int y;
-    public Int main(Int x){while(true){print(5);}}
-    constructor(Int y){}
-    private Boolean test(){
-       print(5+6);
-       if(true){
-        print("hello");
-       }else{
-        Int p=7;
-       }
-       return false;
+class Animal{
+    public Int main(){}
+}
+class Dog extends Animal{
+    constructor(){
+        Animal dog = new Dog();
     }
-    public Int test2(){
-        print(5);
+    public Int bark(){
+        print("roof");
     }
 }
-class ExtendedClass extends BaseClass{
-    public Int testing(){
-        BaseClass base = new ExtendedClass();
-        BaseClass base2 = new BaseClass(2);
-        Int testVar = (base).test2();
+class Cat extends Animal{
+    public Int meows(){
+        print("meow");
+    }
+}
+class GoldenRetriever extends Dog{
+    public Int bark(Int y){
+        Dog dog = new GoldenRetriever();
+        Int sound = (dog).bark();
     }
 }

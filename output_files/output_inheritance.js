@@ -14,35 +14,33 @@ function doCall(self, index, ...params) {
 function Object_constructor(self) {}
 
 let vtable_ = [];
-let vtable_ExtendedClass = [BaseClass_main, BaseClass_test, BaseClass_test2, ExtendedClass_testing];
-let vtable_BaseClass = [BaseClass_main, BaseClass_test, BaseClass_test2];
-function BaseClass_constructor(self, y) {
+let vtable_GoldenRetriever = [Animal_main, GoldenRetriever_bark];
+let vtable_Animal = [Animal_main];
+let vtable_Cat = [Animal_main, Cat_meows];
+let vtable_Dog = [Animal_main, Dog_bark];
+function Animal_constructor(self) {
 _constructor(self);
 }
-function BaseClass_main(self, x) {
-	while (true) {
-		console.log(5);
-	}
+function Animal_main(self) {
 }
-function BaseClass_test(self) {
-	console.log((5 + 6));
-	if (true) {
-		console.log("hello");
-	} else {
-		let p = 7;
-	}
-return false;
+function Dog_constructor(self) {
+Animal_constructor(self);
+	let dog = makeObject(vtable_Dog, Dog_constructor);
 }
-function BaseClass_test2(self) {
-	console.log(5);
+function Dog_bark(self) {
+	console.log("roof");
 }
-function ExtendedClass_constructor(self) {
-BaseClass_constructor(self);
+function Cat_constructor(self) {
+Animal_constructor(self);
 }
-function ExtendedClass_testing(self) {
-	let base = makeObject(vtable_ExtendedClass, ExtendedClass_constructor);
-	let base2 = makeObject(vtable_BaseClass, BaseClass_constructor, 2);
-	let testVar = doCall(base, 2);
-	let testingVar = doCall(base2, 2);
+function Cat_meows(self) {
+	console.log("meow");
 }
-BaseClass_main()
+function GoldenRetriever_constructor(self) {
+Dog_constructor(self);
+}
+function GoldenRetriever_bark(self, y) {
+	let dog = makeObject(vtable_GoldenRetriever, GoldenRetriever_constructor);
+	let sound = doCall(dog, 1);
+}
+Animal_main()
