@@ -64,8 +64,18 @@ methodDef*
 programName ::= classDef* stmt //stmt is entry point
 A  method named main is the entry point
 ```
-# Compile
-
+# Compile Compiler
+* Compile in Intellij with Java JDK 8 using Maven with the following commands:
+```
+mvn compile
+```
+# Run Compiler
+* To compile example code from .j^2s to .js:
+```
+mvn exec:java -Dexec.args="tests/inheritance.j^2s output_files/inheritance_output.js"
+mvn exec:java -Dexec.args="tests/recursion.j^2s output_files/recursion_output.js"
+```
+* You can make your own files just make sure to follow the syntax and also to end your files with .j^2s
 
 
 
